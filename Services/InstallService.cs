@@ -48,7 +48,8 @@ namespace GOI.Services
                 {
                     UseShellExecute = true,
                     Verb = "runas",
-                    WorkingDirectory = AppConfig.RootPath
+                    WorkingDirectory = AppConfig.RootPath,
+                    WindowStyle = ProcessWindowStyle.Hidden
                 };
 
                 using (var proc = Process.Start(psi))
@@ -90,16 +91,19 @@ namespace GOI.Services
             return await RunScriptAsync(script, "/Ohook-Uninstall");
         }
 
-        /// <summary>低层：运行脚本并等待退出，返回是否成功</summary>
+        /// <summary>低层：以管理员权限静默运行脚本并等待退出，返回是否成功</summary>
         private async Task<bool> RunScriptAsync(string scriptPath, string args)
         {
             try
             {
-                var psi = new ProcessStartInfo("cmd.exe", $"/c \"\"{scriptPath}\" {args}\"")
+                // 必须以 runas 提权运行，Ohook 需要管理员权限写入注册表
+                var psi = new ProcessStartInfo("cmd.exe",
+                    $"/c \"\"{scriptPath}\" {args}\"")
                 {
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WorkingDirectory = Path.GetTempPath()
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    WorkingDirectory = Path.GetDirectoryName(scriptPath)
                 };
 
                 using (var proc = Process.Start(psi))
