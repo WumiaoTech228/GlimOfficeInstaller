@@ -4,7 +4,8 @@
         Title="Glim Office Installer"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
-        Background="#09090B">
+        Background="#09090B"
+        Icon="/Resources/icon.ico">
 
     <Window.Resources>
         <!-- 现代暗色系 Glim 品牌调色盘 -->
