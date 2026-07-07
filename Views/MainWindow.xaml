@@ -7,7 +7,7 @@
         ResizeMode="CanMinimize"
         Width="740"
         Height="715"
-        ui:ThemeManager.RequestedTheme="Dark"
+        ui:ThemeManager.RequestedTheme="Default"
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:WindowHelper.SystemBackdropType="Mica"
         Icon="pack://application:,,,/GOI;component/Resources/icon.ico">
@@ -40,8 +40,8 @@
                 <Image Grid.Column="0" Source="pack://application:,,,/GOI;component/Resources/logo.png" Width="36" Height="36" VerticalAlignment="Center" Margin="0,0,15,0" RenderOptions.BitmapScalingMode="HighQuality"/>
                 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="Glim Office Installer" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}"/>
-                    <TextBlock Text="轻量、纯净的一键 Office 部署配置工具" FontSize="11" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,3,0,0"/>
+                    <TextBlock Text="Glim Office Installer" Style="{StaticResource TitleTextBlockStyle}" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="轻量、纯净的一键 Office 部署配置工具" Style="{StaticResource CaptionTextBlockStyle}" FontSize="11" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,3,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -67,7 +67,7 @@
                         </Border.Style>
                         <TextBlock Text="MS Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
                                     <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsMsOffice}" Value="True">
@@ -96,7 +96,7 @@
                         </Border.Style>
                         <TextBlock Text="WPS Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
                                     <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsWps}" Value="True">
@@ -125,7 +125,7 @@
                         </Border.Style>
                         <TextBlock Text="永中 Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
                                     <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsYozo}" Value="True">
@@ -154,7 +154,7 @@
                         </Border.Style>
                         <TextBlock Text="OnlyOffice" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
                                     <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsOnlyOffice}" Value="True">
@@ -183,7 +183,7 @@
                         </Border.Style>
                         <TextBlock Text="LibreOffice" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
                                     <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsLibreOffice}" Value="True">
@@ -202,21 +202,29 @@
         <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
               Visibility="{Binding IsMsOffice, Converter={StaticResource BoolToVisibility}}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="20"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="50"/>
             </Grid.ColumnDefinitions>
 
             <!-- 左翻页 -->
             <Button Grid.Column="0" Width="36" Height="36"
                     Command="{Binding PrevGroupCommand}"
-                    Visibility="{Binding LeftArrowVisible, Converter={StaticResource BoolToVisibility}}"
-                    VerticalAlignment="Center" Cursor="Hand" Margin="0,0,15,0"
-                    Style="{StaticResource DefaultButtonStyle}"
+                    VerticalAlignment="Center" Cursor="Hand" HorizontalAlignment="Left"
                     Background="Transparent" BorderThickness="0"
                     ui:ControlHelper.CornerRadius="18">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding LeftArrowVisible}" Value="False">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
                 <Path Data="M 8,0 L 0,5 L 8,10 Z" Fill="{DynamicResource TextControlForegroundBrush}" Stretch="Uniform" Width="8" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Button>
 
@@ -240,9 +248,9 @@
                 <Grid VerticalAlignment="Center" Margin="20,0">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="28" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                        <TextBlock Text="{Binding LeftTitle}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding LeftSub}" FontSize="11" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,5,0,0" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding LeftDesc}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushDisabled}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding LeftTitle}" Style="{StaticResource BodyTextBlockStyle}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding LeftSub}" Style="{StaticResource CaptionTextBlockStyle}" FontSize="11" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding LeftDesc}" Style="{StaticResource CaptionTextBlockStyle}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushDisabled}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -268,9 +276,9 @@
                 <Grid VerticalAlignment="Center" Margin="20,0">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE753;" FontFamily="{StaticResource IconFont}" FontSize="28" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                        <TextBlock Text="{Binding RightTitle}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding RightSub}" FontSize="11" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,5,0,0" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding RightDesc}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushDisabled}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding RightTitle}" Style="{StaticResource BodyTextBlockStyle}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding RightSub}" Style="{StaticResource CaptionTextBlockStyle}" FontSize="11" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding RightDesc}" Style="{StaticResource CaptionTextBlockStyle}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushDisabled}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -278,11 +286,19 @@
             <!-- 右翻页 -->
             <Button Grid.Column="4" Width="36" Height="36"
                     Command="{Binding NextGroupCommand}"
-                    Visibility="{Binding RightArrowVisible, Converter={StaticResource BoolToVisibility}}"
-                    VerticalAlignment="Center" Cursor="Hand" Margin="15,0,0,0"
-                    Style="{StaticResource DefaultButtonStyle}"
+                    VerticalAlignment="Center" Cursor="Hand" HorizontalAlignment="Right"
                     Background="Transparent" BorderThickness="0"
                     ui:ControlHelper.CornerRadius="18">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RightArrowVisible}" Value="False">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
                 <Path Data="M 0,0 L 8,5 L 0,10 Z" Fill="{DynamicResource TextControlForegroundBrush}" Stretch="Uniform" Width="8" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Button>
         </Grid>
@@ -320,8 +336,8 @@
                 <Grid VerticalAlignment="Center">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                        <TextBlock Text="WPS 2023" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="专业版 12.1" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="WPS 2023" Style="{StaticResource BodyTextBlockStyle}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="专业版 12.1" Style="{StaticResource CaptionTextBlockStyle}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -346,8 +362,8 @@
                 <Grid VerticalAlignment="Center">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                        <TextBlock Text="WPS 2019" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="专业版 11.8" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="WPS 2019" Style="{StaticResource BodyTextBlockStyle}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="专业版 11.8" Style="{StaticResource CaptionTextBlockStyle}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -372,8 +388,8 @@
                 <Grid VerticalAlignment="Center">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                        <TextBlock Text="WPS 2016" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="专业版 10.8" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="WPS 2016" Style="{StaticResource BodyTextBlockStyle}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="专业版 10.8" Style="{StaticResource CaptionTextBlockStyle}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -398,8 +414,8 @@
                 <Grid VerticalAlignment="Center">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                        <TextBlock Text="WPS 2013" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="专业版 9.1" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="WPS 2013" Style="{StaticResource BodyTextBlockStyle}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="专业版 9.1" Style="{StaticResource CaptionTextBlockStyle}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -413,8 +429,8 @@
                 <Grid VerticalAlignment="Center">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                        <TextBlock Text="永中Office" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="个人版 (最新)" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="永中Office" Style="{StaticResource BodyTextBlockStyle}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="个人版 (最新)" Style="{StaticResource CaptionTextBlockStyle}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -428,8 +444,8 @@
                 <Grid VerticalAlignment="Center">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                        <TextBlock Text="OnlyOffice" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Desktop Editors" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="OnlyOffice" Style="{StaticResource BodyTextBlockStyle}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Desktop Editors" Style="{StaticResource CaptionTextBlockStyle}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -443,32 +459,32 @@
                 <Grid VerticalAlignment="Center">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                        <TextBlock Text="LibreOffice" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="稳定版 26.2.4" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="LibreOffice" Style="{StaticResource BodyTextBlockStyle}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="稳定版 26.2.4" Style="{StaticResource CaptionTextBlockStyle}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
         </Grid>
 
         <!-- ===== 区域标题 ===== -->
-        <TextBlock Grid.Row="3" Text="选择需要包含的组件" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
+        <TextBlock Grid.Row="3" Text="选择需要包含的组件" Style="{StaticResource SubtitleTextBlockStyle}" FontSize="14" FontWeight="SemiBold"
+                   HorizontalAlignment="Center" Margin="0,26,0,8"
                    Visibility="{Binding IsMsOffice, Converter={StaticResource BoolToVisibility}}"/>
 
-        <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
+        <TextBlock Grid.Row="3" Text="部署信息说明" Style="{StaticResource SubtitleTextBlockStyle}" FontSize="14" FontWeight="SemiBold"
+                   HorizontalAlignment="Center" Margin="0,26,0,8"
                    Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}"/>
 
-        <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
+        <TextBlock Grid.Row="3" Text="部署信息说明" Style="{StaticResource SubtitleTextBlockStyle}" FontSize="14" FontWeight="SemiBold"
+                   HorizontalAlignment="Center" Margin="0,26,0,8"
                    Visibility="{Binding IsYozo, Converter={StaticResource BoolToVisibility}}"/>
 
-        <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
+        <TextBlock Grid.Row="3" Text="部署信息说明" Style="{StaticResource SubtitleTextBlockStyle}" FontSize="14" FontWeight="SemiBold"
+                   HorizontalAlignment="Center" Margin="0,26,0,8"
                    Visibility="{Binding IsOnlyOffice, Converter={StaticResource BoolToVisibility}}"/>
 
-        <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
+        <TextBlock Grid.Row="3" Text="部署信息说明" Style="{StaticResource SubtitleTextBlockStyle}" FontSize="14" FontWeight="SemiBold"
+                   HorizontalAlignment="Center" Margin="0,26,0,8"
                    Visibility="{Binding IsLibreOffice, Converter={StaticResource BoolToVisibility}}"/>
 
         <!-- ===== MS Office 组件面板 (Fluent Card container) ===== -->
@@ -495,9 +511,9 @@
                 Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}">
             <Grid Margin="30,20">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="• 提供静默自动安装选项，已预设静默安装指令参数（/S）" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                    <TextBlock Text="• 企业专业版纯净无广告，更轻量，更稳定" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                    <TextBlock Text="• 安装包由高可用分发网络托管，极速下载安装" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 提供静默自动安装选项，已预设静默安装指令参数（/S）" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 企业专业版纯净无广告，更轻量，更稳定" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 安装包由高可用分发网络托管，极速下载安装" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -508,9 +524,9 @@
                 Visibility="{Binding IsYozo, Converter={StaticResource BoolToVisibility}}">
             <Grid Margin="30,20">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="• 国内自主研发，深度适配中文排版规范与国标公文" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                    <TextBlock Text="• 静默自动安装，内置静默参数 /S" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                    <TextBlock Text="• 官方个人版镜像，安全无插件广告" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 国内自主研发，深度适配中文排版规范与国标公文" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 静默自动安装，内置静默参数 /S" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 官方个人版镜像，安全无插件广告" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -521,9 +537,9 @@
                 Visibility="{Binding IsOnlyOffice, Converter={StaticResource BoolToVisibility}}">
             <Grid Margin="30,20">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="• 开源强大的协作办公套件，与 MS Office 格式高度兼容" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                    <TextBlock Text="• 命令行静默参数 /VERYSILENT /NORESTART" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                    <TextBlock Text="• 支持插件系统，本地快速部署，完全免费" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 开源强大的协作办公套件，与 MS Office 格式高度兼容" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 命令行静默参数 /VERYSILENT /NORESTART" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 支持插件系统，本地快速部署，完全免费" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -534,9 +550,9 @@
                 Visibility="{Binding IsLibreOffice, Converter={StaticResource BoolToVisibility}}">
             <Grid Margin="30,20">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="• 著名开源社区维护的顶级办公套件，极具稳定与纯净" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                    <TextBlock Text="• 采用 Windows Installer 规范，静默指令：msiexec /i ... /qn" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                    <TextBlock Text="• 企业无广告首选，支持开放文档标准（ODF）" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 著名开源社区维护的顶级办公套件，极具稳定与纯净" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 采用 Windows Installer 规范，静默指令：msiexec /i ... /qn" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    <TextBlock Text="• 企业无广告首选，支持开放文档标准（ODF）" Style="{StaticResource BodyTextBlockStyle}" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -546,12 +562,15 @@
             <ProgressBar Height="4" Minimum="0" Maximum="100"
                          Value="{Binding DownloadProgress}"
                          Visibility="{Binding IsProgressVisible, Converter={StaticResource BoolToVisibility}}"/>
-            <TextBlock Text="{Binding StatusText}" FontSize="12"
+            <TextBlock Text="{Binding StatusText}" Style="{StaticResource BodyTextBlockStyle}" FontSize="12"
                        Foreground="{DynamicResource TextControlForegroundBrushSecondary}" TextAlignment="Center" Margin="0,8,0,0"/>
         </StackPanel>
 
+        <!-- ===== 提示信息 ===== -->
+        <TextBlock Grid.Row="5" Text="建议保持网络连接，以便完成激活过程" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" VerticalAlignment="Bottom" Margin="0,0,0,-8"/>
+
         <!-- ===== 按钮行 ===== -->
-        <Grid Grid.Row="6" Margin="0,8,0,30">
+        <Grid Grid.Row="6" Margin="0,12,0,30">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
