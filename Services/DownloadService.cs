@@ -9,46 +9,38 @@ namespace GOI.Services
 {
     public class DownloadService
     {
-        private const string ODT_URL = "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD7A-4CC4-B154-EB812A7D86B4/officedeploymenttool_17830-20162.exe";
+        private const string ODT_URL = "https://officecdn.microsoft.com/pr/wsus/setup.exe";
 
-        /// <summary>下载 ODT 并解压出 setup.exe，返回成功/失败</summary>
+        /// <summary>直接从 Office CDN 下载 setup.exe，返回成功/失败</summary>
         public async Task<bool> DownloadODTAsync(IProgress<int> progressPercent = null)
         {
-            var odtPath = Path.Combine(AppConfig.RootPath, "officedeploymenttool.exe");
             var setupPath = AppConfig.SetupPath;
 
             // 如果 setup.exe 已存在，跳过
             if (File.Exists(setupPath))
                 return true;
 
-            Logger.Info("开始下载 ODT: " + ODT_URL);
+            Logger.Info("开始下载 Setup.exe: " + ODT_URL);
 
-            using (var client = new WebClient())
+            try
             {
-                client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-                client.DownloadProgressChanged += (s, e) =>
-                    progressPercent?.Report(e.ProgressPercentage);
+                using (var client = new WebClient())
+                {
+                    client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+                    client.DownloadProgressChanged += (s, e) =>
+                        progressPercent?.Report(e.ProgressPercentage);
 
-                await client.DownloadFileTaskAsync(new Uri(ODT_URL), odtPath);
+                    await client.DownloadFileTaskAsync(new Uri(ODT_URL), setupPath);
+                }
+
+                Logger.Info("Setup.exe 下载完成。");
             }
-
-            // 解压 ODT
-            Logger.Info("ODT 下载完成，开始解压...");
-            var psi = new ProcessStartInfo(odtPath, $"/quiet /extract:\"{AppConfig.RootPath.TrimEnd('\\')}\"")
+            catch (Exception ex)
             {
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (var proc = Process.Start(psi))
-            {
-                if (proc == null) return false;
-                await Task.Run(() => proc.WaitForExit());
-                Logger.Info($"ODT 解压完成，退出码: {proc.ExitCode}");
+                Logger.Error("下载 Setup.exe 失败", ex);
+                try { if (File.Exists(setupPath)) File.Delete(setupPath); } catch { }
+                return false;
             }
-
-            // 清理 odt 安装包
-            try { if (File.Exists(odtPath)) File.Delete(odtPath); } catch { }
 
             return File.Exists(setupPath);
         }
