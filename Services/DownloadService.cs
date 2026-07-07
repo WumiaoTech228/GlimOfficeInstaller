@@ -9,7 +9,7 @@ namespace GOI.Services
 {
     public class DownloadService
     {
-        private const string ODT_URL = "https://c2rsetup.officeapps.live.com/c2r/officeDeploymentTool/officedeploymenttool.exe";
+        private const string ODT_URL = "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD7A-4CC4-B154-EB812A7D86B4/officedeploymenttool_17830-20162.exe";
 
         /// <summary>下载 ODT 并解压出 setup.exe，返回成功/失败</summary>
         public async Task<bool> DownloadODTAsync(IProgress<int> progressPercent = null)
