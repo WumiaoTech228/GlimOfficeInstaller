@@ -1,0 +1,19 @@
+<Application x:Class="GOI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:GOI"
+             StartupUri="Views/MainWindow.xaml">
+    <Application.Resources>
+        <!-- 颜色 -->
+        <SolidColorBrush x:Key="GlimBlue" Color="#007ACC"/>
+        <SolidColorBrush x:Key="OfficeOrange" Color="#E84125"/>
+        <SolidColorBrush x:Key="BgLight" Color="#F2F2F7"/>
+        <SolidColorBrush x:Key="TextMain" Color="#1A1A1A"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#969696"/>
+
+        <!-- 系统图标字体：Segoe MDL2 Assets（Windows 10/11 自带，零依赖） -->
+        <FontFamily x:Key="IconFont">Segoe MDL2 Assets</FontFamily>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </Application.Resources>
+</Application>
