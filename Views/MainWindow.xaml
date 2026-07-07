@@ -1,10 +1,14 @@
 <Window x:Class="GOI.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
         Title="Glim Office Installer"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
-        Background="#09090B"
+        ui:ThemeManager.RequestedTheme="Dark"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        ui:WindowHelper.SystemBackdropType="Mica"
+        Background="Transparent"
         Icon="/Resources/logo.png">
 
     <Window.Resources>
@@ -105,7 +109,7 @@
     </Window.Resources>
 
     <Viewbox Stretch="Fill">
-        <Grid Width="720" Height="680" Background="#09090B">
+        <Grid Width="720" Height="680" Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -116,7 +120,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Height="100" Background="#151518" BorderBrush="#242427" BorderThickness="0,0,0,1">
+            <Border Grid.Row="0" Height="100" Background="#80151518" BorderBrush="#242427" BorderThickness="0,0,0,1">
                 <Grid Margin="30,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
