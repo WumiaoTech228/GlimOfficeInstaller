@@ -8,103 +8,11 @@
         ui:ThemeManager.RequestedTheme="Dark"
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:WindowHelper.SystemBackdropType="Mica"
-        Icon="/Resources/logo.png">
+        Icon="pack://application:,,,/GOI;component/Resources/icon.ico">
 
     <Window.Resources>
-        <!-- 现代暗色系 Glim 品牌调色盘 -->
-        <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#1FA3E2" Offset="0.0"/>
-            <GradientStop Color="#8B5CF6" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="BtnGradient" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#1FA3E2" Offset="0.0"/>
-            <GradientStop Color="#0B84C1" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="BtnHoverGradient" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#46C0F8" Offset="0.0"/>
-            <GradientStop Color="#1FA3E2" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <!-- 现代按钮样式 -->
-        <Style x:Key="ModernButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource BtnGradient}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Height" Value="48"/>
-            <Setter Property="Width" Value="220"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="10" 
-                                SnapsToDevicePixels="true">
-                            <Border.Effect>
-                                <DropShadowEffect x:Name="btnShadow" BlurRadius="15" ShadowDepth="2" Color="#1FA3E2" Opacity="0.3"/>
-                            </Border.Effect>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="Background" Value="{StaticResource BtnHoverGradient}"/>
-                                <Setter TargetName="border" Property="Cursor" Value="Hand"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="true">
-                                <Setter Property="Background" Value="#096796"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter TargetName="border" Property="Background" Value="#1F1F23"/>
-                                <Setter Property="Foreground" Value="#52525B"/>
-                                <Setter TargetName="border" Property="Effect" Value="{x:Null}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- 极简高质感复选框样式 -->
-        <Style TargetType="CheckBox">
-            <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#E4E4E7"/>
-            <Setter Property="Margin" Value="15,8"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <BulletDecorator Background="Transparent" Cursor="Hand">
-                            <BulletDecorator.Bullet>
-                                <Border x:Name="border" Width="20" Height="20" CornerRadius="6" 
-                                        Background="#09090B" BorderBrush="#3F3F46" BorderThickness="1.5"
-                                        SnapsToDevicePixels="true">
-                                    <Path x:Name="checkMark" Data="M 5,10 L 9,14 L 15,6" Stroke="White" StrokeThickness="2" 
-                                          Visibility="Collapsed" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Border>
-                            </BulletDecorator.Bullet>
-                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
-                        </BulletDecorator>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="true">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#1FA3E2"/>
-                                <Setter TargetName="border" Property="Background" Value="#1FA3E2"/>
-                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#71717A"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter TargetName="border" Property="Background" Value="#18181B"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#27272A"/>
-                                <Setter Property="Foreground" Value="#52525B"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <!-- Icon Font Resource -->
+        <FontFamily x:Key="IconFont">Segoe MDL2 Assets</FontFamily>
     </Window.Resources>
 
     <Viewbox Stretch="Fill">
@@ -119,31 +27,30 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Height="100" Background="#80151518" BorderBrush="#242427" BorderThickness="0,0,0,1">
+            <!-- ===== 顶部标题栏区域 (Translucent Glassmorphism) ===== -->
+            <Border Grid.Row="0" Height="100" Background="{DynamicResource SystemControlTransientBackgroundBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
                 <Grid Margin="30,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                               <!-- Custom Fluent Logo Image -->
-                    <Image Grid.Column="0" Source="/Resources/logo.png" Width="36" Height="36" VerticalAlignment="Center" Margin="0,0,15,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    
+                    <!-- Custom Fluent Logo Image -->
+                    <Image Grid.Column="0" Source="pack://application:,,,/GOI;component/Resources/logo.png" Width="36" Height="36" VerticalAlignment="Center" Margin="0,0,15,0" RenderOptions.BitmapScalingMode="HighQuality"/>
                     
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Glim Office Installer" FontSize="18" FontWeight="Bold"
-                                   Foreground="#F4F4F5"/>
-                        <TextBlock Text="轻量、纯净的一键 Office 部署配置工具" FontSize="11" 
-                                   Foreground="#71717A" Margin="0,3,0,0"/>
+                        <TextBlock Text="Glim Office Installer" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}"/>
+                        <TextBlock Text="轻量、纯净的一键 Office 部署配置工具" FontSize="11" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,3,0,0"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- ===== 产品/大类切换及标题 ===== -->
+            <!-- ===== 产品/大类切换 Tab (WinUI Segment Style) ===== -->
             <StackPanel Grid.Row="1" Margin="0,15,0,0">
-                <!-- 产品大类切换 Tab -->
-                <Border Background="#151518" BorderBrush="#242427" BorderThickness="1" CornerRadius="10" HorizontalAlignment="Center" Height="40" Padding="3">
+                <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" HorizontalAlignment="Center" Height="40" Padding="3">
                     <StackPanel Orientation="Horizontal">
-                        <!-- Microsoft Office 选项 -->
-                        <Border CornerRadius="8" Cursor="Hand" Width="130">
+                        <!-- Microsoft Office -->
+                        <Border CornerRadius="6" Cursor="Hand" Width="130">
                             <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding SelectMsOfficeCommand}"/>
                             </Border.InputBindings>
@@ -152,7 +59,7 @@
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsMsOffice}" Value="True">
-                                            <Setter Property="Background" Value="#1E293B"/>
+                                            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -160,10 +67,10 @@
                             <TextBlock Text="MS Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsMsOffice}" Value="True">
-                                                <Setter Property="Foreground" Value="#1FA3E2"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -171,8 +78,8 @@
                             </TextBlock>
                         </Border>
 
-                        <!-- WPS Office 选项 -->
-                        <Border CornerRadius="8" Cursor="Hand" Width="130">
+                        <!-- WPS Office -->
+                        <Border CornerRadius="6" Cursor="Hand" Width="130">
                             <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding SelectWpsCommand}"/>
                             </Border.InputBindings>
@@ -181,7 +88,7 @@
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsWps}" Value="True">
-                                            <Setter Property="Background" Value="#2E1065"/>
+                                            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -189,10 +96,10 @@
                             <TextBlock Text="WPS Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsWps}" Value="True">
-                                                <Setter Property="Foreground" Value="#8B5CF6"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -200,8 +107,8 @@
                             </TextBlock>
                         </Border>
 
-                        <!-- 永中Office 选项 -->
-                        <Border CornerRadius="8" Cursor="Hand" Width="130">
+                        <!-- 永中 Office -->
+                        <Border CornerRadius="6" Cursor="Hand" Width="130">
                             <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding SelectYozoCommand}"/>
                             </Border.InputBindings>
@@ -210,7 +117,7 @@
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsYozo}" Value="True">
-                                            <Setter Property="Background" Value="#1C1917"/>
+                                            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -218,10 +125,10 @@
                             <TextBlock Text="永中 Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsYozo}" Value="True">
-                                                <Setter Property="Foreground" Value="#F59E0B"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -229,8 +136,8 @@
                             </TextBlock>
                         </Border>
 
-                        <!-- OnlyOffice 选项 -->
-                        <Border CornerRadius="8" Cursor="Hand" Width="130">
+                        <!-- OnlyOffice -->
+                        <Border CornerRadius="6" Cursor="Hand" Width="130">
                             <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding SelectOnlyOfficeCommand}"/>
                             </Border.InputBindings>
@@ -239,7 +146,7 @@
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsOnlyOffice}" Value="True">
-                                            <Setter Property="Background" Value="#1E1B4B"/>
+                                            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -247,10 +154,10 @@
                             <TextBlock Text="OnlyOffice" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsOnlyOffice}" Value="True">
-                                                <Setter Property="Foreground" Value="#6366F1"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -258,8 +165,8 @@
                             </TextBlock>
                         </Border>
 
-                        <!-- LibreOffice 选项 -->
-                        <Border CornerRadius="8" Cursor="Hand" Width="130">
+                        <!-- LibreOffice -->
+                        <Border CornerRadius="6" Cursor="Hand" Width="130">
                             <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding SelectLibreOfficeCommand}"/>
                             </Border.InputBindings>
@@ -268,7 +175,7 @@
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsLibreOffice}" Value="True">
-                                            <Setter Property="Background" Value="#064E3B"/>
+                                            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -276,10 +183,10 @@
                             <TextBlock Text="LibreOffice" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundBrushSecondary}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsLibreOffice}" Value="True">
-                                                <Setter Property="Foreground" Value="#10B981"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -290,7 +197,7 @@
                 </Border>
             </StackPanel>
 
-            <!-- ===== MS Office 版本卡片行 ===== -->
+            <!-- ===== MS Office 版本卡片 (WinUI 3 Cards Style) ===== -->
             <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
                   Visibility="{Binding IsMsOffice, Converter={StaticResource BoolToVisibility}}">
                 <Grid.ColumnDefinitions>
@@ -305,91 +212,62 @@
                 <Button Grid.Column="0" Width="36" Height="36"
                         Command="{Binding PrevGroupCommand}"
                         Visibility="{Binding LeftArrowVisible, Converter={StaticResource BoolToVisibility}}"
-                        VerticalAlignment="Center" Cursor="Hand" Margin="0,0,15,0">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="btnBorder" Background="#151518" CornerRadius="18" BorderBrush="#242427" BorderThickness="1">
-                                <Path Data="M 8,0 L 0,5 L 8,10 Z" Fill="#A1A1AA" Stretch="Uniform" Width="8" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="btnBorder" Property="Background" Value="#242427"/>
-                                    <Setter TargetName="btnBorder" Property="BorderBrush" Value="#3F3F46"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
+                        VerticalAlignment="Center" Cursor="Hand" Margin="0,0,15,0"
+                        Style="{StaticResource DefaultButtonStyle}">
+                    <Path Data="M 8,0 L 0,5 L 8,10 Z" Fill="{DynamicResource TextControlForegroundBrush}" Stretch="Uniform" Width="8" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
 
                 <!-- 左卡片 (Office 2024) -->
-                <Border Grid.Column="1" CornerRadius="14" BorderThickness="1.5"
-                        Cursor="Hand" Tag="{Binding LeftSelected}">
+                <Border Grid.Column="1" CornerRadius="8" BorderThickness="1.5" Cursor="Hand">
                     <Border.Style>
                         <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#242427"/>
-                            <Setter Property="Background" Value="#151518"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding LeftSelected}" Value="True">
-                                    <Setter Property="BorderBrush" Value="#1FA3E2"/>
-                                    <Setter Property="Background" Value="#1E293B"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <Border.Effect>
-                        <DropShadowEffect x:Name="leftShadow" BlurRadius="12" ShadowDepth="1.5" Color="#000000" Opacity="0.15"/>
-                    </Border.Effect>
                     <Border.InputBindings>
                         <MouseBinding Command="{Binding SelectLeftCommand}" MouseAction="LeftClick"/>
                     </Border.InputBindings>
                     <Grid VerticalAlignment="Center" Margin="20,0">
                         <StackPanel HorizontalAlignment="Center">
-                            <!-- 书写文档图标 Segoe MDL2 Assets: &#xE70F; -->
-                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="28" 
-                                       Foreground="#1FA3E2" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                            <TextBlock Text="{Binding LeftTitle}" FontSize="18" FontWeight="Bold"
-                                       Foreground="#F4F4F5" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding LeftSub}" FontSize="11"
-                                       Foreground="#A1A1AA" Margin="0,5,0,0" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding LeftDesc}" FontSize="10"
-                                       Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="28" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding LeftTitle}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding LeftSub}" FontSize="11" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding LeftDesc}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushDisabled}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <!-- 右卡片 (Microsoft 365) -->
-                <Border Grid.Column="3" CornerRadius="14" BorderThickness="1.5"
-                        Cursor="Hand"
+                <Border Grid.Column="3" CornerRadius="8" BorderThickness="1.5" Cursor="Hand"
                         Visibility="{Binding RightVisible, Converter={StaticResource BoolToVisibility}}">
                     <Border.Style>
                         <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#242427"/>
-                            <Setter Property="Background" Value="#151518"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding RightSelected}" Value="True">
-                                    <Setter Property="BorderBrush" Value="#1FA3E2"/>
-                                    <Setter Property="Background" Value="#1E293B"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <Border.Effect>
-                        <DropShadowEffect x:Name="rightShadow" BlurRadius="12" ShadowDepth="1.5" Color="#000000" Opacity="0.15"/>
-                    </Border.Effect>
                     <Border.InputBindings>
                         <MouseBinding Command="{Binding SelectRightCommand}" MouseAction="LeftClick"/>
                     </Border.InputBindings>
                     <Grid VerticalAlignment="Center" Margin="20,0">
                         <StackPanel HorizontalAlignment="Center">
-                            <!-- 云端服务图标 Segoe MDL2 Assets: &#xE753; -->
-                            <TextBlock Text="&#xE753;" FontFamily="{StaticResource IconFont}" FontSize="28" 
-                                       Foreground="#8B5CF6" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                            <TextBlock Text="{Binding RightTitle}" FontSize="18" FontWeight="Bold"
-                                       Foreground="#F4F4F5" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding RightSub}" FontSize="11"
-                                       Foreground="#A1A1AA" Margin="0,5,0,0" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding RightDesc}" FontSize="10"
-                                       Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE753;" FontFamily="{StaticResource IconFont}" FontSize="28" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding RightTitle}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding RightSub}" FontSize="11" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding RightDesc}" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushDisabled}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -398,24 +276,13 @@
                 <Button Grid.Column="4" Width="36" Height="36"
                         Command="{Binding NextGroupCommand}"
                         Visibility="{Binding RightArrowVisible, Converter={StaticResource BoolToVisibility}}"
-                        VerticalAlignment="Center" Cursor="Hand" Margin="15,0,0,0">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="btnBorder" Background="#151518" CornerRadius="18" BorderBrush="#242427" BorderThickness="1">
-                                <Path Data="M 0,0 L 8,5 L 0,10 Z" Fill="#A1A1AA" Stretch="Uniform" Width="8" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="btnBorder" Property="Background" Value="#242427"/>
-                                    <Setter TargetName="btnBorder" Property="BorderBrush" Value="#3F3F46"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
+                        VerticalAlignment="Center" Cursor="Hand" Margin="15,0,0,0"
+                        Style="{StaticResource DefaultButtonStyle}">
+                    <Path Data="M 0,0 L 8,5 L 0,10 Z" Fill="{DynamicResource TextControlForegroundBrush}" Stretch="Uniform" Width="8" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
             </Grid>
 
-            <!-- ===== WPS 版本卡片行 ===== -->
+            <!-- ===== WPS 版本卡片 ===== -->
             <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
                   Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}">
                 <Grid.ColumnDefinitions>
@@ -428,214 +295,181 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- WPS 2023 Card -->
-                <Border Grid.Column="0" CornerRadius="12" BorderThickness="1.5" Cursor="Hand">
+                <!-- WPS 2023 -->
+                <Border Grid.Column="0" CornerRadius="8" BorderThickness="1.5" Cursor="Hand">
                     <Border.InputBindings>
                         <MouseBinding Command="{Binding SelectWps2023Command}" MouseAction="LeftClick"/>
                     </Border.InputBindings>
                     <Border.Style>
                         <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#242427"/>
-                            <Setter Property="Background" Value="#151518"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Wps2023Selected}" Value="True">
-                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
-                                    <Setter Property="Background" Value="#2E1065"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
                     <Grid VerticalAlignment="Center">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
-                                       Foreground="#8B5CF6" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                            <TextBlock Text="WPS 2023" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
-                            <TextBlock Text="专业版 12.1" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="WPS 2023" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="专业版 12.1" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- WPS 2019 Card -->
-                <Border Grid.Column="2" CornerRadius="12" BorderThickness="1.5" Cursor="Hand">
+                <!-- WPS 2019 -->
+                <Border Grid.Column="2" CornerRadius="8" BorderThickness="1.5" Cursor="Hand">
                     <Border.InputBindings>
                         <MouseBinding Command="{Binding SelectWps2019Command}" MouseAction="LeftClick"/>
                     </Border.InputBindings>
                     <Border.Style>
                         <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#242427"/>
-                            <Setter Property="Background" Value="#151518"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Wps2019Selected}" Value="True">
-                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
-                                    <Setter Property="Background" Value="#2E1065"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
                     <Grid VerticalAlignment="Center">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
-                                       Foreground="#8B5CF6" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                            <TextBlock Text="WPS 2019" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
-                            <TextBlock Text="专业版 11.8" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="WPS 2019" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="专业版 11.8" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- WPS 2016 Card -->
-                <Border Grid.Column="4" CornerRadius="12" BorderThickness="1.5" Cursor="Hand">
+                <!-- WPS 2016 -->
+                <Border Grid.Column="4" CornerRadius="8" BorderThickness="1.5" Cursor="Hand">
                     <Border.InputBindings>
                         <MouseBinding Command="{Binding SelectWps2016Command}" MouseAction="LeftClick"/>
                     </Border.InputBindings>
                     <Border.Style>
                         <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#242427"/>
-                            <Setter Property="Background" Value="#151518"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Wps2016Selected}" Value="True">
-                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
-                                    <Setter Property="Background" Value="#2E1065"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
                     <Grid VerticalAlignment="Center">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
-                                       Foreground="#8B5CF6" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                            <TextBlock Text="WPS 2016" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
-                            <TextBlock Text="专业版 10.8" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="WPS 2016" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="专业版 10.8" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- WPS 2013 Card -->
-                <Border Grid.Column="6" CornerRadius="12" BorderThickness="1.5" Cursor="Hand">
+                <!-- WPS 2013 -->
+                <Border Grid.Column="6" CornerRadius="8" BorderThickness="1.5" Cursor="Hand">
                     <Border.InputBindings>
                         <MouseBinding Command="{Binding SelectWps2013Command}" MouseAction="LeftClick"/>
                     </Border.InputBindings>
                     <Border.Style>
                         <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#242427"/>
-                            <Setter Property="Background" Value="#151518"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Wps2013Selected}" Value="True">
-                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
-                                    <Setter Property="Background" Value="#2E1065"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
                     <Grid VerticalAlignment="Center">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
-                                       Foreground="#8B5CF6" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                            <TextBlock Text="WPS 2013" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
-                            <TextBlock Text="专业版 9.1" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="WPS 2013" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="专业版 9.1" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Border>
             </Grid>
 
-            <!-- ===== 永中版本卡片行 ===== -->
+            <!-- ===== 永中版本卡片 ===== -->
             <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
                   Visibility="{Binding IsYozo, Converter={StaticResource BoolToVisibility}}">
-                <Border CornerRadius="12" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="200">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#F59E0B"/>
-                            <Setter Property="Background" Value="#291605"/>
-                        </Style>
-                    </Border.Style>
+                <Border CornerRadius="8" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="200"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource SystemControlHighlightAccentBrush}">
                     <Grid VerticalAlignment="Center">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
-                                       Foreground="#F59E0B" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                            <TextBlock Text="永中Office" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
-                            <TextBlock Text="个人版 (最新)" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="永中Office" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="个人版 (最新)" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Border>
             </Grid>
 
-            <!-- ===== OnlyOffice 版本卡片行 ===== -->
+            <!-- ===== OnlyOffice 版本卡片 ===== -->
             <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
                   Visibility="{Binding IsOnlyOffice, Converter={StaticResource BoolToVisibility}}">
-                <Border CornerRadius="12" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="200">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#6366F1"/>
-                            <Setter Property="Background" Value="#1E1B4B"/>
-                        </Style>
-                    </Border.Style>
+                <Border CornerRadius="8" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="200"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource SystemControlHighlightAccentBrush}">
                     <Grid VerticalAlignment="Center">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
-                                       Foreground="#6366F1" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                            <TextBlock Text="OnlyOffice" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Desktop Editors" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="OnlyOffice" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Desktop Editors" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Border>
             </Grid>
 
-            <!-- ===== LibreOffice 版本卡片行 ===== -->
+            <!-- ===== LibreOffice 版本卡片 ===== -->
             <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
                   Visibility="{Binding IsLibreOffice, Converter={StaticResource BoolToVisibility}}">
-                <Border CornerRadius="12" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="200">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#10B981"/>
-                            <Setter Property="Background" Value="#064E3B"/>
-                        </Style>
-                    </Border.Style>
+                <Border CornerRadius="8" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="200"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource SystemControlHighlightAccentBrush}">
                     <Grid VerticalAlignment="Center">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
-                                       Foreground="#10B981" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                            <TextBlock Text="LibreOffice" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
-                            <TextBlock Text="稳定版 26.2.4" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="LibreOffice" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="稳定版 26.2.4" FontSize="10" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Border>
             </Grid>
 
-            <!-- ===== MS Office 组件选择标题 ===== -->
-            <TextBlock Grid.Row="3" Text="选择需要包含的组件" FontSize="15" FontWeight="SemiBold"
-                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
-                       Visibility="{Binding IsMsOffice, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock.InputBindings>
-                    <MouseBinding MouseAction="LeftClick" Command="{Binding TitleClickCommand}"/>
-                </TextBlock.InputBindings>
-            </TextBlock>
+            <!-- ===== 区域标题 ===== -->
+            <TextBlock Grid.Row="3" Text="选择需要包含的组件" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
+                       Visibility="{Binding IsMsOffice, Converter={StaticResource BoolToVisibility}}"/>
 
-            <!-- ===== WPS 信息标题 ===== -->
-            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="15" FontWeight="SemiBold"
-                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
+            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
                        Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}"/>
 
-            <!-- ===== 永中 信息标题 ===== -->
-            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="15" FontWeight="SemiBold"
-                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
+            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
                        Visibility="{Binding IsYozo, Converter={StaticResource BoolToVisibility}}"/>
 
-            <!-- ===== OnlyOffice 信息标题 ===== -->
-            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="15" FontWeight="SemiBold"
-                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
+            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
                        Visibility="{Binding IsOnlyOffice, Converter={StaticResource BoolToVisibility}}"/>
 
-            <!-- ===== LibreOffice 信息标题 ===== -->
-            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="15" FontWeight="SemiBold"
-                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
+            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextControlForegroundBrush}" HorizontalAlignment="Center" Margin="0,26,0,8"
                        Visibility="{Binding IsLibreOffice, Converter={StaticResource BoolToVisibility}}"/>
 
-            <!-- ===== MS Office 组件面板 ===== -->
-            <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
-                    Background="#151518" Margin="25,5,25,0" Height="175"
+            <!-- ===== MS Office 组件面板 (Fluent Card container) ===== -->
+            <Border Grid.Row="4" CornerRadius="8" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Margin="25,5,25,0" Height="175"
                     Visibility="{Binding IsMsOffice, Converter={StaticResource BoolToVisibility}}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
-                </Border.Effect>
                 <ItemsControl ItemsSource="{Binding Components}" Margin="30,15,30,15">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -644,84 +478,71 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}"/>
+                            <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="15,8"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </Border>
 
             <!-- ===== WPS 提示面板 ===== -->
-            <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
-                    Background="#151518" Margin="25,5,25,0" Height="175"
+            <Border Grid.Row="4" CornerRadius="8" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Margin="25,5,25,0" Height="175"
                     Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
-                </Border.Effect>
                 <Grid Margin="30,20">
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="• 提供静默自动安装选项，已预设静默安装指令参数（/S）" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="• 企业专业版纯净无广告，更轻量，更稳定" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="• 安装包由高可用分发网络托管，极速下载安装" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 提供静默自动安装选项，已预设静默安装指令参数（/S）" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 企业专业版纯净无广告，更轻量，更稳定" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 安装包由高可用分发网络托管，极速下载安装" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- ===== 永中 提示面板 ===== -->
-            <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
-                    Background="#151518" Margin="25,5,25,0" Height="175"
+            <Border Grid.Row="4" CornerRadius="8" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Margin="25,5,25,0" Height="175"
                     Visibility="{Binding IsYozo, Converter={StaticResource BoolToVisibility}}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
-                </Border.Effect>
                 <Grid Margin="30,20">
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="• 国内自主研发，深度适配中文排版规范与国标公文" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="• 静默自动安装，内置静默参数 /S" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="• 官方个人版镜像，安全无插件广告" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 国内自主研发，深度适配中文排版规范与国标公文" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 静默自动安装，内置静默参数 /S" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 官方个人版镜像，安全无插件广告" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- ===== OnlyOffice 提示面板 ===== -->
-            <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
-                    Background="#151518" Margin="25,5,25,0" Height="175"
+            <Border Grid.Row="4" CornerRadius="8" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Margin="25,5,25,0" Height="175"
                     Visibility="{Binding IsOnlyOffice, Converter={StaticResource BoolToVisibility}}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
-                </Border.Effect>
                 <Grid Margin="30,20">
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="• 开源强大的协作办公套件，与 MS Office 格式高度兼容" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="• 命令行静默参数 /VERYSILENT /NORESTART" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="• 支持插件系统，本地快速部署，完全免费" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 开源强大的协作办公套件，与 MS Office 格式高度兼容" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 命令行静默参数 /VERYSILENT /NORESTART" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 支持插件系统，本地快速部署，完全免费" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- ===== LibreOffice 提示面板 ===== -->
-            <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
-                    Background="#151518" Margin="25,5,25,0" Height="175"
+            <Border Grid.Row="4" CornerRadius="8" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Margin="25,5,25,0" Height="175"
                     Visibility="{Binding IsLibreOffice, Converter={StaticResource BoolToVisibility}}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
-                </Border.Effect>
                 <Grid Margin="30,20">
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="• 著名开源社区维护的顶级办公套件，极具稳定与纯净" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="• 采用 Windows Installer 规范，静默指令：msiexec /i ... /qn" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="• 企业无广告首选，支持开放文档标准（ODF）" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 著名开源社区维护的顶级办公套件，极具稳定与纯净" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 采用 Windows Installer 规范，静默指令：msiexec /i ... /qn" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 企业无广告首选，支持开放文档标准（ODF）" FontSize="13" Foreground="{DynamicResource TextControlForegroundBrushSecondary}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- ===== 进度条 + 状态 ===== -->
             <StackPanel Grid.Row="5" Margin="25,18,25,12">
-                <ProgressBar Height="6" Minimum="0" Maximum="100"
-                               Value="{Binding DownloadProgress}"
-                               Foreground="#1FA3E2" Background="#242427" BorderThickness="0"
-                               Visibility="{Binding IsProgressVisible, Converter={StaticResource BoolToVisibility}}"/>
+                <ProgressBar Height="4" Minimum="0" Maximum="100"
+                             Value="{Binding DownloadProgress}"
+                             Visibility="{Binding IsProgressVisible, Converter={StaticResource BoolToVisibility}}"/>
                 <TextBlock Text="{Binding StatusText}" FontSize="12"
-                             Foreground="#A1A1AA" TextAlignment="Center" Margin="0,8,0,0"/>
+                           Foreground="{DynamicResource TextControlForegroundBrushSecondary}" TextAlignment="Center" Margin="0,8,0,0"/>
             </StackPanel>
 
             <!-- ===== 按钮行 ===== -->
@@ -734,22 +555,18 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- 一键深层卸载 -->
-                <Button Grid.Column="1" Content="一键深层卸载" Command="{Binding UninstallAllCommand}" Style="{StaticResource ModernButtonStyle}" Width="180">
-                    <Button.Resources>
-                        <LinearGradientBrush x:Key="BtnGradient" StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="#991B1B" Offset="0.0"/>
-                            <GradientStop Color="#7F1D1D" Offset="1.0"/>
-                        </LinearGradientBrush>
-                        <LinearGradientBrush x:Key="BtnHoverGradient" StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="#EF4444" Offset="0.0"/>
-                            <GradientStop Color="#DC2626" Offset="1.0"/>
-                        </LinearGradientBrush>
-                    </Button.Resources>
-                </Button>
+                <!-- 一键深层卸载 (Styled Fluent Red Danger Button) -->
+                <Button Grid.Column="1" Content="一键深层卸载" Command="{Binding UninstallAllCommand}" 
+                        Width="180" Height="40" FontSize="15" FontWeight="SemiBold"
+                        Style="{StaticResource DefaultButtonStyle}"
+                        Background="#A71D1D" Foreground="White" BorderThickness="0"
+                        ui:ControlHelper.CornerRadius="8"/>
 
-                <!-- 一键开始部署 -->
-                <Button Grid.Column="3" Content="一键开始部署" Command="{Binding InstallCommand}" Style="{StaticResource ModernButtonStyle}" Width="180"/>
+                <!-- 一键开始部署 (Styled Fluent Accent Primary Button) -->
+                <Button Grid.Column="3" Content="一键开始部署" Command="{Binding InstallCommand}" 
+                        Width="180" Height="40" FontSize="15" FontWeight="SemiBold"
+                        Style="{StaticResource AccentButtonStyle}"
+                        ui:ControlHelper.CornerRadius="8"/>
             </Grid>
         </Grid>
     </Viewbox>
