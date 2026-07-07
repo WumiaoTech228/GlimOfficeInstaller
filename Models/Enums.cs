@@ -1,10 +1,13 @@
 namespace GOI.Models
 {
-    /// <summary>产品类型（MS Office 或 WPS）</summary>
+    /// <summary>产品类型（MS Office, WPS, 永中, OnlyOffice 或 LibreOffice）</summary>
     public enum ProductType
     {
         MsOffice,
-        Wps
+        Wps,
+        Yozo,
+        OnlyOffice,
+        LibreOffice
     }
 
     /// <summary>WPS Office 版本</summary>
@@ -14,6 +17,24 @@ namespace GOI.Models
         Wps2016,
         Wps2019,
         Wps2023
+    }
+
+    /// <summary>永中 Office 版本</summary>
+    public enum YozoVersion
+    {
+        YozoPersonal
+    }
+
+    /// <summary>OnlyOffice 版本</summary>
+    public enum OnlyOfficeVersion
+    {
+        OnlyOfficeDesktop
+    }
+
+    /// <summary>LibreOffice 版本</summary>
+    public enum LibreOfficeVersion
+    {
+        LibreOfficeStable
     }
 
     /// <summary>Office 版本枚举</summary>

@@ -140,7 +140,7 @@
                 <Border Background="#151518" BorderBrush="#242427" BorderThickness="1" CornerRadius="10" HorizontalAlignment="Center" Height="40" Padding="3">
                     <StackPanel Orientation="Horizontal">
                         <!-- Microsoft Office 选项 -->
-                        <Border CornerRadius="8" Cursor="Hand" Width="140">
+                        <Border CornerRadius="8" Cursor="Hand" Width="130">
                             <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding SelectMsOfficeCommand}"/>
                             </Border.InputBindings>
@@ -154,7 +154,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <TextBlock Text="Microsoft Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13">
+                            <TextBlock Text="MS Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="#71717A"/>
@@ -169,7 +169,7 @@
                         </Border>
 
                         <!-- WPS Office 选项 -->
-                        <Border CornerRadius="8" Cursor="Hand" Width="140">
+                        <Border CornerRadius="8" Cursor="Hand" Width="130">
                             <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding SelectWpsCommand}"/>
                             </Border.InputBindings>
@@ -183,13 +183,100 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <TextBlock Text="WPS Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13">
+                            <TextBlock Text="WPS Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="#71717A"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsWps}" Value="True">
                                                 <Setter Property="Foreground" Value="#8B5CF6"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+
+                        <!-- 永中Office 选项 -->
+                        <Border CornerRadius="8" Cursor="Hand" Width="130">
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding SelectYozoCommand}"/>
+                            </Border.InputBindings>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsYozo}" Value="True">
+                                            <Setter Property="Background" Value="#1C1917"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="永中 Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsYozo}" Value="True">
+                                                <Setter Property="Foreground" Value="#F59E0B"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+
+                        <!-- OnlyOffice 选项 -->
+                        <Border CornerRadius="8" Cursor="Hand" Width="130">
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding SelectOnlyOfficeCommand}"/>
+                            </Border.InputBindings>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsOnlyOffice}" Value="True">
+                                            <Setter Property="Background" Value="#1E1B4B"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="OnlyOffice" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsOnlyOffice}" Value="True">
+                                                <Setter Property="Foreground" Value="#6366F1"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+
+                        <!-- LibreOffice 选项 -->
+                        <Border CornerRadius="8" Cursor="Hand" Width="130">
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding SelectLibreOfficeCommand}"/>
+                            </Border.InputBindings>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLibreOffice}" Value="True">
+                                            <Setter Property="Background" Value="#064E3B"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="LibreOffice" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLibreOffice}" Value="True">
+                                                <Setter Property="Foreground" Value="#10B981"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -266,8 +353,6 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-
-                <!-- 间距 -->
 
                 <!-- 右卡片 (Microsoft 365) -->
                 <Border Grid.Column="3" CornerRadius="14" BorderThickness="1.5"
@@ -449,6 +534,69 @@
                 </Border>
             </Grid>
 
+            <!-- ===== 永中版本卡片行 ===== -->
+            <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
+                  Visibility="{Binding IsYozo, Converter={StaticResource BoolToVisibility}}">
+                <Border CornerRadius="12" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="200">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#F59E0B"/>
+                            <Setter Property="Background" Value="#291605"/>
+                        </Style>
+                    </Border.Style>
+                    <Grid VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
+                                       Foreground="#F59E0B" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="永中Office" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
+                            <TextBlock Text="个人版 (最新)" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ===== OnlyOffice 版本卡片行 ===== -->
+            <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
+                  Visibility="{Binding IsOnlyOffice, Converter={StaticResource BoolToVisibility}}">
+                <Border CornerRadius="12" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="200">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#6366F1"/>
+                            <Setter Property="Background" Value="#1E1B4B"/>
+                        </Style>
+                    </Border.Style>
+                    <Grid VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
+                                       Foreground="#6366F1" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="OnlyOffice" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Desktop Editors" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ===== LibreOffice 版本卡片行 ===== -->
+            <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
+                  Visibility="{Binding IsLibreOffice, Converter={StaticResource BoolToVisibility}}">
+                <Border CornerRadius="12" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="200">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#10B981"/>
+                            <Setter Property="Background" Value="#064E3B"/>
+                        </Style>
+                    </Border.Style>
+                    <Grid VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
+                                       Foreground="#10B981" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="LibreOffice" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
+                            <TextBlock Text="稳定版 26.2.4" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
             <!-- ===== MS Office 组件选择标题 ===== -->
             <TextBlock Grid.Row="3" Text="选择需要包含的组件" FontSize="15" FontWeight="SemiBold"
                        Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
@@ -462,6 +610,21 @@
             <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="15" FontWeight="SemiBold"
                        Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
                        Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}"/>
+
+            <!-- ===== 永中 信息标题 ===== -->
+            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="15" FontWeight="SemiBold"
+                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
+                       Visibility="{Binding IsYozo, Converter={StaticResource BoolToVisibility}}"/>
+
+            <!-- ===== OnlyOffice 信息标题 ===== -->
+            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="15" FontWeight="SemiBold"
+                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
+                       Visibility="{Binding IsOnlyOffice, Converter={StaticResource BoolToVisibility}}"/>
+
+            <!-- ===== LibreOffice 信息标题 ===== -->
+            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="15" FontWeight="SemiBold"
+                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
+                       Visibility="{Binding IsLibreOffice, Converter={StaticResource BoolToVisibility}}"/>
 
             <!-- ===== MS Office 组件面板 ===== -->
             <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
@@ -500,20 +663,90 @@
                 </Grid>
             </Border>
 
+            <!-- ===== 永中 提示面板 ===== -->
+            <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
+                    Background="#151518" Margin="25,5,25,0" Height="175"
+                    Visibility="{Binding IsYozo, Converter={StaticResource BoolToVisibility}}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
+                </Border.Effect>
+                <Grid Margin="30,20">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="• 国内自主研发，深度适配中文排版规范与国标公文" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 静默自动安装，内置静默参数 /S" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 官方个人版镜像，安全无插件广告" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ===== OnlyOffice 提示面板 ===== -->
+            <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
+                    Background="#151518" Margin="25,5,25,0" Height="175"
+                    Visibility="{Binding IsOnlyOffice, Converter={StaticResource BoolToVisibility}}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
+                </Border.Effect>
+                <Grid Margin="30,20">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="• 开源强大的协作办公套件，与 MS Office 格式高度兼容" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 命令行静默参数 /VERYSILENT /NORESTART" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 支持插件系统，本地快速部署，完全免费" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ===== LibreOffice 提示面板 ===== -->
+            <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
+                    Background="#151518" Margin="25,5,25,0" Height="175"
+                    Visibility="{Binding IsLibreOffice, Converter={StaticResource BoolToVisibility}}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
+                </Border.Effect>
+                <Grid Margin="30,20">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="• 著名开源社区维护的顶级办公套件，极具稳定与纯净" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 采用 Windows Installer 规范，静默指令：msiexec /i ... /qn" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 企业无广告首选，支持开放文档标准（ODF）" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
             <!-- ===== 进度条 + 状态 ===== -->
             <StackPanel Grid.Row="5" Margin="25,18,25,12">
                 <ProgressBar Height="6" Minimum="0" Maximum="100"
-                              Value="{Binding DownloadProgress}"
-                              Foreground="#1FA3E2" Background="#242427" BorderThickness="0"
-                              Visibility="{Binding IsProgressVisible, Converter={StaticResource BoolToVisibility}}"/>
+                               Value="{Binding DownloadProgress}"
+                               Foreground="#1FA3E2" Background="#242427" BorderThickness="0"
+                               Visibility="{Binding IsProgressVisible, Converter={StaticResource BoolToVisibility}}"/>
                 <TextBlock Text="{Binding StatusText}" FontSize="12"
-                            Foreground="#A1A1AA" TextAlignment="Center" Margin="0,8,0,0"/>
+                             Foreground="#A1A1AA" TextAlignment="Center" Margin="0,8,0,0"/>
             </StackPanel>
 
             <!-- ===== 按钮行 ===== -->
             <Grid Grid.Row="6" Margin="0,8,0,30">
-                <Button Content="一键开始部署" Command="{Binding InstallCommand}"
-                        Style="{StaticResource ModernButtonStyle}" HorizontalAlignment="Center"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 一键深层卸载 -->
+                <Button Grid.Column="1" Content="一键深层卸载" Command="{Binding UninstallAllCommand}" Style="{StaticResource ModernButtonStyle}" Width="180">
+                    <Button.Resources>
+                        <LinearGradientBrush x:Key="BtnGradient" StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#991B1B" Offset="0.0"/>
+                            <GradientStop Color="#7F1D1D" Offset="1.0"/>
+                        </LinearGradientBrush>
+                        <LinearGradientBrush x:Key="BtnHoverGradient" StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#EF4444" Offset="0.0"/>
+                            <GradientStop Color="#DC2626" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Button.Resources>
+                </Button>
+
+                <!-- 一键开始部署 -->
+                <Button Grid.Column="3" Content="一键开始部署" Command="{Binding InstallCommand}" Style="{StaticResource ModernButtonStyle}" Width="180"/>
             </Grid>
         </Grid>
     </Viewbox>

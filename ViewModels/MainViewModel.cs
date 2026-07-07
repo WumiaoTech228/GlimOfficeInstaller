@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using GOI.Models;
 using GOI.Services;
+using GOI.Helpers;
 
 namespace GOI.ViewModels
 {
@@ -15,11 +16,20 @@ namespace GOI.ViewModels
     {
         private readonly InstallService _installService;
         private readonly WpsInstallService _wpsService;
+        private readonly YozoInstallService _yozoService;
+        private readonly OnlyOfficeInstallService _onlyOfficeService;
+        private readonly LibreOfficeInstallService _libreOfficeService;
+        private readonly CleanupService _cleanupService;
 
         public MainViewModel(InstallService installService)
         {
             _installService = installService;
             _wpsService = new WpsInstallService();
+            _yozoService = new YozoInstallService();
+            _onlyOfficeService = new OnlyOfficeInstallService();
+            _libreOfficeService = new LibreOfficeInstallService();
+            _cleanupService = new CleanupService();
+
             DetectedArch = Environment.Is64BitOperatingSystem ? Architecture.x64 : Architecture.x86;
             ArchText = DetectedArch == Architecture.x64 ? "系统架构：x64（64 位）" : "系统架构：x86（32 位）";
         }
@@ -29,14 +39,32 @@ namespace GOI.ViewModels
         private string _archText = "";
         public string ArchText { get => _archText; set => Set(ref _archText, value); }
 
-        // ========== 产品类型切换（MS Office / WPS）==========
+        // ========== 产品类型切换（MS Office / WPS / 永中 / OnlyOffice / LibreOffice）==========
         private ProductType _productType = ProductType.MsOffice;
-        public ProductType CurrentProductType { get => _productType; set { Set(ref _productType, value); OnPropertyChanged(nameof(IsMsOffice)); OnPropertyChanged(nameof(IsWps)); } }
+        public ProductType CurrentProductType
+        {
+            get => _productType;
+            set
+            {
+                Set(ref _productType, value);
+                OnPropertyChanged(nameof(IsMsOffice));
+                OnPropertyChanged(nameof(IsWps));
+                OnPropertyChanged(nameof(IsYozo));
+                OnPropertyChanged(nameof(IsOnlyOffice));
+                OnPropertyChanged(nameof(IsLibreOffice));
+            }
+        }
         public bool IsMsOffice => CurrentProductType == ProductType.MsOffice;
         public bool IsWps => CurrentProductType == ProductType.Wps;
+        public bool IsYozo => CurrentProductType == ProductType.Yozo;
+        public bool IsOnlyOffice => CurrentProductType == ProductType.OnlyOffice;
+        public bool IsLibreOffice => CurrentProductType == ProductType.LibreOffice;
 
         public ICommand SelectMsOfficeCommand => new RelayCommand(() => CurrentProductType = ProductType.MsOffice);
         public ICommand SelectWpsCommand => new RelayCommand(() => CurrentProductType = ProductType.Wps);
+        public ICommand SelectYozoCommand => new RelayCommand(() => CurrentProductType = ProductType.Yozo);
+        public ICommand SelectOnlyOfficeCommand => new RelayCommand(() => CurrentProductType = ProductType.OnlyOffice);
+        public ICommand SelectLibreOfficeCommand => new RelayCommand(() => CurrentProductType = ProductType.LibreOffice);
 
         // ========== WPS 版本选择 ==========
         private WpsVersion _selectedWpsVersion = WpsVersion.Wps2023;
@@ -51,6 +79,24 @@ namespace GOI.ViewModels
         public ICommand SelectWps2016Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2016);
         public ICommand SelectWps2019Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2019);
         public ICommand SelectWps2023Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2023);
+
+        // ========== 永中版本选择（仅1个） ==========
+        private YozoVersion _selectedYozoVersion = YozoVersion.YozoPersonal;
+        public YozoVersion SelectedYozoVersion { get => _selectedYozoVersion; set { Set(ref _selectedYozoVersion, value); OnPropertyChanged(nameof(YozoPersonalSelected)); } }
+        public bool YozoPersonalSelected => SelectedYozoVersion == YozoVersion.YozoPersonal;
+        public ICommand SelectYozoPersonalCommand => new RelayCommand(() => SelectedYozoVersion = YozoVersion.YozoPersonal);
+
+        // ========== OnlyOffice版本选择（仅1个） ==========
+        private OnlyOfficeVersion _selectedOnlyOfficeVersion = OnlyOfficeVersion.OnlyOfficeDesktop;
+        public OnlyOfficeVersion SelectedOnlyOfficeVersion { get => _selectedOnlyOfficeVersion; set { Set(ref _selectedOnlyOfficeVersion, value); OnPropertyChanged(nameof(OnlyOfficeDesktopSelected)); } }
+        public bool OnlyOfficeDesktopSelected => SelectedOnlyOfficeVersion == OnlyOfficeVersion.OnlyOfficeDesktop;
+        public ICommand SelectOnlyOfficeDesktopCommand => new RelayCommand(() => SelectedOnlyOfficeVersion = OnlyOfficeVersion.OnlyOfficeDesktop);
+
+        // ========== LibreOffice版本选择（仅1个） ==========
+        private LibreOfficeVersion _selectedLibreOfficeVersion = LibreOfficeVersion.LibreOfficeStable;
+        public LibreOfficeVersion SelectedLibreOfficeVersion { get => _selectedLibreOfficeVersion; set { Set(ref _selectedLibreOfficeVersion, value); OnPropertyChanged(nameof(LibreOfficeStableSelected)); } }
+        public bool LibreOfficeStableSelected => SelectedLibreOfficeVersion == LibreOfficeVersion.LibreOfficeStable;
+        public ICommand SelectLibreOfficeStableCommand => new RelayCommand(() => SelectedLibreOfficeVersion = LibreOfficeVersion.LibreOfficeStable);
 
         // ========== MS Office 版本卡片 ==========
         private int _versionGroup;
@@ -127,6 +173,7 @@ namespace GOI.ViewModels
 
         // ========== MS Office 导航命令 ==========
         public ICommand InstallCommand => new RelayCommand(async () => await InstallAsync(), () => CanInstall);
+        public ICommand UninstallAllCommand => new RelayCommand(async () => await UninstallAllAsync(), () => CanInstall);
         public ICommand SelectLeftCommand => new RelayCommand(SelectLeft);
         public ICommand SelectRightCommand => new RelayCommand(SelectRight);
         public ICommand PrevGroupCommand => new RelayCommand(() => { if (VersionGroup > 0) VersionGroup--; });
@@ -176,14 +223,15 @@ namespace GOI.ViewModels
             SelectLeft();
         }
 
-        // ========== 安装入口（自动分流 MS Office / WPS）==========
-        private CancellationTokenSource _wpsCts;
+        // ========== 安装入口（自动分流不同 Office 软件）==========
+        private CancellationTokenSource _installCts;
 
         private async Task InstallAsync()
         {
             Phase = InstallPhase.Downloading;
             IsProgressVisible = true;
             DownloadProgress = 0;
+            _installCts = new CancellationTokenSource();
 
             var phases = new Progress<string>(msg =>
             {
@@ -198,8 +246,19 @@ namespace GOI.ViewModels
             bool ok;
             if (CurrentProductType == ProductType.Wps)
             {
-                _wpsCts = new CancellationTokenSource();
-                ok = await _wpsService.InstallAsync(SelectedWpsVersion, phases, dl, _wpsCts.Token);
+                ok = await _wpsService.InstallAsync(SelectedWpsVersion, phases, dl, _installCts.Token);
+            }
+            else if (CurrentProductType == ProductType.Yozo)
+            {
+                ok = await _yozoService.InstallAsync(SelectedYozoVersion, phases, dl, _installCts.Token);
+            }
+            else if (CurrentProductType == ProductType.OnlyOffice)
+            {
+                ok = await _onlyOfficeService.InstallAsync(SelectedOnlyOfficeVersion, phases, dl, _installCts.Token);
+            }
+            else if (CurrentProductType == ProductType.LibreOffice)
+            {
+                ok = await _libreOfficeService.InstallAsync(SelectedLibreOfficeVersion, phases, dl, _installCts.Token);
             }
             else
             {
@@ -210,9 +269,46 @@ namespace GOI.ViewModels
 
             Phase = ok ? InstallPhase.Completed : InstallPhase.Failed;
             StatusText = ok
-                ? (CurrentProductType == ProductType.Wps ? "WPS 安装完成！" : "激活完成！Office 已成功安装并激活。")
+                ? "部署完成！软件已成功安装。"
                 : "安装失败，请查看日志了解详情。";
             IsProgressVisible = false;
+        }
+
+        // ========== 一键深层全能卸载 ==========
+        private async Task UninstallAllAsync()
+        {
+            var result = MessageBox.Show(
+                "深度卸载将强制终止所有正在运行的 Office (包含 MS Office, WPS, 永中, OnlyOffice, LibreOffice) 的进程，并删除注册表及残留文件夹。\n\n确认要继续吗？请务必先保存正在编辑的文档。",
+                "一键深层卸载确认",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            Phase = InstallPhase.Cleaning;
+            IsProgressVisible = true;
+            DownloadProgress = 10;
+            StatusText = "正在启动深层清理程序...";
+
+            var phases = new Progress<string>(msg => StatusText = msg);
+
+            try
+            {
+                await _cleanupService.CleanAsync(phases);
+                DownloadProgress = 100;
+                Phase = InstallPhase.Completed;
+                StatusText = "深层清理完成！所有 Office 套件残留已被清理干净。";
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("深度卸载失败", ex);
+                Phase = InstallPhase.Failed;
+                StatusText = "清理失败: " + ex.Message;
+            }
+            finally
+            {
+                IsProgressVisible = false;
+            }
         }
     }
 

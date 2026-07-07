@@ -30,6 +30,7 @@ namespace GOI.Services
             {
                 var paths = new[]
                 {
+                    // MS Office
                     @"SOFTWARE\Microsoft\Office",
                     @"SOFTWARE\Microsoft\Office\ClickToRun",
                     @"SOFTWARE\Microsoft\AppVisv",
@@ -51,7 +52,25 @@ namespace GOI.Services
                     @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Office16.PROPLUS",
                     @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Office16.VISIOPRO",
                     @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Office16.PROJECTPRO",
-                    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Office16.OUTLOOK"
+                    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Office16.OUTLOOK",
+                    
+                    // WPS
+                    @"SOFTWARE\Kingsoft",
+                    @"SOFTWARE\WOW6432Node\Kingsoft",
+
+                    // Yozo
+                    @"SOFTWARE\Yozosoft",
+                    @"SOFTWARE\WOW6432Node\Yozosoft",
+
+                    // OnlyOffice
+                    @"SOFTWARE\ONLYOFFICE",
+                    @"SOFTWARE\WOW6432Node\ONLYOFFICE",
+
+                    // LibreOffice
+                    @"SOFTWARE\The Document Foundation",
+                    @"SOFTWARE\LibreOffice",
+                    @"SOFTWARE\WOW6432Node\The Document Foundation",
+                    @"SOFTWARE\WOW6432Node\LibreOffice"
                 };
                 foreach (var p in paths) RegistryHelper.DeleteKey(p);
             });
