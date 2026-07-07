@@ -42,14 +42,14 @@ namespace GOI.Services
                 Logger.Info("配置文件已生成:\n" + xml);
 
                 // 阶段 4: 运行安装
+                // GOI.exe 已通过 manifest requireAdministrator 提权，setup.exe 继承管理员权限无需再次 runas
                 phaseText.Report("正在安装 Office …");
                 var psi = new ProcessStartInfo(AppConfig.SetupPath,
                     $"/configure \"{AppConfig.XmlConfigPath}\"")
                 {
-                    UseShellExecute = true,
-                    Verb = "runas",
-                    WorkingDirectory = AppConfig.RootPath,
-                    WindowStyle = ProcessWindowStyle.Hidden
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WorkingDirectory = AppConfig.RootPath
                 };
 
                 using (var proc = Process.Start(psi))
