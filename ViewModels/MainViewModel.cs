@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -13,10 +14,12 @@ namespace GOI.ViewModels
     public class MainViewModel : ObservableObject
     {
         private readonly InstallService _installService;
+        private readonly WpsInstallService _wpsService;
 
         public MainViewModel(InstallService installService)
         {
             _installService = installService;
+            _wpsService = new WpsInstallService();
             DetectedArch = Environment.Is64BitOperatingSystem ? Architecture.x64 : Architecture.x86;
             ArchText = DetectedArch == Architecture.x64 ? "系统架构：x64（64 位）" : "系统架构：x86（32 位）";
         }
@@ -26,7 +29,30 @@ namespace GOI.ViewModels
         private string _archText = "";
         public string ArchText { get => _archText; set => Set(ref _archText, value); }
 
-        // ========== 版本卡片 ==========
+        // ========== 产品类型切换（MS Office / WPS）==========
+        private ProductType _productType = ProductType.MsOffice;
+        public ProductType CurrentProductType { get => _productType; set { Set(ref _productType, value); OnPropertyChanged(nameof(IsMsOffice)); OnPropertyChanged(nameof(IsWps)); } }
+        public bool IsMsOffice => CurrentProductType == ProductType.MsOffice;
+        public bool IsWps => CurrentProductType == ProductType.Wps;
+
+        public ICommand SelectMsOfficeCommand => new RelayCommand(() => CurrentProductType = ProductType.MsOffice);
+        public ICommand SelectWpsCommand => new RelayCommand(() => CurrentProductType = ProductType.Wps);
+
+        // ========== WPS 版本选择 ==========
+        private WpsVersion _selectedWpsVersion = WpsVersion.Wps2023;
+        public WpsVersion SelectedWpsVersion { get => _selectedWpsVersion; set { Set(ref _selectedWpsVersion, value); OnPropertyChanged(nameof(Wps2013Selected)); OnPropertyChanged(nameof(Wps2016Selected)); OnPropertyChanged(nameof(Wps2019Selected)); OnPropertyChanged(nameof(Wps2023Selected)); } }
+
+        public bool Wps2013Selected => SelectedWpsVersion == WpsVersion.Wps2013;
+        public bool Wps2016Selected => SelectedWpsVersion == WpsVersion.Wps2016;
+        public bool Wps2019Selected => SelectedWpsVersion == WpsVersion.Wps2019;
+        public bool Wps2023Selected => SelectedWpsVersion == WpsVersion.Wps2023;
+
+        public ICommand SelectWps2013Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2013);
+        public ICommand SelectWps2016Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2016);
+        public ICommand SelectWps2019Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2019);
+        public ICommand SelectWps2023Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2023);
+
+        // ========== MS Office 版本卡片 ==========
         private int _versionGroup;
         public int VersionGroup { get => _versionGroup; set { Set(ref _versionGroup, value); RefreshCards(); } }
 
@@ -56,7 +82,7 @@ namespace GOI.ViewModels
         public bool RightArrowVisible { get => _rightArrowVisible; set => Set(ref _rightArrowVisible, value); }
         private OfficeVersion _currentVersion = OfficeVersion.Office2024;
 
-        // ========== 组件选择 ==========
+        // ========== 组件选择（仅 MS Office 使用）==========
         public ObservableCollection<ComponentItem> Components { get; } = new ObservableCollection<ComponentItem>
         {
             new ComponentItem("PowerPoint", OfficeComponent.PowerPoint, true),
@@ -92,14 +118,14 @@ namespace GOI.ViewModels
         public bool CanInstall => Phase != InstallPhase.Cleaning && Phase != InstallPhase.Downloading
                                && Phase != InstallPhase.Installing && Phase != InstallPhase.Activating;
 
-        // ========== 产品选择标题点击 ==========
+        // ========== 标题点击（关于） ==========
         public ICommand TitleClickCommand => new RelayCommand(() =>
         {
             MessageBox.Show("GOI - Glim Office Installer\n\n版本 2.0.0\n© 2025-2026 GlimStudio\n\n本软件仅供学习研究使用。",
                 "关于 GOI");
         });
 
-        // ========== 命令 ==========
+        // ========== MS Office 导航命令 ==========
         public ICommand InstallCommand => new RelayCommand(async () => await InstallAsync(), () => CanInstall);
         public ICommand SelectLeftCommand => new RelayCommand(SelectLeft);
         public ICommand SelectRightCommand => new RelayCommand(SelectRight);
@@ -150,13 +176,12 @@ namespace GOI.ViewModels
             SelectLeft();
         }
 
-        // ========== 安装 ==========
+        // ========== 安装入口（自动分流 MS Office / WPS）==========
+        private CancellationTokenSource _wpsCts;
+
         private async Task InstallAsync()
         {
-            var selected = new HashSet<OfficeComponent>(Components.Where(c => c.IsSelected).Select(c => c.Component));
-            if (selected.Count == 0) return;
-
-            Phase = InstallPhase.Cleaning;
+            Phase = InstallPhase.Downloading;
             IsProgressVisible = true;
             DownloadProgress = 0;
 
@@ -170,9 +195,23 @@ namespace GOI.ViewModels
             });
             var dl = new Progress<int>(p => DownloadProgress = p);
 
-            bool ok = await _installService.RunAsync(_currentVersion, DetectedArch, selected, phases, dl);
+            bool ok;
+            if (CurrentProductType == ProductType.Wps)
+            {
+                _wpsCts = new CancellationTokenSource();
+                ok = await _wpsService.InstallAsync(SelectedWpsVersion, phases, dl, _wpsCts.Token);
+            }
+            else
+            {
+                var selected = new HashSet<OfficeComponent>(Components.Where(c => c.IsSelected).Select(c => c.Component));
+                if (selected.Count == 0) { Phase = InstallPhase.Idle; IsProgressVisible = false; return; }
+                ok = await _installService.RunAsync(_currentVersion, DetectedArch, selected, phases, dl);
+            }
+
             Phase = ok ? InstallPhase.Completed : InstallPhase.Failed;
-            StatusText = ok ? "激活完成！Office已成功安装并激活。" : "安装失败，请查看日志了解详情。";
+            StatusText = ok
+                ? (CurrentProductType == ProductType.Wps ? "WPS 安装完成！" : "激活完成！Office 已成功安装并激活。")
+                : "安装失败，请查看日志了解详情。";
             IsProgressVisible = false;
         }
     }

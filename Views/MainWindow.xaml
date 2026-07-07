@@ -134,12 +134,75 @@
                 </Grid>
             </Border>
 
-            <!-- ===== 版本选择标题 ===== -->
-            <TextBlock Grid.Row="1" Text="选择要安装的 Office 版本" FontSize="15" FontWeight="SemiBold"
-                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,22,0,8"/>
+            <!-- ===== 产品/大类切换及标题 ===== -->
+            <StackPanel Grid.Row="1" Margin="0,15,0,0">
+                <!-- 产品大类切换 Tab -->
+                <Border Background="#151518" BorderBrush="#242427" BorderThickness="1" CornerRadius="10" HorizontalAlignment="Center" Height="40" Padding="3">
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Microsoft Office 选项 -->
+                        <Border CornerRadius="8" Cursor="Hand" Width="140">
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding SelectMsOfficeCommand}"/>
+                            </Border.InputBindings>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMsOffice}" Value="True">
+                                            <Setter Property="Background" Value="#1E293B"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="Microsoft Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMsOffice}" Value="True">
+                                                <Setter Property="Foreground" Value="#1FA3E2"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
 
-            <!-- ===== 版本卡片行 ===== -->
-            <Grid Grid.Row="2" Height="140" Margin="25,10,25,0">
+                        <!-- WPS Office 选项 -->
+                        <Border CornerRadius="8" Cursor="Hand" Width="140">
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding SelectWpsCommand}"/>
+                            </Border.InputBindings>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsWps}" Value="True">
+                                            <Setter Property="Background" Value="#2E1065"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="WPS Office" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#71717A"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsWps}" Value="True">
+                                                <Setter Property="Foreground" Value="#8B5CF6"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ===== MS Office 版本卡片行 ===== -->
+            <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
+                  Visibility="{Binding IsMsOffice, Converter={StaticResource BoolToVisibility}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -264,17 +327,146 @@
                 </Button>
             </Grid>
 
-            <!-- ===== 产品选择标题 ===== -->
+            <!-- ===== WPS 版本卡片行 ===== -->
+            <Grid Grid.Row="2" Height="140" Margin="25,10,25,0"
+                  Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- WPS 2023 Card -->
+                <Border Grid.Column="0" CornerRadius="12" BorderThickness="1.5" Cursor="Hand">
+                    <Border.InputBindings>
+                        <MouseBinding Command="{Binding SelectWps2023Command}" MouseAction="LeftClick"/>
+                    </Border.InputBindings>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#242427"/>
+                            <Setter Property="Background" Value="#151518"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Wps2023Selected}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
+                                    <Setter Property="Background" Value="#2E1065"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
+                                       Foreground="#8B5CF6" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="WPS 2023" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
+                            <TextBlock Text="专业版 12.1" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- WPS 2019 Card -->
+                <Border Grid.Column="2" CornerRadius="12" BorderThickness="1.5" Cursor="Hand">
+                    <Border.InputBindings>
+                        <MouseBinding Command="{Binding SelectWps2019Command}" MouseAction="LeftClick"/>
+                    </Border.InputBindings>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#242427"/>
+                            <Setter Property="Background" Value="#151518"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Wps2019Selected}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
+                                    <Setter Property="Background" Value="#2E1065"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
+                                       Foreground="#8B5CF6" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="WPS 2019" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
+                            <TextBlock Text="专业版 11.8" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- WPS 2016 Card -->
+                <Border Grid.Column="4" CornerRadius="12" BorderThickness="1.5" Cursor="Hand">
+                    <Border.InputBindings>
+                        <MouseBinding Command="{Binding SelectWps2016Command}" MouseAction="LeftClick"/>
+                    </Border.InputBindings>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#242427"/>
+                            <Setter Property="Background" Value="#151518"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Wps2016Selected}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
+                                    <Setter Property="Background" Value="#2E1065"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
+                                       Foreground="#8B5CF6" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="WPS 2016" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
+                            <TextBlock Text="专业版 10.8" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- WPS 2013 Card -->
+                <Border Grid.Column="6" CornerRadius="12" BorderThickness="1.5" Cursor="Hand">
+                    <Border.InputBindings>
+                        <MouseBinding Command="{Binding SelectWps2013Command}" MouseAction="LeftClick"/>
+                    </Border.InputBindings>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#242427"/>
+                            <Setter Property="Background" Value="#151518"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Wps2013Selected}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
+                                    <Setter Property="Background" Value="#2E1065"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" 
+                                       Foreground="#8B5CF6" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="WPS 2013" FontSize="14" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center"/>
+                            <TextBlock Text="专业版 9.1" FontSize="10" Foreground="#71717A" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ===== MS Office 组件选择标题 ===== -->
             <TextBlock Grid.Row="3" Text="选择需要包含的组件" FontSize="15" FontWeight="SemiBold"
-                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8">
+                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
+                       Visibility="{Binding IsMsOffice, Converter={StaticResource BoolToVisibility}}">
                 <TextBlock.InputBindings>
                     <MouseBinding MouseAction="LeftClick" Command="{Binding TitleClickCommand}"/>
                 </TextBlock.InputBindings>
             </TextBlock>
 
-            <!-- ===== 组件面板 ===== -->
+            <!-- ===== WPS 信息标题 ===== -->
+            <TextBlock Grid.Row="3" Text="部署信息说明" FontSize="15" FontWeight="SemiBold"
+                       Foreground="#E4E4E7" HorizontalAlignment="Center" Margin="0,26,0,8"
+                       Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}"/>
+
+            <!-- ===== MS Office 组件面板 ===== -->
             <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
-                    Background="#151518" Margin="25,5,25,0" Height="175">
+                    Background="#151518" Margin="25,5,25,0" Height="175"
+                    Visibility="{Binding IsMsOffice, Converter={StaticResource BoolToVisibility}}">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
                 </Border.Effect>
@@ -290,6 +482,22 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+            </Border>
+
+            <!-- ===== WPS 提示面板 ===== -->
+            <Border Grid.Row="4" CornerRadius="14" BorderBrush="#242427" BorderThickness="1"
+                    Background="#151518" Margin="25,5,25,0" Height="175"
+                    Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="#000000" Opacity="0.2"/>
+                </Border.Effect>
+                <Grid Margin="30,20">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="• 提供静默自动安装选项，已预设静默安装指令参数（/S）" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 企业专业版纯净无广告，更轻量，更稳定" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="• 安装包由高可用分发网络托管，极速下载安装" FontSize="13" Foreground="#A1A1AA" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Grid>
             </Border>
 
             <!-- ===== 进度条 + 状态 ===== -->

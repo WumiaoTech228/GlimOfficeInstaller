@@ -1,5 +1,21 @@
 namespace GOI.Models
 {
+    /// <summary>产品类型（MS Office 或 WPS）</summary>
+    public enum ProductType
+    {
+        MsOffice,
+        Wps
+    }
+
+    /// <summary>WPS Office 版本</summary>
+    public enum WpsVersion
+    {
+        Wps2013,
+        Wps2016,
+        Wps2019,
+        Wps2023
+    }
+
     /// <summary>Office 版本枚举</summary>
     public enum OfficeVersion
     {
