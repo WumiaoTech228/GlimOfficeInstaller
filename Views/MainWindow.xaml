@@ -8,7 +8,6 @@
         ui:ThemeManager.RequestedTheme="Dark"
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:WindowHelper.SystemBackdropType="Mica"
-        Background="Transparent"
         Icon="/Resources/logo.png">
 
     <Window.Resources>
