@@ -98,12 +98,19 @@ namespace GOI.ViewModels
             }
         }
 
-        // ========== WPS 版本选择（仅官方最新版） ==========
-        private WpsVersion _selectedWpsVersion = WpsVersion.WpsOfficial;
-        public WpsVersion SelectedWpsVersion { get => _selectedWpsVersion; set { Set(ref _selectedWpsVersion, value); OnPropertyChanged(nameof(WpsOfficialSelected)); } }
+        // ========== WPS 版本选择 ==========
+        private WpsVersion _selectedWpsVersion = WpsVersion.WpsLatest;
+        public WpsVersion SelectedWpsVersion { get => _selectedWpsVersion; set { Set(ref _selectedWpsVersion, value); OnPropertyChanged(nameof(Wps2013Selected)); OnPropertyChanged(nameof(Wps2016Selected)); OnPropertyChanged(nameof(Wps2019Selected)); OnPropertyChanged(nameof(WpsLatestSelected)); } }
 
-        public bool WpsOfficialSelected => SelectedWpsVersion == WpsVersion.WpsOfficial;
-        public ICommand SelectWpsOfficialCommand => new RelayCommand(() => SelectedWpsVersion = WpsVersion.WpsOfficial);
+        public bool Wps2013Selected => SelectedWpsVersion == WpsVersion.Wps2013;
+        public bool Wps2016Selected => SelectedWpsVersion == WpsVersion.Wps2016;
+        public bool Wps2019Selected => SelectedWpsVersion == WpsVersion.Wps2019;
+        public bool WpsLatestSelected => SelectedWpsVersion == WpsVersion.WpsLatest;
+
+        public ICommand SelectWps2013Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2013);
+        public ICommand SelectWps2016Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2016);
+        public ICommand SelectWps2019Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2019);
+        public ICommand SelectWpsLatestCommand => new RelayCommand(() => SelectedWpsVersion = WpsVersion.WpsLatest);
 
         // ========== 永中版本选择（仅1个） ==========
         private YozoVersion _selectedYozoVersion = YozoVersion.YozoPersonal;

@@ -11,21 +11,33 @@ namespace GOI.Services
 {
     public class WpsInstallService
     {
-        /// <summary>WPS Office 官方个人版 CDN 直链（wps.cn 官网实际下发的安装包）</summary>
-        private const string WpsOfficialUrl = "https://official-package.wpscdn.cn/wps/download/WPS_Setup.exe";
-        private const string WpsFileName = "WPS_Setup.exe";
+        private static readonly string[] WpsUrls =
+        {
+            /* 2013 */ "https://share.osbox.top/d/Office/WPS/WPSOffice_Professional_2013_9.1.0.5026(2024.08.15).exe?sign=RN7RcHfiroz81R-gZzoUljzXjGzveyRTIiRDmpJSw48=:1783540085",
+            /* 2016 */ "https://share.osbox.top/d/Office/WPS/WPS%20Office%202016%20%E4%B8%93%E4%B8%9A%E5%A2%9E%E5%BC%BA%E7%89%88_10.8.2.7164_mefcl_Setup.exe?sign=79sBvillY6_oqXPyUl4CKdDA_ooAG2duWXJ7D7tSsPg=:1783540085",
+            /* 2019 */ "https://share.osbox.top/d/Office/WPS/WPSOffice2019ProPlus_11.8.2.12330_mefcl.exe?sign=qL5uRhU1DuyQj5M7NvKPXllmsNP6sRLw9UdYx8ITyTk=:1783540085",
+            /* 最新版(官方) */ "https://official-package.wpscdn.cn/wps/download/WPS_Setup_26899.exe"
+        };
 
-        /// <summary>下载并静默安装 WPS 官方个人版</summary>
+        private static readonly string[] WpsFileNames =
+        {
+            "WPS2013.exe", "WPS2016.exe", "WPS2019.exe", "WPS_Setup_26899.exe"
+        };
+
+        /// <summary>下载并静默安装 WPS，以伪进度条报告进度</summary>
         public async Task<bool> InstallAsync(
             WpsVersion version,
             IProgress<string> phaseText,
             IProgress<int> progressPercent,
             CancellationToken ct = default)
         {
-            string localPath = Path.Combine(AppConfig.RootPath, WpsFileName);
+            int idx = (int)version;
+            string url = WpsUrls[idx];
+            string fileName = WpsFileNames[idx];
+            string localPath = Path.Combine(AppConfig.RootPath, fileName);
 
             // ── 阶段 1：下载 ──
-            phaseText.Report("正在从 WPS 官方服务器下载最新版...");
+            phaseText.Report($"正在下载 WPS {GetVersionLabel(version)}...");
             try
             {
                 using (var client = new WebClient())
@@ -34,7 +46,7 @@ namespace GOI.Services
                         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
                     client.DownloadProgressChanged += (s, e) =>
                         progressPercent?.Report(e.ProgressPercentage / 2); // 下载占 0-50%
-                    await client.DownloadFileTaskAsync(new Uri(WpsOfficialUrl), localPath);
+                    await client.DownloadFileTaskAsync(new Uri(url), localPath);
                 }
             }
             catch (Exception ex)
@@ -46,13 +58,18 @@ namespace GOI.Services
             }
 
             // ── 阶段 2：静默安装 ──
-            phaseText.Report("正在静默安装 WPS Office...");
+            phaseText.Report($"正在静默安装 WPS {GetVersionLabel(version)}...");
             progressPercent?.Report(55);
 
             try
             {
-                // 官方个人版安装包支持 /S 静默参数
-                var psi = new ProcessStartInfo(localPath, "/S")
+                string args = "/S";
+                if (version == WpsVersion.Wps2019)
+                {
+                    args = "/NoCloud";
+                }
+
+                var psi = new ProcessStartInfo(localPath, args)
                 {
                     UseShellExecute = false,
                     CreateNoWindow = true
@@ -73,7 +90,7 @@ namespace GOI.Services
                 }
 
                 progressPercent?.Report(100);
-                phaseText.Report("WPS Office 安装完成！");
+                phaseText.Report($"WPS {GetVersionLabel(version)} 安装完成！");
 
                 // 清理安装包
                 try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
@@ -99,6 +116,14 @@ namespace GOI.Services
                 await Task.Delay(intervalMs, ct).ContinueWith(_ => { }); // 忽略取消异常
             }
         }
+
+        private static string GetVersionLabel(WpsVersion v) => v switch
+        {
+            WpsVersion.Wps2013 => "2013",
+            WpsVersion.Wps2016 => "2016",
+            WpsVersion.Wps2019 => "2019",
+            WpsVersion.WpsLatest => "官方最新版",
+            _ => ""
+        };
     }
 }
-

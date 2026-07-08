@@ -13,7 +13,10 @@ namespace GOI.Models
     /// <summary>WPS Office 版本</summary>
     public enum WpsVersion
     {
-        WpsOfficial
+        Wps2013,
+        Wps2016,
+        Wps2019,
+        WpsLatest
     }
 
     /// <summary>永中 Office 版本</summary>

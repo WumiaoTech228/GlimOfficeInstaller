@@ -216,15 +216,118 @@
                         </Button>
                     </Grid>
 
-                    <!-- 2. WPS Office Cards Panel (单一官方版) -->
+                    <!-- 2. WPS Office Cards Panel -->
                     <Grid Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}">
-                        <Border CornerRadius="8" BorderThickness="1.5" Cursor="Hand" HorizontalAlignment="Center" Width="240"
-                                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource SystemControlHighlightAccentBrush}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- WPS 官方最新版 -->
+                        <Border Grid.Column="0" CornerRadius="8" BorderThickness="1.5" Cursor="Hand">
+                            <Border.InputBindings>
+                                <MouseBinding Command="{Binding SelectWpsLatestCommand}" MouseAction="LeftClick"/>
+                            </Border.InputBindings>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding WpsLatestSelected}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                            <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
                             <Grid VerticalAlignment="Center">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                                    <TextBlock Text="WPS Office" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="官方最新版" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="10" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="WPS 最新版" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="官方渠道" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="10" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- WPS 2019 -->
+                        <Border Grid.Column="2" CornerRadius="8" BorderThickness="1.5" Cursor="Hand">
+                            <Border.InputBindings>
+                                <MouseBinding Command="{Binding SelectWps2019Command}" MouseAction="LeftClick"/>
+                            </Border.InputBindings>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Wps2019Selected}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                            <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid VerticalAlignment="Center">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                                    <TextBlock Text="WPS 2019" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="11.8" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="10" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- WPS 2016 -->
+                        <Border Grid.Column="4" CornerRadius="8" BorderThickness="1.5" Cursor="Hand">
+                            <Border.InputBindings>
+                                <MouseBinding Command="{Binding SelectWps2016Command}" MouseAction="LeftClick"/>
+                            </Border.InputBindings>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Wps2016Selected}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                            <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid VerticalAlignment="Center">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                                    <TextBlock Text="WPS 2016" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="10.8" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="10" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- WPS 2013 -->
+                        <Border Grid.Column="6" CornerRadius="8" BorderThickness="1.5" Cursor="Hand">
+                            <Border.InputBindings>
+                                <MouseBinding Command="{Binding SelectWps2013Command}" MouseAction="LeftClick"/>
+                            </Border.InputBindings>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Wps2013Selected}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                            <Setter Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid VerticalAlignment="Center">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="24" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                                    <TextBlock Text="WPS 2013" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="9.1" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="10" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -321,8 +424,8 @@
                         Visibility="{Binding IsWps, Converter={StaticResource BoolToVisibility}}">
                     <Grid Margin="20,15">
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="• 直接从 WPS 官方 CDN 服务器（official-package.wpscdn.cn）拉取最新版安装包。" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12.5" Margin="0,4,0,0"/>
-                            <TextBlock Text="• 官方个人版安装包支持 /S 全自动静默部署参数，无需人工干预。" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12.5" Margin="0,4,0,0"/>
+                            <TextBlock Text="• 最新版直接从 WPS 官方 CDN 服务器（official-package.wpscdn.cn）拉取安装包。" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12.5" Margin="0,4,0,0"/>
+                            <TextBlock Text="• WPS 2019 已适配 /NoCloud 纯净无云服务静默参数，其余版本使用 /S 静默部署。" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12.5" Margin="0,4,0,0"/>
                             <TextBlock Text="• 安装完成后自动清理下载的临时安装包，保持系统整洁。" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12.5" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Grid>
