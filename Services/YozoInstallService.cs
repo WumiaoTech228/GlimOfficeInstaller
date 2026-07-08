@@ -9,6 +9,7 @@ using GOI.Helpers;
 using GOI.Models;
 using SharpCompress.Archives;
 using SharpCompress.Common;
+using SharpCompress.Readers;
 
 namespace GOI.Services
 {
@@ -57,13 +58,14 @@ namespace GOI.Services
 
                 await Task.Run(() =>
                 {
-                    using (var archive = ArchiveFactory.OpenArchive(localPath))
+                    using (var fs = File.OpenRead(localPath))
+                    using (var reader = ReaderFactory.OpenReader(fs))
                     {
-                        foreach (var entry in archive.Entries)
+                        while (reader.MoveToNextEntry())
                         {
-                            if (!entry.IsDirectory)
+                            if (!reader.Entry.IsDirectory)
                             {
-                                entry.WriteToDirectory(extractPath, new ExtractionOptions
+                                reader.WriteEntryToDirectory(extractPath, new ExtractionOptions
                                 {
                                     ExtractFullPath = true,
                                     Overwrite = true

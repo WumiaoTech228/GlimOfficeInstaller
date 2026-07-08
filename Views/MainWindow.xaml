@@ -7,6 +7,8 @@
         ResizeMode="CanMinimize"
         Width="830"
         Height="730"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
         ui:ThemeManager.RequestedTheme="Default"
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:WindowHelper.SystemBackdropType="Mica"
@@ -53,27 +55,27 @@
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="Microsoft Office" Tag="MsOffice">
                     <ui:NavigationViewItem.Icon>
-                        <Image Source="pack://application:,,,/GOI;component/Resources/ms_office_logo.png" Width="18" Height="18" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                        <Image Source="pack://application:,,,/GOI;component/Resources/ms_office_logo.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="WPS Office" Tag="Wps">
                     <ui:NavigationViewItem.Icon>
-                        <Image Source="pack://application:,,,/GOI;component/Resources/wps_office_logo.png" Width="18" Height="18" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                        <Image Source="pack://application:,,,/GOI;component/Resources/wps_office_logo.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="永中 Office" Tag="Yozo">
                     <ui:NavigationViewItem.Icon>
-                        <Image Source="pack://application:,,,/GOI;component/Resources/yozo_office_logo.png" Width="18" Height="18" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                        <Image Source="pack://application:,,,/GOI;component/Resources/yozo_office_logo.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="OnlyOffice" Tag="OnlyOffice">
                     <ui:NavigationViewItem.Icon>
-                        <Image Source="pack://application:,,,/GOI;component/Resources/onlyoffice_logo.png" Width="18" Height="18" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                        <Image Source="pack://application:,,,/GOI;component/Resources/onlyoffice_logo.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="LibreOffice" Tag="LibreOffice">
                     <ui:NavigationViewItem.Icon>
-                        <Image Source="pack://application:,,,/GOI;component/Resources/libreoffice_logo.png" Width="18" Height="18" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                        <Image Source="pack://application:,,,/GOI;component/Resources/libreoffice_logo.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
