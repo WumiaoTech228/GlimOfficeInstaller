@@ -21,6 +21,11 @@
     <Resource Include="Resources\icon.ico" />
     <EmbeddedResource Include="Resources\Ohook_Activation_AIO.cmd" />
     <Resource Include="Resources\logo.png" />
+    <Resource Include="Resources\ms_office_logo.png" />
+    <Resource Include="Resources\wps_office_logo.png" />
+    <Resource Include="Resources\yozo_office_logo.png" />
+    <Resource Include="Resources\onlyoffice_logo.png" />
+    <Resource Include="Resources\libreoffice_logo.png" />
   </ItemGroup>
 
   <ItemGroup>

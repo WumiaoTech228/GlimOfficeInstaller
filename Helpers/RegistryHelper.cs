@@ -170,67 +170,72 @@ namespace GOI.Helpers
                 @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
             };
 
-            foreach (var bp in basePaths)
+            var hives = new[] { Registry.LocalMachine, Registry.CurrentUser };
+
+            foreach (var hive in hives)
             {
-                try
+                foreach (var bp in basePaths)
                 {
-                    using (var root = Registry.LocalMachine.OpenSubKey(bp, writable: true))
+                    try
                     {
-                        if (root == null) continue;
-                        foreach (var sub in root.GetSubKeyNames())
+                        using (var root = hive.OpenSubKey(bp, writable: true))
                         {
-                            try
+                            if (root == null) continue;
+                            foreach (var sub in root.GetSubKeyNames())
                             {
-                                using (var key = root.OpenSubKey(sub))
+                                try
                                 {
-                                    if (key == null) continue;
-                                    var dn = (key.GetValue("DisplayName") as string) ?? "";
-                                    var pub = (key.GetValue("Publisher") as string) ?? "";
-                                    var us = (key.GetValue("UninstallString") as string) ?? "";
-
-                                    bool isMsOffice = dn.Contains("Microsoft Office") ||
-                                                      dn.Contains("Microsoft 365") ||
-                                                      dn.Contains("Office 16") ||
-                                                      dn.Contains("Office 15") ||
-                                                      sub.StartsWith("Office1") ||
-                                                      us.Contains("OfficeClickToRun") ||
-                                                      (pub.Contains("Microsoft Corporation") && (dn.Contains("Office") || dn.Contains("365")));
-
-                                    bool isWps = dn.Contains("WPS Office") || sub.Contains("WPS Office");
-                                    bool isYozo = dn.Contains("永中") || dn.Contains("Yozo");
-                                    bool isOnlyOffice = dn.Contains("ONLYOFFICE") || sub.Contains("ONLYOFFICE");
-                                    bool isLibreOffice = dn.Contains("LibreOffice") || sub.Contains("LibreOffice");
-
-                                    bool shouldClean = false;
-                                    switch (product)
+                                    using (var key = root.OpenSubKey(sub))
                                     {
-                                        case ProductType.MsOffice: shouldClean = isMsOffice; break;
-                                        case ProductType.Wps: shouldClean = isWps; break;
-                                        case ProductType.Yozo: shouldClean = isYozo; break;
-                                        case ProductType.OnlyOffice: shouldClean = isOnlyOffice; break;
-                                        case ProductType.LibreOffice: shouldClean = isLibreOffice; break;
-                                    }
+                                        if (key == null) continue;
+                                        var dn = (key.GetValue("DisplayName") as string) ?? "";
+                                        var pub = (key.GetValue("Publisher") as string) ?? "";
+                                        var us = (key.GetValue("UninstallString") as string) ?? "";
 
-                                    if (shouldClean)
-                                    {
-                                        Logger.Info($"发现卸载项: {dn}，准备静默调用卸载器...");
+                                        bool isMsOffice = dn.Contains("Microsoft Office") ||
+                                                          dn.Contains("Microsoft 365") ||
+                                                          dn.Contains("Office 16") ||
+                                                          dn.Contains("Office 15") ||
+                                                          sub.StartsWith("Office1") ||
+                                                          us.Contains("OfficeClickToRun") ||
+                                                          (pub.Contains("Microsoft Corporation") && (dn.Contains("Office") || dn.Contains("365")));
 
-                                        // 如果有卸载字符串，静默调用它
-                                        if (!string.IsNullOrEmpty(us))
+                                        bool isWps = dn.Contains("WPS Office") || sub.Contains("WPS Office");
+                                        bool isYozo = dn.Contains("永中") || dn.Contains("Yozo");
+                                        bool isOnlyOffice = dn.Contains("ONLYOFFICE") || sub.Contains("ONLYOFFICE");
+                                        bool isLibreOffice = dn.Contains("LibreOffice") || sub.Contains("LibreOffice");
+
+                                        bool shouldClean = false;
+                                        switch (product)
                                         {
-                                            RunUninstaller(us);
+                                            case ProductType.MsOffice: shouldClean = isMsOffice; break;
+                                            case ProductType.Wps: shouldClean = isWps; break;
+                                            case ProductType.Yozo: shouldClean = isYozo; break;
+                                            case ProductType.OnlyOffice: shouldClean = isOnlyOffice; break;
+                                            case ProductType.LibreOffice: shouldClean = isLibreOffice; break;
                                         }
 
-                                        root.DeleteSubKeyTree(sub, throwOnMissingSubKey: false);
-                                        Logger.Info("已清理注册表卸载项: " + dn);
+                                        if (shouldClean)
+                                        {
+                                            Logger.Info($"发现卸载项: {dn}，准备静默调用卸载器...");
+
+                                            // 如果有卸载字符串，静默调用它
+                                            if (!string.IsNullOrEmpty(us))
+                                            {
+                                                RunUninstaller(us);
+                                            }
+
+                                            root.DeleteSubKeyTree(sub, throwOnMissingSubKey: false);
+                                            Logger.Info("已清理注册表卸载项: " + dn);
+                                        }
                                     }
                                 }
+                                catch { }
                             }
-                            catch { }
                         }
                     }
+                    catch { }
                 }
-                catch { }
             }
         }
 
