@@ -314,10 +314,13 @@ namespace GOI.Helpers
             }
         }
 
-        /// <summary>删除特定 Office 品牌的残留文件目录</summary>
+        /// <summary>删除特定 Office 品牌的残留文件目录、开始菜单快捷方式、AppData缓存与注册表关联深度清除</summary>
         public static void CleanResidualFolders(ProductType product)
         {
             var folders = new List<string>();
+            var registryPaths = new List<string>();
+            string userProfile = Environment.GetEnvironmentVariable("USERPROFILE") ?? "";
+
             switch (product)
             {
                 case ProductType.MsOffice:
@@ -332,41 +335,97 @@ namespace GOI.Helpers
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Common Files\\Microsoft Shared\\ClickToRun"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft\\ClickToRun")
                     });
+                    // Registry paths to delete
+                    registryPaths.AddRange(new[] {
+                        @"SOFTWARE\Microsoft\Office",
+                        @"SOFTWARE\WOW6432Node\Microsoft\Office"
+                    });
                     break;
+
                 case ProductType.Wps:
                     folders.AddRange(new[] {
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Kingsoft"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Kingsoft"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Kingsoft"),
-                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Kingsoft")
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Kingsoft"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Kingsoft"),
+                        // Start Menu items
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft\\Windows\\Start Menu\\Programs\\WPS Office"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Windows\\Start Menu\\Programs\\WPS Office"),
+                        // User Profile WPS dirs
+                        Path.Combine(userProfile, "Documents\\WPS"),
+                        Path.Combine(userProfile, "AppData\\Local\\Temp\\wps")
+                    });
+                    registryPaths.AddRange(new[] {
+                        @"SOFTWARE\Kingsoft",
+                        @"SOFTWARE\WOW6432Node\Kingsoft",
+                        @"Software\Kingsoft"
                     });
                     break;
+
                 case ProductType.Yozo:
                     folders.AddRange(new[] {
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Yozosoft"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Yozosoft"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Yozosoft"),
-                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Yozosoft")
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Yozosoft"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Yozosoft"),
+                        // Start Menu
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft\\Windows\\Start Menu\\Programs\\永中Office"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Windows\\Start Menu\\Programs\\永中Office"),
+                        Path.Combine(userProfile, "YozoOffice")
+                    });
+                    registryPaths.AddRange(new[] {
+                        @"SOFTWARE\Yozosoft",
+                        @"SOFTWARE\WOW6432Node\Yozosoft",
+                        @"Software\Yozosoft"
                     });
                     break;
+
                 case ProductType.OnlyOffice:
                     folders.AddRange(new[] {
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ONLYOFFICE"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "ONLYOFFICE"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Ascensio System SIA"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Ascensio System SIA"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ONLYOFFICE"),
-                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ONLYOFFICE")
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ONLYOFFICE"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ONLYOFFICE"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft\\Windows\\Start Menu\\Programs\\ONLYOFFICE"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Windows\\Start Menu\\Programs\\ONLYOFFICE")
+                    });
+                    registryPaths.AddRange(new[] {
+                        @"SOFTWARE\ONLYOFFICE",
+                        @"SOFTWARE\WOW6432Node\ONLYOFFICE",
+                        @"Software\ONLYOFFICE",
+                        @"SOFTWARE\Ascensio System SIA",
+                        @"SOFTWARE\WOW6432Node\Ascensio System SIA",
+                        @"Software\Ascensio System SIA"
                     });
                     break;
+
                 case ProductType.LibreOffice:
                     folders.AddRange(new[] {
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "LibreOffice"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "LibreOffice"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LibreOffice"),
-                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LibreOffice")
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LibreOffice"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LibreOffice"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft\\Windows\\Start Menu\\Programs\\LibreOffice"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Windows\\Start Menu\\Programs\\LibreOffice")
+                    });
+                    registryPaths.AddRange(new[] {
+                        @"SOFTWARE\The Document Foundation",
+                        @"SOFTWARE\LibreOffice",
+                        @"SOFTWARE\WOW6432Node\The Document Foundation",
+                        @"SOFTWARE\WOW6432Node\LibreOffice",
+                        @"Software\The Document Foundation",
+                        @"Software\LibreOffice"
                     });
                     break;
             }
 
+            // 1. Delete remaining directories
             foreach (var f in folders)
             {
                 try
@@ -381,6 +440,12 @@ namespace GOI.Helpers
                 {
                     Logger.Warn($"删除残留目录失败: {f}, 错误: {ex.Message}");
                 }
+            }
+
+            // 2. Deep clean registry hives (delete HKCU and HKLM folders keys)
+            foreach (var p in registryPaths)
+            {
+                DeleteKey(p);
             }
         }
     }
