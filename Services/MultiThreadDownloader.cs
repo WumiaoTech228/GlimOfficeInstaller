@@ -68,9 +68,13 @@ namespace GOI.Services
                 return;
             }
 
+            // 2. 提升 .NET HttpWebRequest 默认的最大并发连接限制 (默认为 2 极其缓慢)
+            ServicePointManager.DefaultConnectionLimit = 512;
+            ServicePointManager.Expect100Continue = false;
+
             Logger.Info($"多线程下载: {threadCount} 线程, 文件大小: {totalSize / 1024 / 1024}MB");
 
-            // 2. 计算每个分段的范围
+            // 3. 计算每个分段的范围
             long segmentSize = totalSize / threadCount;
             var segments = new SegmentInfo[threadCount];
             for (int i = 0; i < threadCount; i++)
@@ -84,13 +88,13 @@ namespace GOI.Services
                 };
             }
 
-            // 3. 创建目标文件（预分配大小）
+            // 4. 创建目标文件（预分配大小）
             using (var fs = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 fs.SetLength(totalSize);
             }
 
-            // 4. 并发下载所有分段
+            // 5. 并发下载所有分段
             long totalDownloaded = 0;
             var lockObj = new object();
 
@@ -117,28 +121,29 @@ namespace GOI.Services
                             using (var resp = (HttpWebResponse)await Task.Factory.FromAsync(
                                 req.BeginGetResponse, req.EndGetResponse, null))
                             using (var stream = resp.GetResponseStream())
+                            using (var fs = new FileStream(savePath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
                             {
                                 var buffer = new byte[BufferSize];
                                 int bytesRead;
 
-                                // 用独立的 FileStream 写入对应偏移位置
-                                using (var fs = new FileStream(savePath, FileMode.Open,
-                                    FileAccess.Write, FileShare.ReadWrite))
+                                while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
                                 {
-                                    fs.Seek(seg.Start + seg.Downloaded, SeekOrigin.Begin);
-
-                                    while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
+                                    ct.ThrowIfCancellationRequested();
+                                    
+                                    // 线程安全定位写入
+                                    lock (lockObj)
                                     {
-                                        ct.ThrowIfCancellationRequested();
-                                        await fs.WriteAsync(buffer, 0, bytesRead, ct);
-                                        seg.Downloaded += bytesRead;
+                                        fs.Seek(seg.Start + seg.Downloaded, SeekOrigin.Begin);
+                                        fs.Write(buffer, 0, bytesRead);
+                                    }
+                                    
+                                    seg.Downloaded += bytesRead;
 
-                                        lock (lockObj)
-                                        {
-                                            totalDownloaded += bytesRead;
-                                            int pct = (int)(totalDownloaded * 100 / totalSize);
-                                            progress?.Report(Math.Min(pct, 100));
-                                        }
+                                    lock (lockObj)
+                                    {
+                                        totalDownloaded += bytesRead;
+                                        int pct = (int)(totalDownloaded * 100 / totalSize);
+                                        progress?.Report(Math.Min(pct, 100));
                                     }
                                 }
                             }
