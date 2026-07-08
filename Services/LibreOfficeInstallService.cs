@@ -27,13 +27,12 @@ namespace GOI.Services
             phaseText.Report("正在下载 LibreOffice 稳定版...");
             try
             {
-                using (var client = new WebClient())
+                var downloader = new MultiThreadDownloader();
+                var downloadProgress = new Progress<int>(pct =>
                 {
-                    client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-                    client.DownloadProgressChanged += (s, e) =>
-                        progressPercent?.Report(e.ProgressPercentage / 2); // 下载占 0-50%
-                    await client.DownloadFileTaskAsync(new Uri(LibreOfficeUrl), localPath);
-                }
+                    progressPercent?.Report(pct / 2); // 下载占 0-50%
+                });
+                await downloader.DownloadAsync(LibreOfficeUrl, localPath, downloadProgress, 8, ct);
             }
             catch (Exception ex)
             {
