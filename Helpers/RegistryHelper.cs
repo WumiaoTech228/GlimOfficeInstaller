@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Win32;
+using GOI.Models;
 
 namespace GOI.Helpers
 {
@@ -22,24 +23,35 @@ namespace GOI.Helpers
             catch { /* 键不存在或无权限，忽略 */ }
         }
 
-        /// <summary>终止所有 Office 相关进程</summary>
-        public static void KillOfficeProcesses()
+        /// <summary>终止特定 Office 相关进程</summary>
+        public static void KillOfficeProcesses(ProductType product)
         {
-            var names = new[] {
-                // MS Office
-                "winword","excel","powerpnt","outlook","onenote","publisher",
-                "infopath","visio","winproj","msaccess","lync","groove",
-                "teams","officeclicktorun","officeintegration","setuphost",
-                "msoev","msosync","msoia","setup",
-                // WPS
-                "wps","wpp","et","wpscloudsv","wpscenter","wpscloudsvr",
-                // Yozo
-                "yozo_office","yozoword","yozosheet","yozopresentation",
-                // OnlyOffice
-                "DesktopEditors","ONLYOFFICE",
-                // LibreOffice
-                "soffice.bin","soffice.exe"
-            };
+            string[] names;
+            switch (product)
+            {
+                case ProductType.MsOffice:
+                    names = new[] {
+                        "winword","excel","powerpnt","outlook","onenote","publisher",
+                        "infopath","visio","winproj","msaccess","lync","groove",
+                        "teams","officeclicktorun","officeintegration","setuphost",
+                        "msoev","msosync","msoia","setup"
+                    };
+                    break;
+                case ProductType.Wps:
+                    names = new[] { "wps","wpp","et","wpscloudsv","wpscenter","wpscloudsvr" };
+                    break;
+                case ProductType.Yozo:
+                    names = new[] { "yozo_office","yozo","yozooffice","yozoword","yozosheet","yozopresent","yozopresentation","yozo_binder" };
+                    break;
+                case ProductType.OnlyOffice:
+                    names = new[] { "DesktopEditors","ONLYOFFICE" };
+                    break;
+                case ProductType.LibreOffice:
+                    names = new[] { "soffice.bin","soffice.exe" };
+                    break;
+                default:
+                    return;
+            }
 
             foreach (var name in names)
             {
@@ -54,6 +66,79 @@ namespace GOI.Helpers
                 }
                 catch { }
             }
+        }
+
+        /// <summary>获取当前已安装的特定产品版本</summary>
+        public static string GetInstalledProductVersion(ProductType product)
+        {
+            string[] keywords;
+            switch (product)
+            {
+                case ProductType.MsOffice:
+                    keywords = new[] { "Microsoft Office", "Microsoft 365", "Office 16", "Office 15" };
+                    break;
+                case ProductType.Wps:
+                    keywords = new[] { "WPS Office" };
+                    break;
+                case ProductType.Yozo:
+                    keywords = new[] { "永中Office", "Yozo Office", "Yozosoft" };
+                    break;
+                case ProductType.OnlyOffice:
+                    keywords = new[] { "ONLYOFFICE" };
+                    break;
+                case ProductType.LibreOffice:
+                    keywords = new[] { "LibreOffice" };
+                    break;
+                default:
+                    return null;
+            }
+
+            var basePaths = new[] {
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+                @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+            };
+            var hives = new[] { Registry.LocalMachine, Registry.CurrentUser };
+
+            foreach (var hive in hives)
+            {
+                foreach (var bp in basePaths)
+                {
+                    try
+                    {
+                        using (var root = hive.OpenSubKey(bp))
+                        {
+                            if (root == null) continue;
+                            foreach (var sub in root.GetSubKeyNames())
+                            {
+                                try
+                                {
+                                    using (var key = root.OpenSubKey(sub))
+                                    {
+                                        if (key == null) continue;
+                                        var dn = key.GetValue("DisplayName") as string;
+                                        if (string.IsNullOrEmpty(dn)) continue;
+                                        
+                                        if (product == ProductType.MsOffice && (dn.Contains("Access Runtime") || dn.Contains("Language Pack")))
+                                            continue;
+
+                                        foreach (var kw in keywords)
+                                        {
+                                            if (dn.ToLower().Contains(kw.ToLower()))
+                                            {
+                                                var dv = key.GetValue("DisplayVersion") as string;
+                                                return string.IsNullOrEmpty(dv) ? dn : $"{dn} ({dv})";
+                                            }
+                                        }
+                                    }
+                                }
+                                catch { }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
+            return null;
         }
 
         /// <summary>停止并删除 ClickToRun 服务</summary>
@@ -77,8 +162,8 @@ namespace GOI.Helpers
             catch { }
         }
 
-        /// <summary>清理并深度卸载系统内已注册的所有 Office 卸载项</summary>
-        public static void CleanUninstallEntries()
+        /// <summary>清理并深度卸载系统内已注册的特定 Office 卸载项</summary>
+        public static void CleanUninstallEntries(ProductType product)
         {
             var basePaths = new[] {
                 @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
@@ -116,7 +201,17 @@ namespace GOI.Helpers
                                     bool isOnlyOffice = dn.Contains("ONLYOFFICE") || sub.Contains("ONLYOFFICE");
                                     bool isLibreOffice = dn.Contains("LibreOffice") || sub.Contains("LibreOffice");
 
-                                    if (isMsOffice || isWps || isYozo || isOnlyOffice || isLibreOffice)
+                                    bool shouldClean = false;
+                                    switch (product)
+                                    {
+                                        case ProductType.MsOffice: shouldClean = isMsOffice; break;
+                                        case ProductType.Wps: shouldClean = isWps; break;
+                                        case ProductType.Yozo: shouldClean = isYozo; break;
+                                        case ProductType.OnlyOffice: shouldClean = isOnlyOffice; break;
+                                        case ProductType.LibreOffice: shouldClean = isLibreOffice; break;
+                                    }
+
+                                    if (shouldClean)
                                     {
                                         Logger.Info($"发现卸载项: {dn}，准备静默调用卸载器...");
 
@@ -214,46 +309,58 @@ namespace GOI.Helpers
             }
         }
 
-        /// <summary>删除所有 Office 品牌的残留文件目录</summary>
-        public static void CleanResidualFolders()
+        /// <summary>删除特定 Office 品牌的残留文件目录</summary>
+        public static void CleanResidualFolders(ProductType product)
         {
-            var folders = new List<string>
+            var folders = new List<string>();
+            switch (product)
             {
-                // MS Office
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Microsoft Office"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Microsoft Office"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft\\Office"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft\\Office"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Office"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Common Files\\microsoft shared\\OFFICE16"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Common Files\\microsoft shared\\OFFICE16"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Common Files\\Microsoft Shared\\ClickToRun"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft\\ClickToRun"),
-                
-                // WPS
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Kingsoft"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Kingsoft"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Kingsoft"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Kingsoft"),
-                
-                // Yozo
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Yozosoft"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Yozosoft"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Yozosoft"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Yozosoft"),
-
-                // OnlyOffice
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ONLYOFFICE"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "ONLYOFFICE"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ONLYOFFICE"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ONLYOFFICE"),
-
-                // LibreOffice
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "LibreOffice"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "LibreOffice"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LibreOffice"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LibreOffice")
-            };
+                case ProductType.MsOffice:
+                    folders.AddRange(new[] {
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Microsoft Office"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Microsoft Office"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft\\Office"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft\\Office"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Office"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Common Files\\microsoft shared\\OFFICE16"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Common Files\\microsoft shared\\OFFICE16"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Common Files\\Microsoft Shared\\ClickToRun"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft\\ClickToRun")
+                    });
+                    break;
+                case ProductType.Wps:
+                    folders.AddRange(new[] {
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Kingsoft"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Kingsoft"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Kingsoft"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Kingsoft")
+                    });
+                    break;
+                case ProductType.Yozo:
+                    folders.AddRange(new[] {
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Yozosoft"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Yozosoft"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Yozosoft"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Yozosoft")
+                    });
+                    break;
+                case ProductType.OnlyOffice:
+                    folders.AddRange(new[] {
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ONLYOFFICE"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "ONLYOFFICE"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ONLYOFFICE"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ONLYOFFICE")
+                    });
+                    break;
+                case ProductType.LibreOffice:
+                    folders.AddRange(new[] {
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "LibreOffice"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "LibreOffice"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LibreOffice"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LibreOffice")
+                    });
+                    break;
+            }
 
             foreach (var f in folders)
             {
@@ -265,7 +372,10 @@ namespace GOI.Helpers
                         Logger.Info("已删除残留目录: " + f);
                     }
                 }
-                catch (Exception ex) { Logger.Warn($"删除目录失败 [{f}]: {ex.Message}"); }
+                catch (Exception ex)
+                {
+                    Logger.Warn($"删除残留目录失败: {f}, 错误: {ex.Message}");
+                }
             }
         }
     }

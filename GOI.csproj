@@ -29,6 +29,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="iNKORE.UI.WPF.Modern" Version="0.10.2.1" />
+    <PackageReference Include="SharpCompress" Version="0.49.1" />
   </ItemGroup>
 
 </Project>

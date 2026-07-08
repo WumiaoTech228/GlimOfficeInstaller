@@ -32,6 +32,13 @@ namespace GOI.ViewModels
 
             DetectedArch = Environment.Is64BitOperatingSystem ? Architecture.x64 : Architecture.x86;
             ArchText = DetectedArch == Architecture.x64 ? "系统架构：x64（64 位）" : "系统架构：x86（32 位）";
+
+            // 初始化 Office 2024 作为默认选择，并计算初始翻页逻辑
+            SelectLeft();
+            RefreshCards();
+
+            // 首次刷新检测安装版本
+            RefreshInstalledVersion();
         }
 
         // ========== 架构 ==========
@@ -52,6 +59,9 @@ namespace GOI.ViewModels
                 OnPropertyChanged(nameof(IsYozo));
                 OnPropertyChanged(nameof(IsOnlyOffice));
                 OnPropertyChanged(nameof(IsLibreOffice));
+
+                // 切换产品时，刷新已安装版本状态
+                RefreshInstalledVersion();
             }
         }
         public bool IsMsOffice => CurrentProductType == ProductType.MsOffice;
@@ -65,6 +75,28 @@ namespace GOI.ViewModels
         public ICommand SelectYozoCommand => new RelayCommand(() => CurrentProductType = ProductType.Yozo);
         public ICommand SelectOnlyOfficeCommand => new RelayCommand(() => CurrentProductType = ProductType.OnlyOffice);
         public ICommand SelectLibreOfficeCommand => new RelayCommand(() => CurrentProductType = ProductType.LibreOffice);
+
+        // ========== 已安装版本检测与警告属性 ==========
+        private string _installedVersionText = "";
+        public string InstalledVersionText { get => _installedVersionText; set => Set(ref _installedVersionText, value); }
+
+        private bool _isInstalledWarningVisible;
+        public bool IsInstalledWarningVisible { get => _isInstalledWarningVisible; set => Set(ref _isInstalledWarningVisible, value); }
+
+        public void RefreshInstalledVersion()
+        {
+            var version = RegistryHelper.GetInstalledProductVersion(CurrentProductType);
+            if (!string.IsNullOrEmpty(version))
+            {
+                InstalledVersionText = $"系统检测到已安装版本: {version}。建议先进行卸载以防冲突。";
+                IsInstalledWarningVisible = true;
+            }
+            else
+            {
+                InstalledVersionText = "";
+                IsInstalledWarningVisible = false;
+            }
+        }
 
         // ========== WPS 版本选择 ==========
         private WpsVersion _selectedWpsVersion = WpsVersion.Wps2023;
@@ -88,71 +120,73 @@ namespace GOI.ViewModels
 
         // ========== OnlyOffice版本选择（仅1个） ==========
         private OnlyOfficeVersion _selectedOnlyOfficeVersion = OnlyOfficeVersion.OnlyOfficeDesktop;
-        public OnlyOfficeVersion SelectedOnlyOfficeVersion { get => _selectedOnlyOfficeVersion; set { Set(ref _selectedOnlyOfficeVersion, value); OnPropertyChanged(nameof(OnlyOfficeDesktopSelected)); } }
-        public bool OnlyOfficeDesktopSelected => SelectedOnlyOfficeVersion == OnlyOfficeVersion.OnlyOfficeDesktop;
+        public OnlyOfficeVersion SelectedOnlyOfficeVersion { get => _selectedOnlyOfficeVersion; set { Set(ref _selectedOnlyOfficeVersion, value); OnPropertyChanged(nameof(OnlyOfficeSelected)); } }
+        public bool OnlyOfficeSelected => SelectedOnlyOfficeVersion == OnlyOfficeVersion.OnlyOfficeDesktop;
         public ICommand SelectOnlyOfficeDesktopCommand => new RelayCommand(() => SelectedOnlyOfficeVersion = OnlyOfficeVersion.OnlyOfficeDesktop);
 
         // ========== LibreOffice版本选择（仅1个） ==========
         private LibreOfficeVersion _selectedLibreOfficeVersion = LibreOfficeVersion.LibreOfficeStable;
-        public LibreOfficeVersion SelectedLibreOfficeVersion { get => _selectedLibreOfficeVersion; set { Set(ref _selectedLibreOfficeVersion, value); OnPropertyChanged(nameof(LibreOfficeStableSelected)); } }
-        public bool LibreOfficeStableSelected => SelectedLibreOfficeVersion == LibreOfficeVersion.LibreOfficeStable;
+        public LibreOfficeVersion SelectedLibreOfficeVersion { get => _selectedLibreOfficeVersion; set { Set(ref _selectedLibreOfficeVersion, value); OnPropertyChanged(nameof(LibreOfficeSelected)); } }
+        public bool LibreOfficeSelected => SelectedLibreOfficeVersion == LibreOfficeVersion.LibreOfficeStable;
         public ICommand SelectLibreOfficeStableCommand => new RelayCommand(() => SelectedLibreOfficeVersion = LibreOfficeVersion.LibreOfficeStable);
 
-        // ========== MS Office 版本卡片 ==========
-        private int _versionGroup;
-        public int VersionGroup { get => _versionGroup; set { Set(ref _versionGroup, value); RefreshCards(); } }
-
-        private string _leftTitle = "Office 2024";
-        public string LeftTitle { get => _leftTitle; set => Set(ref _leftTitle, value); }
-        private string _leftSub = "最新功能 · 持续更新";
-        public string LeftSub { get => _leftSub; set => Set(ref _leftSub, value); }
-        private string _leftDesc = "零售版";
-        public string LeftDesc { get => _leftDesc; set => Set(ref _leftDesc, value); }
-
-        private string _rightTitle = "Microsoft 365";
-        public string RightTitle { get => _rightTitle; set => Set(ref _rightTitle, value); }
-        private string _rightSub = "云端同步 · 订阅服务";
-        public string RightSub { get => _rightSub; set => Set(ref _rightSub, value); }
-        private string _rightDesc = "个人/家庭版";
-        public string RightDesc { get => _rightDesc; set => Set(ref _rightDesc, value); }
-
-        private bool _leftSelected = true;
-        public bool LeftSelected { get => _leftSelected; set => Set(ref _leftSelected, value); }
-        private bool _rightSelected;
-        public bool RightSelected { get => _rightSelected; set => Set(ref _rightSelected, value); }
-        private bool _rightVisible = true;
-        public bool RightVisible { get => _rightVisible; set => Set(ref _rightVisible, value); }
-        private bool _leftArrowVisible;
-        public bool LeftArrowVisible { get => _leftArrowVisible; set => Set(ref _leftArrowVisible, value); }
-        private bool _rightArrowVisible = true;
-        public bool RightArrowVisible { get => _rightArrowVisible; set => Set(ref _rightArrowVisible, value); }
+        // ========== MS Office 激活方式与配置 ==========
         private OfficeVersion _currentVersion = OfficeVersion.Office2024;
+        private ActivationMethod _actMethod = ActivationMethod.Ohook;
+        public ActivationMethod CurrentActivationMethod { get => _actMethod; set { Set(ref _actMethod, value); OnPropertyChanged(nameof(IsOhook)); OnPropertyChanged(nameof(IsKMS)); } }
 
-        // ========== 组件选择（仅 MS Office 使用）==========
+        public bool IsOhook { get => CurrentActivationMethod == ActivationMethod.Ohook; set { if (value) CurrentActivationMethod = ActivationMethod.Ohook; } }
+        public bool IsKMS { get => CurrentActivationMethod == ActivationMethod.KMS; set { if (value) CurrentActivationMethod = ActivationMethod.KMS; } }
+
+        // ========== MS Office 组件列表 (三列布局 UniformGrid) ==========
         public ObservableCollection<ComponentItem> Components { get; } = new ObservableCollection<ComponentItem>
         {
-            new ComponentItem("PowerPoint", OfficeComponent.PowerPoint, true),
-            new ComponentItem("Word",       OfficeComponent.Word,       true),
-            new ComponentItem("Excel",      OfficeComponent.Excel,      true),
-            new ComponentItem("Visio",      OfficeComponent.Visio,      false),
-            new ComponentItem("Access",     OfficeComponent.Access,     false),
-            new ComponentItem("OneNote",    OfficeComponent.OneNote,    false),
-            new ComponentItem("Lync",       OfficeComponent.Lync,       false),
-            new ComponentItem("Outlook",    OfficeComponent.Outlook,    false),
-            new ComponentItem("Teams",      OfficeComponent.Teams,      false),
-            new ComponentItem("OneDrive",   OfficeComponent.OneDrive,   false),
-            new ComponentItem("Publisher",  OfficeComponent.Publisher,  false),
-            new ComponentItem("Project",    OfficeComponent.Project,    false),
+            new ComponentItem("Word 文字", OfficeComponent.Word, true),
+            new ComponentItem("Excel 表格", OfficeComponent.Excel, true),
+            new ComponentItem("PowerPoint 演示", OfficeComponent.PowerPoint, true),
+            new ComponentItem("Outlook 邮箱", OfficeComponent.Outlook, false),
+            new ComponentItem("OneNote 笔记", OfficeComponent.OneNote, false),
+            new ComponentItem("Access 数据库", OfficeComponent.Access, false),
+            new ComponentItem("Publisher 出版", OfficeComponent.Publisher, false),
+            new ComponentItem("Project 项目", OfficeComponent.Project, false),
+            new ComponentItem("Visio 绘图", OfficeComponent.Visio, false),
+            new ComponentItem("Teams 协作", OfficeComponent.Teams, false),
+            new ComponentItem("OneDrive 网盘", OfficeComponent.OneDrive, false)
         };
 
-        private bool _isM365;
-        public bool IsM365 { get => _isM365; set => Set(ref _isM365, value); }
+        // ========== MS Office 翻页与卡片属性 ==========
+        private int _versionGroup = 0; // 0: 2024/M365, 1: 2021/2019, 2: 2016
+        public int VersionGroup { get => _versionGroup; set { Set(ref _versionGroup, value); RefreshCards(); } }
 
-        // ========== 安装状态 ==========
+        private string _leftTitle; public string LeftTitle { get => _leftTitle; set => Set(ref _leftTitle, value); }
+        private string _leftSub; public string LeftSub { get => _leftSub; set => Set(ref _leftSub, value); }
+        private string _leftDesc; public string LeftDesc { get => _leftDesc; set => Set(ref _leftDesc, value); }
+        private bool _leftSelected; public bool LeftSelected { get => _leftSelected; set => Set(ref _leftSelected, value); }
+
+        private string _rightTitle; public string RightTitle { get => _rightTitle; set => Set(ref _rightTitle, value); }
+        private string _rightSub; public string RightSub { get => _rightSub; set => Set(ref _rightSub, value); }
+        private string _rightDesc; public string RightDesc { get => _rightDesc; set => Set(ref _rightDesc, value); }
+        private bool _rightSelected; public bool RightSelected { get => _rightSelected; set => Set(ref _rightSelected, value); }
+
+        private bool _rightVisible = true; public bool RightVisible { get => _rightVisible; set => Set(ref _rightVisible, value); }
+        private bool _leftArrowVisible; public bool LeftArrowVisible { get => _leftArrowVisible; set => Set(ref _leftArrowVisible, value); }
+        private bool _rightArrowVisible; public bool RightArrowVisible { get => _rightArrowVisible; set => Set(ref _rightArrowVisible, value); }
+
+        // ========== 安装状态、进度 ==========
         private InstallPhase _phase = InstallPhase.Idle;
-        public InstallPhase Phase { get => _phase; set { Set(ref _phase, value); OnPropertyChanged(nameof(CanInstall)); } }
+        public InstallPhase Phase
+        {
+            get => _phase;
+            set
+            {
+                Set(ref _phase, value);
+                OnPropertyChanged(nameof(StatusText));
+                OnPropertyChanged(nameof(CanInstall));
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
 
-        private string _statusText = "建议保持网络连接，以便完成激活过程";
+        private string _statusText = "准备就绪";
         public string StatusText { get => _statusText; set => Set(ref _statusText, value); }
 
         private int _downloadProgress;
@@ -171,9 +205,9 @@ namespace GOI.ViewModels
                 "关于 GOI");
         });
 
-        // ========== MS Office 导航命令 ==========
+        // ========== 导航命令 ==========
         public ICommand InstallCommand => new RelayCommand(async () => await InstallAsync(), () => CanInstall);
-        public ICommand UninstallAllCommand => new RelayCommand(async () => await UninstallAllAsync(), () => CanInstall);
+        public ICommand UninstallCurrentCommand => new RelayCommand(async () => await UninstallCurrentAsync(), () => CanInstall);
         public ICommand SelectLeftCommand => new RelayCommand(SelectLeft);
         public ICommand SelectRightCommand => new RelayCommand(SelectRight);
         public ICommand PrevGroupCommand => new RelayCommand(() => { if (VersionGroup > 0) VersionGroup--; });
@@ -193,13 +227,12 @@ namespace GOI.ViewModels
         private void SelectRight()
         {
             LeftSelected = false; RightSelected = true;
-            _currentVersion = VersionGroup switch
-            {
-                0 => OfficeVersion.Microsoft365Pro, 1 => OfficeVersion.Office2019,
-                _ => OfficeVersion.Microsoft365Pro
-            };
+            _currentVersion = OfficeVersion.Microsoft365Pro;
             IsM365 = true;
         }
+
+        private bool _isM365;
+        public bool IsM365 { get => _isM365; set => Set(ref _isM365, value); }
 
         private void RefreshCards()
         {
@@ -272,14 +305,27 @@ namespace GOI.ViewModels
                 ? "部署完成！软件已成功安装。"
                 : "安装失败，请查看日志了解详情。";
             IsProgressVisible = false;
+
+            // 安装完成刷新已安装版本状态
+            RefreshInstalledVersion();
         }
 
-        // ========== 一键深层全能卸载 ==========
-        private async Task UninstallAllAsync()
+        // ========== 独立深层卸载当前软件 ==========
+        private async Task UninstallCurrentAsync()
         {
+            string productName = CurrentProductType switch
+            {
+                ProductType.MsOffice => "MS Office",
+                ProductType.Wps => "WPS Office",
+                ProductType.Yozo => "永中 Office",
+                ProductType.OnlyOffice => "OnlyOffice",
+                ProductType.LibreOffice => "LibreOffice",
+                _ => "Office"
+            };
+
             var result = MessageBox.Show(
-                "深度卸载将强制终止所有正在运行的 Office (包含 MS Office, WPS, 永中, OnlyOffice, LibreOffice) 的进程，并删除注册表及残留文件夹。\n\n确认要继续吗？请务必先保存正在编辑的文档。",
-                "一键深层卸载确认",
+                $"深度卸载将强制终止所有正在运行的 {productName} 进程，并删除相关的注册表及残留文件夹。\n\n确认要继续吗？请务必先保存正在编辑的文档。",
+                $"{productName} 深度卸载确认",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
@@ -288,20 +334,23 @@ namespace GOI.ViewModels
             Phase = InstallPhase.Cleaning;
             IsProgressVisible = true;
             DownloadProgress = 10;
-            StatusText = "正在启动深层清理程序...";
+            StatusText = $"正在清理 {productName} 残留...";
 
             var phases = new Progress<string>(msg => StatusText = msg);
 
             try
             {
-                await _cleanupService.CleanAsync(phases);
+                await _cleanupService.CleanAsync(CurrentProductType, phases);
                 DownloadProgress = 100;
                 Phase = InstallPhase.Completed;
-                StatusText = "深层清理完成！所有 Office 套件残留已被清理干净。";
+                StatusText = $"{productName} 残留清理完成！";
+
+                // 刷新已安装版本状态
+                RefreshInstalledVersion();
             }
             catch (Exception ex)
             {
-                Logger.Error("深度卸载失败", ex);
+                Logger.Error($"{productName} 深度卸载失败", ex);
                 Phase = InstallPhase.Failed;
                 StatusText = "清理失败: " + ex.Message;
             }

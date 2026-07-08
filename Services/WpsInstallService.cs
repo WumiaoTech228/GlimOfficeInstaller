@@ -57,13 +57,19 @@ namespace GOI.Services
                 return false;
             }
 
-            // ── 阶段 2：静默安装（/S 参数）──
+            // ── 阶段 2：静默安装 ──
             phaseText.Report($"正在静默安装 WPS {GetVersionYear(version)}...");
             progressPercent?.Report(55);
 
             try
             {
-                var psi = new ProcessStartInfo(localPath, "/S")
+                string args = "/S";
+                if (version == WpsVersion.Wps2019)
+                {
+                    args = "/NoCloud";
+                }
+
+                var psi = new ProcessStartInfo(localPath, args)
                 {
                     UseShellExecute = false,
                     CreateNoWindow = true

@@ -26,7 +26,7 @@ namespace GOI.Services
                 // 阶段 1: 清理
                 phaseText.Report("正在清理旧版本 Office 残留...");
                 downloadProgress.Report(0);
-                await _cleanup.CleanAsync(phaseText);
+                await _cleanup.CleanAsync(ProductType.MsOffice, phaseText);
 
                 // 阶段 2: 下载 setup.exe（进度 0-5%）
                 phaseText.Report("正在下载安装组件...");

@@ -1,6 +1,7 @@
 using System.Windows;
 using GOI.Services;
 using GOI.ViewModels;
+using GOI.Models;
 
 namespace GOI.Views
 {
@@ -36,6 +37,34 @@ namespace GOI.Views
             // 最终窗口大小 = 目标内容大小 + 边框/标题栏大小
             this.Width = targetClientWidth + widthDiff;
             this.Height = targetClientHeight + heightDiff;
+        }
+
+        private void NavigationView_SelectionChanged(object sender, iNKORE.UI.WPF.Modern.Controls.NavigationViewSelectionChangedEventArgs e)
+        {
+            if (e.SelectedItem is iNKORE.UI.WPF.Modern.Controls.NavigationViewItem item)
+            {
+                var vm = DataContext as MainViewModel;
+                if (vm == null) return;
+
+                switch (item.Tag?.ToString())
+                {
+                    case "MsOffice":
+                        vm.CurrentProductType = ProductType.MsOffice;
+                        break;
+                    case "Wps":
+                        vm.CurrentProductType = ProductType.Wps;
+                        break;
+                    case "Yozo":
+                        vm.CurrentProductType = ProductType.Yozo;
+                        break;
+                    case "OnlyOffice":
+                        vm.CurrentProductType = ProductType.OnlyOffice;
+                        break;
+                    case "LibreOffice":
+                        vm.CurrentProductType = ProductType.LibreOffice;
+                        break;
+                }
+            }
         }
     }
 }
