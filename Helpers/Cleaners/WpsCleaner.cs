@@ -83,5 +83,15 @@ namespace GOI.Helpers.Cleaners
             };
             RegistryHelper.CleanFileAssociationsByFilter(Product, progIdPrefixes, appExecutables);
         }
+
+        public void CleanRegistryKeys()
+        {
+            string[] paths = new[]
+            {
+                @"SOFTWARE\Kingsoft",
+                @"SOFTWARE\WOW6432Node\Kingsoft"
+            };
+            foreach (var p in paths) RegistryHelper.DeleteKey(p);
+        }
     }
 }

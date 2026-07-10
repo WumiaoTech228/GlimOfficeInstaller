@@ -64,5 +64,17 @@ namespace GOI.Helpers.Cleaners
             string[] appExecutables = new string[] { "soffice.exe", "scalc.exe", "swriter.exe", "simpress.exe" };
             RegistryHelper.CleanFileAssociationsByFilter(Product, progIdPrefixes, appExecutables);
         }
+
+        public void CleanRegistryKeys()
+        {
+            string[] paths = new[]
+            {
+                @"SOFTWARE\The Document Foundation",
+                @"SOFTWARE\LibreOffice",
+                @"SOFTWARE\WOW6432Node\The Document Foundation",
+                @"SOFTWARE\WOW6432Node\LibreOffice"
+            };
+            foreach (var p in paths) RegistryHelper.DeleteKey(p);
+        }
     }
 }

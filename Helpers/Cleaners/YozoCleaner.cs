@@ -65,5 +65,15 @@ namespace GOI.Helpers.Cleaners
             };
             RegistryHelper.CleanFileAssociationsByFilter(Product, progIdPrefixes, appExecutables);
         }
+
+        public void CleanRegistryKeys()
+        {
+            string[] paths = new[]
+            {
+                @"SOFTWARE\Yozosoft",
+                @"SOFTWARE\WOW6432Node\Yozosoft"
+            };
+            foreach (var p in paths) RegistryHelper.DeleteKey(p);
+        }
     }
 }

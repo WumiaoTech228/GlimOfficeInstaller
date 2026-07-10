@@ -65,5 +65,15 @@ namespace GOI.Helpers.Cleaners
             string[] appExecutables = new string[] { "DesktopEditors.exe", "editors.exe", "editors_helper.exe", "updatesvc.exe" };
             RegistryHelper.CleanFileAssociationsByFilter(Product, progIdPrefixes, appExecutables);
         }
+
+        public void CleanRegistryKeys()
+        {
+            string[] paths = new[]
+            {
+                @"SOFTWARE\ONLYOFFICE",
+                @"SOFTWARE\WOW6432Node\ONLYOFFICE"
+            };
+            foreach (var p in paths) RegistryHelper.DeleteKey(p);
+        }
     }
 }

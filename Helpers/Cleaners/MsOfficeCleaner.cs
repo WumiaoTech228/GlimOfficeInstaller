@@ -143,5 +143,35 @@ namespace GOI.Helpers.Cleaners
             string[] appExecutables = new string[0];
             RegistryHelper.CleanFileAssociationsByFilter(Product, progIdPrefixes, appExecutables);
         }
+
+        public void CleanRegistryKeys()
+        {
+            string[] paths = new[]
+            {
+                @"SOFTWARE\Microsoft\Office",
+                @"SOFTWARE\Microsoft\Office\ClickToRun",
+                @"SOFTWARE\Microsoft\AppVisv",
+                @"SOFTWARE\WOW6432Node\Microsoft\Office",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Winword.exe",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Excel.exe",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Powerpnt.exe",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Outlook.exe",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Onenote.exe",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Visio.exe",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Winproj.exe",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Msaccess.exe",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Mspub.exe",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Lync.exe",
+                @"SOFTWARE\Microsoft\Office\16.0\Registration",
+                @"SOFTWARE\Microsoft\Office\15.0\Registration",
+                @"SOFTWARE\Microsoft\Office\14.0\Registration",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\00006109C80000000000000000F01FEC",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Office16.PROPLUS",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Office16.VISIOPRO",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Office16.PROJECTPRO",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Office16.OUTLOOK"
+            };
+            foreach (var p in paths) RegistryHelper.DeleteKey(p);
+        }
     }
 }

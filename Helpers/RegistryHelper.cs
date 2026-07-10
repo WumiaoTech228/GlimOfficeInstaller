@@ -111,6 +111,11 @@ namespace GOI.Helpers
 			CleanerFactory.GetCleaner(product)?.CleanFileAssociations();
 		}
 
+		public static void CleanRegistryKeys(ProductType product)
+		{
+			CleanerFactory.GetCleaner(product)?.CleanRegistryKeys();
+		}
+
 		#endregion
 
 		#region Low-Level Utility Helpers

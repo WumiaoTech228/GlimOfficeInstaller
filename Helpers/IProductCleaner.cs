@@ -11,5 +11,6 @@ namespace GOI.Helpers
         void CleanResidualFolders();
         void CleanShortcuts();
         void CleanFileAssociations();
+        void CleanRegistryKeys();
     }
 }
