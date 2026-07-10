@@ -45,7 +45,7 @@ namespace GOI.Services
             {
                 Logger.Error("下载 永中Office 失败", ex);
                 phaseText.Report(LocalizationStrings.Instance.ErrDownloadFailedWithMsg);
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in YozoInstallService.cs", ex_captured); }
+                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in YozoInstallService.cs at UnknownMethod", ex_captured); }
                 return false;
             }
 
@@ -175,8 +175,8 @@ namespace GOI.Services
 
         private static void CleanTempFiles(string rarPath, string extractDir)
         {
-            try { if (File.Exists(rarPath)) File.Delete(rarPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in YozoInstallService.cs", ex_captured); }
-            try { if (Directory.Exists(extractDir)) Directory.Delete(extractDir, true); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in YozoInstallService.cs", ex_captured); }
+            try { if (File.Exists(rarPath)) File.Delete(rarPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in YozoInstallService.cs at UnknownMethod", ex_captured); }
+            try { if (Directory.Exists(extractDir)) Directory.Delete(extractDir, true); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in YozoInstallService.cs at UnknownMethod", ex_captured); }
         }
 
         private static async Task FakeProgressAsync(

@@ -56,7 +56,7 @@ namespace GOI.Services
             await Task.Run(() => RegistryHelper.KillOfficeProcesses(product));
             count++;
 
-            // 2. 停止/删除服务 (仅限 MS Office)
+            // 3. 停止/删除服务 (仅限 MS Office)
             if (product == ProductType.MsOffice)
             {
                 progress?.Report(LocalizationStrings.Instance.StatusCleanC2RService);

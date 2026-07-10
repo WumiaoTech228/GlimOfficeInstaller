@@ -28,7 +28,7 @@ namespace GOI
                     System.IO.Directory.Delete(Helpers.AppConfig.RootPath, true);
                 }
             }
-            catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in App.xaml.cs", ex_captured); }
+            catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in App.xaml.cs at UnknownMethod", ex_captured); }
             base.OnExit(e);
         }
     }

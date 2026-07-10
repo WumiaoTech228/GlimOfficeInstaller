@@ -65,7 +65,6 @@ namespace GOI.Services
                     WorkingDirectory = AppConfig.RootPath
                 };
 
-                using (var cts = new CancellationTokenSource())
                 using (var proc = Process.Start(psi))
                 {
                     if (proc == null)
@@ -74,17 +73,9 @@ namespace GOI.Services
                         return false;
                     }
 
-                    // 启动伪进度任务：监控 OfficeClickToRun.exe 进程，缓慢推进进度
-                    var fakeProgressTask = RunFakeInstallProgressAsync(
-                        downloadProgress, phaseText, cts.Token);
-
                     // 等待 setup.exe 结束
                     await Task.Run(() => proc.WaitForExit());
                     Logger.Info($"ODT 安装完成，退出码: {proc.ExitCode}");
-
-                    // 通知伪进度停止并推到 95%
-                    cts.Cancel();
-                    await fakeProgressTask;
 
                     if (proc.ExitCode != 0)
                     {
@@ -136,53 +127,7 @@ namespace GOI.Services
             }
         }
 
-        /// <summary>
-        /// 伪进度条：每隔 3 秒轮询 OfficeClickToRun.exe / officec2rclient 进程是否存在。
-        /// 进程存在 → 缓慢推进（每次 +1%）。
-        /// 进程消失或收到取消信号 → 快速推到 95%。
-        /// </summary>
-        private static async Task RunFakeInstallProgressAsync(
-            IProgress<int> progress,
-            IProgress<string> phaseText,
-            CancellationToken ct)
-        {
-            int current = 6;
-            bool c2rSeen = false;
 
-            while (!ct.IsCancellationRequested && current < 95)
-            {
-                try { await Task.Delay(3000, ct); }
-                catch (TaskCanceledException) { break; }
-
-                bool c2rRunning = Process.GetProcessesByName("OfficeClickToRun").Length > 0
-                               || Process.GetProcessesByName("officec2rclient").Length > 0;
-
-                if (c2rRunning) c2rSeen = true;
-
-                // Office C2R 曾出现过但现在消失 → 安装完成，跳出
-                if (c2rSeen && !c2rRunning) break;
-
-                // 缓慢推进
-                current = Math.Min(current + 1, 94);
-                progress?.Report(current);
-
-                // 更新文字提示
-                string dots = new string('.', ((current - 6) / 5 % 4) + 1);
-                if (current < 30)
-                    phaseText.Report(LocalizationStrings.Instance.StatusDownloadingOfficeFiles(dots));
-                else if (current < 70)
-                    phaseText.Report(LocalizationStrings.Instance.StatusInstallingOfficeComponents(dots));
-                else
-                    phaseText.Report(LocalizationStrings.Instance.StatusAlmostDone(dots));
-            }
-
-            // 快速推进到 95%
-            for (int i = current; i <= 95; i++)
-            {
-                progress?.Report(i);
-                await Task.Delay(30);
-            }
-        }
 
         /// <summary>Office Ohook 激活</summary>
         public async Task<bool> ActivateOhookAsync()

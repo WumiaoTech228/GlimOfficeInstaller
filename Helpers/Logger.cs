@@ -15,8 +15,17 @@ namespace GOI.Helpers
             get
             {
                 if (_logFile == null)
-                    _logFile = Path.Combine(AppConfig.LogPath,
-                        $"install_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+                {
+                    _logFile = Path.Combine(AppConfig.LogPath, "install.log");
+                    try
+                    {
+                        if (File.Exists(_logFile))
+                        {
+                            File.Delete(_logFile);
+                        }
+                    }
+                    catch { }
+                }
                 return _logFile;
             }
         }

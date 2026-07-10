@@ -61,6 +61,8 @@ namespace GOI.ViewModels
 
 		private bool _isProgressVisible;
 
+		private bool _isProgressIndeterminate;
+
 		private string _selectedTheme = "Default";
 
 		private string _selectedAppLanguage = "SimplifiedChinese";
@@ -147,24 +149,26 @@ namespace GOI.ViewModels
 			}
 		}
 
+		public string GetProductDisplayName(ProductType type)
+		{
+			return type switch
+			{
+				ProductType.MsOffice => "Microsoft Office",
+				ProductType.Wps => "WPS Office",
+				ProductType.Yozo => Loc.YozoTitle,
+				ProductType.OnlyOffice => "OnlyOffice",
+				ProductType.LibreOffice => "LibreOffice",
+				ProductType.Settings => Loc.NavSettings,
+				_ => "Office"
+			};
+		}
+
 		public string HeaderTitleText
 		{
 			get
 			{
-				ProductType currentProductType = CurrentProductType;
-				
-				string result = currentProductType switch
-				{
-					ProductType.MsOffice => "Microsoft Office", 
-					ProductType.Wps => "WPS Office", 
-					ProductType.Yozo => Loc.YozoTitle, 
-					ProductType.OnlyOffice => "OnlyOffice", 
-					ProductType.LibreOffice => "LibreOffice", 
-					ProductType.Settings => Loc.NavSettings, 
-					_ => Loc.AppTitle, 
-				};
-				
-				return result;
+				string name = GetProductDisplayName(CurrentProductType);
+				return (name == "Office") ? Loc.AppTitle : name;
 			}
 		}
 
@@ -410,8 +414,10 @@ namespace GOI.ViewModels
 				{
 					return "zh-cn";
 				}
-				string[] array = SelectedOfficeLanguage.Trim().Split(new char[2] { ' ', '(' }, StringSplitOptions.RemoveEmptyEntries);
-				return (array.Length != 0) ? array[0].ToLower().Trim() : "zh-cn";
+				string raw = SelectedOfficeLanguage.Trim();
+				int spaceIdx = raw.IndexOf(' ');
+				string langCode = (spaceIdx >= 0) ? raw.Substring(0, spaceIdx) : raw;
+				return langCode.ToLowerInvariant().Trim();
 			}
 		}
 
@@ -429,6 +435,7 @@ namespace GOI.ViewModels
 				{
 					OnPropertyChanged("StatusText");
 					OnPropertyChanged("CanInstall");
+					IsProgressIndeterminate = (value == InstallPhase.Cleaning || value == InstallPhase.Installing || value == InstallPhase.Activating);
 					CommandManager.InvalidateRequerySuggested();
 				}
 			}
@@ -470,6 +477,18 @@ namespace GOI.ViewModels
 			}
 		}
 
+		public bool IsProgressIndeterminate
+		{
+			get
+			{
+				return _isProgressIndeterminate;
+			}
+			set
+			{
+				Set(ref _isProgressIndeterminate, value, "IsProgressIndeterminate");
+			}
+		}
+
 		public bool CanInstall => Phase != InstallPhase.Cleaning && Phase != InstallPhase.Downloading && Phase != InstallPhase.Installing && Phase != InstallPhase.Activating;
 
 		public string SelectedTheme
@@ -497,11 +516,13 @@ namespace GOI.ViewModels
 			{
 				if (Set(ref _selectedAppLanguage, value, "SelectedAppLanguage"))
 				{
-					
-					LocalizationStrings.AppLanguage appLanguage = ((value == "TraditionalChinese") ? LocalizationStrings.AppLanguage.TraditionalChinese : ((value == "English") ? LocalizationStrings.AppLanguage.English : LocalizationStrings.AppLanguage.SimplifiedChinese));
-					
-					LocalizationStrings.AppLanguage appLanguage2 = appLanguage;
-					SetAppLanguage(appLanguage2);
+					LocalizationStrings.AppLanguage appLanguage = value switch
+					{
+						"TraditionalChinese" => LocalizationStrings.AppLanguage.TraditionalChinese,
+						"English" => LocalizationStrings.AppLanguage.English,
+						_ => LocalizationStrings.AppLanguage.SimplifiedChinese
+					};
+					SetAppLanguage(appLanguage);
 				}
 			}
 		}
@@ -629,17 +650,23 @@ namespace GOI.ViewModels
 
 		public void RefreshInstalledVersion()
 		{
-			string installedProductVersion = RegistryHelper.GetInstalledProductVersion(CurrentProductType);
-			if (!string.IsNullOrEmpty(installedProductVersion))
+			System.Threading.Tasks.Task.Run(() =>
 			{
-				InstalledVersionText = Loc.DlgConfirmInstallMsg(installedProductVersion);
-				IsInstalledWarningVisible = true;
-			}
-			else
-			{
-				InstalledVersionText = "";
-				IsInstalledWarningVisible = false;
-			}
+				string installedProductVersion = RegistryHelper.GetInstalledProductVersion(CurrentProductType);
+				System.Windows.Application.Current?.Dispatcher?.Invoke(() =>
+				{
+					if (!string.IsNullOrEmpty(installedProductVersion))
+					{
+						InstalledVersionText = Loc.DlgConfirmInstallMsg(installedProductVersion);
+						IsInstalledWarningVisible = true;
+					}
+					else
+					{
+						InstalledVersionText = "";
+						IsInstalledWarningVisible = false;
+					}
+				});
+			});
 		}
 
 		private void SetOfficeVersion(OfficeVersion version, bool isM365)
@@ -705,110 +732,108 @@ namespace GOI.ViewModels
 
 		private async Task InstallAsync()
 		{
-			Phase = InstallPhase.Downloading;
-			IsProgressVisible = true;
-			DownloadProgress = 0;
+			if (_installCts != null)
+			{
+				try
+				{
+					_installCts.Cancel();
+					_installCts.Dispose();
+				}
+				catch {}
+				_installCts = null;
+			}
+
 			_installCts = new CancellationTokenSource();
-			Progress<string> phases = new Progress<string>(delegate(string msg)
+			try
 			{
-				StatusText = msg;
-			});
-			Progress<InstallPhase> phaseProgress = new Progress<InstallPhase>(delegate(InstallPhase p)
-			{
-				Phase = p;
-			});
-			Progress<int> dl = new Progress<int>(delegate(int p)
-			{
-				DownloadProgress = p;
-			});
-			string installedVersion = RegistryHelper.GetInstalledProductVersion(CurrentProductType);
-			if (!string.IsNullOrEmpty(installedVersion))
-			{
-				ProductType currentProductType = CurrentProductType;
-				
-				string text = currentProductType switch
+				Phase = InstallPhase.Downloading;
+				IsProgressVisible = true;
+				DownloadProgress = 0;
+				Progress<string> phases = new Progress<string>(delegate(string msg)
 				{
-					ProductType.MsOffice => "Microsoft Office", 
-					ProductType.Wps => "WPS Office", 
-					ProductType.Yozo => Loc.YozoTitle, 
-					ProductType.OnlyOffice => "OnlyOffice", 
-					ProductType.LibreOffice => "LibreOffice", 
-					_ => "Office", 
-				};
-				
-				string companyName = text;
-				if (!(await ShowFluentConfirmDialogAsync(Loc.DlgConfirmInstallTitle, Loc.DlgConfirmInstallMsg(installedVersion), Loc.BtnContinue, Loc.BtnCancel)))
+					StatusText = msg;
+				});
+				Progress<InstallPhase> phaseProgress = new Progress<InstallPhase>(delegate(InstallPhase p)
 				{
-					Phase = InstallPhase.Idle;
-					IsProgressVisible = false;
-					StatusText = Loc.StatusDeploymentCancelled;
-					return;
+					Phase = p;
+				});
+				Progress<int> dl = new Progress<int>(delegate(int p)
+				{
+					DownloadProgress = p;
+				});
+				string installedVersion = RegistryHelper.GetInstalledProductVersion(CurrentProductType);
+				if (!string.IsNullOrEmpty(installedVersion))
+				{
+					string companyName = GetProductDisplayName(CurrentProductType);
+					if (!(await ShowFluentConfirmDialogAsync(Loc.DlgConfirmInstallTitle, Loc.DlgConfirmInstallMsg(installedVersion), Loc.BtnContinue, Loc.BtnCancel)))
+					{
+						Phase = InstallPhase.Idle;
+						IsProgressVisible = false;
+						StatusText = Loc.StatusDeploymentCancelled;
+						return;
+					}
+					Phase = InstallPhase.Cleaning;
+					DownloadProgress = 10;
+					StatusText = Loc.StatusCleaningOldVersions(companyName);
+					await _cleanupService.CleanAsync(CurrentProductType, phases);
 				}
-				Phase = InstallPhase.Cleaning;
-				DownloadProgress = 10;
-				StatusText = Loc.StatusCleaningOldVersions(companyName);
-				await _cleanupService.CleanAsync(CurrentProductType, phases);
-			}
-			bool ok;
-			if (CurrentProductType == ProductType.Wps)
-			{
-				ok = await _wpsService.InstallAsync(SelectedWpsVersion, phases, dl, phaseProgress, _installCts.Token);
-			}
-			else if (CurrentProductType == ProductType.Yozo)
-			{
-				ok = await _yozoService.InstallAsync(phases, dl, phaseProgress, _installCts.Token);
-			}
-			else if (CurrentProductType == ProductType.OnlyOffice)
-			{
-				ok = await _onlyOfficeService.InstallAsync(phases, dl, phaseProgress, _installCts.Token);
-			}
-			else if (CurrentProductType == ProductType.LibreOffice)
-			{
-				ok = await _libreOfficeService.InstallAsync(phases, dl, phaseProgress, _installCts.Token);
-			}
-			else
-			{
-				HashSet<OfficeComponent> selected = new HashSet<OfficeComponent>(from c in Components
-					where c.IsSelected
-					select c.Component);
-				if (selected.Count == 0)
+				bool ok;
+				if (CurrentProductType == ProductType.Wps)
 				{
-					Phase = InstallPhase.Idle;
-					IsProgressVisible = false;
-					return;
+					ok = await _wpsService.InstallAsync(SelectedWpsVersion, phases, dl, phaseProgress, _installCts.Token);
 				}
-				ok = await _installService.RunAsync(_currentVersion, SelectedBitness, SelectedUpdateChannel, ResolvedOfficeLanguage, selected, autoActivate: true, phases, dl, phaseProgress);
+				else if (CurrentProductType == ProductType.Yozo)
+				{
+					ok = await _yozoService.InstallAsync(phases, dl, phaseProgress, _installCts.Token);
+				}
+				else if (CurrentProductType == ProductType.OnlyOffice)
+				{
+					ok = await _onlyOfficeService.InstallAsync(phases, dl, phaseProgress, _installCts.Token);
+				}
+				else if (CurrentProductType == ProductType.LibreOffice)
+				{
+					ok = await _libreOfficeService.InstallAsync(phases, dl, phaseProgress, _installCts.Token);
+				}
+				else
+				{
+					HashSet<OfficeComponent> selected = new HashSet<OfficeComponent>(from c in Components
+						where c.IsSelected
+						select c.Component);
+					if (selected.Count == 0)
+					{
+						Phase = InstallPhase.Idle;
+						IsProgressVisible = false;
+						return;
+					}
+					ok = await _installService.RunAsync(_currentVersion, SelectedBitness, SelectedUpdateChannel, ResolvedOfficeLanguage, selected, autoActivate: true, phases, dl, phaseProgress);
+				}
+				Phase = (ok ? InstallPhase.Completed : InstallPhase.Failed);
+				StatusText = (ok ? Loc.StatusDeploySuccess : Loc.StatusDeployFail);
+				IsProgressVisible = false;
+				if (ok)
+				{
+					var info = Loc.GetInstallSuccessInfo(CurrentProductType);
+					await ShowFluentMessageDialogAsync(info.Title, info.Msg);
+				}
+				else
+				{
+					await HandleOperationFailureAsync(Loc.DlgDeployFailTitle, Loc.DlgDeployFailMsg);
+				}
+				RefreshInstalledVersion();
 			}
-			Phase = (ok ? InstallPhase.Completed : InstallPhase.Failed);
-			StatusText = (ok ? Loc.StatusDeploySuccess : Loc.StatusDeployFail);
-			IsProgressVisible = false;
-			if (ok)
+			finally
 			{
-				var info = Loc.GetInstallSuccessInfo(CurrentProductType);
-				await ShowFluentMessageDialogAsync(info.Title, info.Msg);
+				if (_installCts != null)
+				{
+					_installCts.Dispose();
+					_installCts = null;
+				}
 			}
-			else
-			{
-				await HandleOperationFailureAsync(Loc.DlgDeployFailTitle, Loc.DlgDeployFailMsg);
-			}
-			RefreshInstalledVersion();
 		}
 
 		private async Task UninstallSelectedAsync()
 		{
-			ProductType productTypeToUninstall = ProductTypeToUninstall;
-			
-			string text = productTypeToUninstall switch
-			{
-				ProductType.MsOffice => "Microsoft Office", 
-				ProductType.Wps => "WPS Office", 
-				ProductType.Yozo => Loc.YozoTitle, 
-				ProductType.OnlyOffice => "OnlyOffice", 
-				ProductType.LibreOffice => "LibreOffice", 
-				_ => "Office", 
-			};
-			
-			string productName = text;
+			string productName = GetProductDisplayName(ProductTypeToUninstall);
 			if (!(await ShowFluentConfirmDialogAsync(Loc.SettingsUninstallTitle, Loc.DlgConfirmUninstallMsg(productName), Loc.BtnUninstall, Loc.BtnCancel)))
 			{
 				return;
@@ -959,7 +984,15 @@ namespace GOI.ViewModels
 				}
 			}
 			bool isMsInstalled = !string.IsNullOrEmpty(RegistryHelper.GetInstalledProductVersion(ProductType.MsOffice));
-			if (((!isMsInstalled || installedProducts.Count <= 0) && installedProducts.Count <= 1) || !(await ShowFluentConfirmDialogAsync(Loc.DlgDefaultAppTitle, Loc.DlgDefaultAppMsg, Loc.BtnDefaultAppStart, Loc.BtnDefaultAppSkip)))
+			bool hasConflict = (isMsInstalled && installedProducts.Count >= 1) || (installedProducts.Count >= 2);
+
+			if (!hasConflict)
+			{
+				return;
+			}
+
+			bool confirmed = await ShowFluentConfirmDialogAsync(Loc.DlgDefaultAppTitle, Loc.DlgDefaultAppMsg, Loc.BtnDefaultAppStart, Loc.BtnDefaultAppSkip);
+			if (!confirmed)
 			{
 				return;
 			}
