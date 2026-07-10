@@ -1038,6 +1038,18 @@ namespace GOI.Helpers
 			return "";
 		}
 
+		public static bool IsOfficeProgId(string progId)
+		{
+			if (string.IsNullOrEmpty(progId)) return false;
+			string[] prefixes = { "WPS.", "WPP.", "ET.", "Word.", "Excel.", "PowerPoint.", "Yozo", "ONLYOFFICE", "LibreOffice", "soffice" };
+			foreach (var prefix in prefixes)
+			{
+				if (progId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+					return true;
+			}
+			return false;
+		}
+
 		private static bool ShouldRestoreExtensionAssociation(string ext)
 		{
 			using (RegistryKey rkExt = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\" + ext + "\\UserChoice"))
@@ -1047,18 +1059,7 @@ namespace GOI.Helpers
 					string userChoiceProgId = rkExt.GetValue("ProgId") as string;
 					if (!string.IsNullOrEmpty(userChoiceProgId))
 					{
-						bool isOfficeProgId = userChoiceProgId.StartsWith("WPS.", StringComparison.OrdinalIgnoreCase) ||
-											  userChoiceProgId.StartsWith("WPP.", StringComparison.OrdinalIgnoreCase) ||
-											  userChoiceProgId.StartsWith("ET.", StringComparison.OrdinalIgnoreCase) ||
-											  userChoiceProgId.StartsWith("Word.", StringComparison.OrdinalIgnoreCase) ||
-											  userChoiceProgId.StartsWith("Excel.", StringComparison.OrdinalIgnoreCase) ||
-											  userChoiceProgId.StartsWith("PowerPoint.", StringComparison.OrdinalIgnoreCase) ||
-											  userChoiceProgId.StartsWith("Yozo", StringComparison.OrdinalIgnoreCase) ||
-											  userChoiceProgId.StartsWith("ONLYOFFICE", StringComparison.OrdinalIgnoreCase) ||
-											  userChoiceProgId.StartsWith("LibreOffice", StringComparison.OrdinalIgnoreCase) ||
-											  userChoiceProgId.StartsWith("soffice", StringComparison.OrdinalIgnoreCase);
-
-						if (!isOfficeProgId) return false;
+						if (!IsOfficeProgId(userChoiceProgId)) return false;
 					}
 				}
 			}
@@ -1078,18 +1079,7 @@ namespace GOI.Helpers
 
 			if (!string.IsNullOrEmpty(currentProgId))
 			{
-				bool isOfficeProgId = currentProgId.StartsWith("WPS.", StringComparison.OrdinalIgnoreCase) ||
-									  currentProgId.StartsWith("WPP.", StringComparison.OrdinalIgnoreCase) ||
-									  currentProgId.StartsWith("ET.", StringComparison.OrdinalIgnoreCase) ||
-									  currentProgId.StartsWith("Word.", StringComparison.OrdinalIgnoreCase) ||
-									  currentProgId.StartsWith("Excel.", StringComparison.OrdinalIgnoreCase) ||
-									  currentProgId.StartsWith("PowerPoint.", StringComparison.OrdinalIgnoreCase) ||
-									  currentProgId.StartsWith("Yozo", StringComparison.OrdinalIgnoreCase) ||
-									  currentProgId.StartsWith("ONLYOFFICE", StringComparison.OrdinalIgnoreCase) ||
-									  currentProgId.StartsWith("LibreOffice", StringComparison.OrdinalIgnoreCase) ||
-									  currentProgId.StartsWith("soffice", StringComparison.OrdinalIgnoreCase);
-
-				if (!isOfficeProgId) return false;
+				if (!IsOfficeProgId(currentProgId)) return false;
 			}
 
 			return true;

@@ -172,27 +172,32 @@ namespace GOI.ViewModels
 			}
 		}
 
-		public ICommand SelectMsOfficeCommand => new RelayCommand(delegate
+		private ICommand _selectMsOfficeCommand;
+		public ICommand SelectMsOfficeCommand => _selectMsOfficeCommand ??= new RelayCommand(delegate
 		{
 			CurrentProductType = ProductType.MsOffice;
 		});
 
-		public ICommand SelectWpsCommand => new RelayCommand(delegate
+		private ICommand _selectWpsCommand;
+		public ICommand SelectWpsCommand => _selectWpsCommand ??= new RelayCommand(delegate
 		{
 			CurrentProductType = ProductType.Wps;
 		});
 
-		public ICommand SelectYozoCommand => new RelayCommand(delegate
+		private ICommand _selectYozoCommand;
+		public ICommand SelectYozoCommand => _selectYozoCommand ??= new RelayCommand(delegate
 		{
 			CurrentProductType = ProductType.Yozo;
 		});
 
-		public ICommand SelectOnlyOfficeCommand => new RelayCommand(delegate
+		private ICommand _selectOnlyOfficeCommand;
+		public ICommand SelectOnlyOfficeCommand => _selectOnlyOfficeCommand ??= new RelayCommand(delegate
 		{
 			CurrentProductType = ProductType.OnlyOffice;
 		});
 
-		public ICommand SelectLibreOfficeCommand => new RelayCommand(delegate
+		private ICommand _selectLibreOfficeCommand;
+		public ICommand SelectLibreOfficeCommand => _selectLibreOfficeCommand ??= new RelayCommand(delegate
 		{
 			CurrentProductType = ProductType.LibreOffice;
 		});
@@ -250,32 +255,38 @@ namespace GOI.ViewModels
 
 		public bool WpsLatestSelected => SelectedWpsVersion == WpsVersion.WpsLatest;
 
-		public ICommand SelectWps2013Command => new RelayCommand(delegate
+		private ICommand _selectWps2013Command;
+		public ICommand SelectWps2013Command => _selectWps2013Command ??= new RelayCommand(delegate
 		{
 			SelectedWpsVersion = WpsVersion.Wps2013;
 		});
 
-		public ICommand SelectWps2016Command => new RelayCommand(delegate
+		private ICommand _selectWps2016Command;
+		public ICommand SelectWps2016Command => _selectWps2016Command ??= new RelayCommand(delegate
 		{
 			SelectedWpsVersion = WpsVersion.Wps2016;
 		});
 
-		public ICommand SelectWps2019Command => new RelayCommand(delegate
+		private ICommand _selectWps2019Command;
+		public ICommand SelectWps2019Command => _selectWps2019Command ??= new RelayCommand(delegate
 		{
 			SelectedWpsVersion = WpsVersion.Wps2019;
 		});
 
-		public ICommand SelectWps2023Command => new RelayCommand(delegate
+		private ICommand _selectWps2023Command;
+		public ICommand SelectWps2023Command => _selectWps2023Command ??= new RelayCommand(delegate
 		{
 			SelectedWpsVersion = WpsVersion.Wps2023;
 		});
 
-		public ICommand SelectWpsLatestCommand => new RelayCommand(delegate
+		private ICommand _selectWpsLatestCommand;
+		public ICommand SelectWpsLatestCommand => _selectWpsLatestCommand ??= new RelayCommand(delegate
 		{
 			SelectedWpsVersion = WpsVersion.WpsLatest;
 		});
 
-		public ICommand OpenUrlCommand => new RelayCommand<string>(delegate(string url)
+		private ICommand _openUrlCommand;
+		public ICommand OpenUrlCommand => _openUrlCommand ??= new RelayCommand<string>(delegate(string url)
 		{
 			try
 			{
@@ -297,7 +308,8 @@ namespace GOI.ViewModels
 				OnPropertyChanged("YozoPersonalSelected");
 			}
 		}
-		public ICommand SelectYozoPersonalCommand => new RelayCommand(delegate {});
+		private ICommand _selectYozoPersonalCommand;
+		public ICommand SelectYozoPersonalCommand => _selectYozoPersonalCommand ??= new RelayCommand(delegate {});
 
 		private bool _onlyOfficeSelected = true;
 		public bool OnlyOfficeSelected
@@ -309,7 +321,8 @@ namespace GOI.ViewModels
 				OnPropertyChanged("OnlyOfficeSelected");
 			}
 		}
-		public ICommand SelectOnlyOfficeDesktopCommand => new RelayCommand(delegate {});
+		private ICommand _selectOnlyOfficeDesktopCommand;
+		public ICommand SelectOnlyOfficeDesktopCommand => _selectOnlyOfficeDesktopCommand ??= new RelayCommand(delegate {});
 
 		private bool _libreOfficeSelected = true;
 		public bool LibreOfficeSelected
@@ -321,7 +334,8 @@ namespace GOI.ViewModels
 				OnPropertyChanged("LibreOfficeSelected");
 			}
 		}
-		public ICommand SelectLibreOfficeStableCommand => new RelayCommand(delegate {});
+		private ICommand _selectLibreOfficeStableCommand;
+		public ICommand SelectLibreOfficeStableCommand => _selectLibreOfficeStableCommand ??= new RelayCommand(delegate {});
 
 		public bool IsM365
 		{
@@ -345,27 +359,32 @@ namespace GOI.ViewModels
 
 		public bool Office2016Selected => _currentVersion == OfficeVersion.Office2016 && !IsM365;
 
-		public ICommand SelectOffice2024Command => new RelayCommand(delegate
+		private ICommand _selectOffice2024Command;
+		public ICommand SelectOffice2024Command => _selectOffice2024Command ??= new RelayCommand(delegate
 		{
 			SetOfficeVersion(OfficeVersion.Office2024, isM365: false);
 		});
 
-		public ICommand SelectM365Command => new RelayCommand(delegate
+		private ICommand _selectM365Command;
+		public ICommand SelectM365Command => _selectM365Command ??= new RelayCommand(delegate
 		{
 			SetOfficeVersion(OfficeVersion.Microsoft365Pro, isM365: true);
 		});
 
-		public ICommand SelectOffice2021Command => new RelayCommand(delegate
+		private ICommand _selectOffice2021Command;
+		public ICommand SelectOffice2021Command => _selectOffice2021Command ??= new RelayCommand(delegate
 		{
 			SetOfficeVersion(OfficeVersion.Office2021, isM365: false);
 		});
 
-		public ICommand SelectOffice2019Command => new RelayCommand(delegate
+		private ICommand _selectOffice2019Command;
+		public ICommand SelectOffice2019Command => _selectOffice2019Command ??= new RelayCommand(delegate
 		{
 			SetOfficeVersion(OfficeVersion.Office2019, isM365: false);
 		});
 
-		public ICommand SelectOffice2016Command => new RelayCommand(delegate
+		private ICommand _selectOffice2016Command;
+		public ICommand SelectOffice2016Command => _selectOffice2016Command ??= new RelayCommand(delegate
 		{
 			SetOfficeVersion(OfficeVersion.Office2016, isM365: false);
 		});
@@ -556,44 +575,53 @@ namespace GOI.ViewModels
 			}
 		}
 
-		public ICommand UninstallSelectedCommand => new RelayCommand(async delegate
+		private ICommand _uninstallSelectedCommand;
+		public ICommand UninstallSelectedCommand => _uninstallSelectedCommand ??= new RelayCommand(async delegate
 		{
 			await UninstallSelectedAsync();
 		}, () => CanInstall);
 
-		public ICommand ClearOfficeActivationCommand => new RelayCommand(async delegate
+		private ICommand _clearOfficeActivationCommand;
+		public ICommand ClearOfficeActivationCommand => _clearOfficeActivationCommand ??= new RelayCommand(async delegate
 		{
 			await ClearOfficeActivationAsync();
 		}, () => CanInstall);
 
-		public ICommand ActivateOfficeOhookCommand => new RelayCommand(async delegate
+		private ICommand _activateOfficeOhookCommand;
+		public ICommand ActivateOfficeOhookCommand => _activateOfficeOhookCommand ??= new RelayCommand(async delegate
 		{
 			await ActivateOfficeOhookAsync();
 		}, () => CanInstall);
 
-		public ICommand CleanOrphanedAssociationsCommand => new RelayCommand(async delegate
+		private ICommand _cleanOrphanedAssociationsCommand;
+		public ICommand CleanOrphanedAssociationsCommand => _cleanOrphanedAssociationsCommand ??= new RelayCommand(async delegate
 		{
 			await CleanOrphanedAssociationsAsync();
 		}, () => CanInstall);
 
-		public ICommand RefreshIconCacheCommand => new RelayCommand(async delegate
+		private ICommand _refreshIconCacheCommand;
+		public ICommand RefreshIconCacheCommand => _refreshIconCacheCommand ??= new RelayCommand(async delegate
 		{
 			await RefreshIconCacheAsync();
 		}, () => CanInstall);
 
-		public ICommand RepairAssociationsCommand => new RelayCommand(async delegate
+		private ICommand _repairAssociationsCommand;
+		public ICommand RepairAssociationsCommand => _repairAssociationsCommand ??= new RelayCommand(async delegate
 		{
 			await RepairAssociationsAsync();
 		}, () => CanInstall);
 
-		public ICommand RepairCOMCommand => new RelayCommand(async delegate
+		private ICommand _repairCOMCommand;
+		public ICommand RepairCOMCommand => _repairCOMCommand ??= new RelayCommand(async delegate
 		{
 			await RepairCOMAsync();
 		}, () => CanInstall);
 
-		public ICommand ExportXmlCommand => new RelayCommand(ExportXml);
+		private ICommand _exportXmlCommand;
+		public ICommand ExportXmlCommand => _exportXmlCommand ??= new RelayCommand(ExportXml);
 
-		public ICommand InstallCommand => new RelayCommand(async delegate
+		private ICommand _installCommand;
+		public ICommand InstallCommand => _installCommand ??= new RelayCommand(async delegate
 		{
 			await InstallAsync();
 		}, () => CanInstall);

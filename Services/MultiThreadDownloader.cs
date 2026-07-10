@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +22,20 @@ namespace GOI.Services
         private const int DefaultThreadCount = 8;
         private const int BufferSize = 81920; // 80KB
         private const string Aria2ZipUrl = "https://ghproxy.net/https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip";
+        private static readonly HttpClient _httpClient;
+
+        static MultiThreadDownloader()
+        {
+            var handler = new HttpClientHandler();
+            try
+            {
+                handler.UseProxy = true;
+            }
+            catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs static constructor", ex_captured); }
+            _httpClient = new HttpClient(handler);
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            _httpClient.Timeout = TimeSpan.FromSeconds(60);
+        }
 
         /// <summary>
         /// 下载文件到指定路径。
@@ -56,23 +72,21 @@ namespace GOI.Services
             long totalSize = -1;
             bool supportsRange = false;
 
-            var headReq = (HttpWebRequest)WebRequest.Create(url);
-            headReq.Method = "HEAD";
-            headReq.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-            headReq.Timeout = 15000;
-
             try
             {
-                using (var headResp = (HttpWebResponse)await Task.Factory.FromAsync(
-                    headReq.BeginGetResponse, headReq.EndGetResponse, null))
+                using (var request = new HttpRequestMessage(HttpMethod.Head, url))
+                using (var response = await _httpClient.SendAsync(request, ct))
                 {
-                    totalSize = headResp.ContentLength;
-                    var acceptRanges = headResp.Headers["Accept-Ranges"];
-                    supportsRange = !string.IsNullOrEmpty(acceptRanges) &&
-                                    acceptRanges.IndexOf("bytes", StringComparison.OrdinalIgnoreCase) >= 0;
-
-                    if (totalSize > 0 && !supportsRange)
-                        supportsRange = true;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        totalSize = response.Content.Headers.ContentLength ?? -1;
+                        var acceptRanges = response.Headers.AcceptRanges;
+                        supportsRange = acceptRanges != null && acceptRanges.Contains("bytes");
+                        if (totalSize > 0 && !supportsRange)
+                        {
+                            supportsRange = true;
+                        }
+                    }
                 }
             }
             catch
@@ -80,25 +94,18 @@ namespace GOI.Services
                 Logger.Info("HEAD 请求探测失败，尝试使用 GET Range 探测...");
                 try
                 {
-                    var getRangeReq = (HttpWebRequest)WebRequest.Create(url);
-                    getRangeReq.Method = "GET";
-                    getRangeReq.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-                    getRangeReq.AddRange(0, 0);
-                    getRangeReq.Timeout = 15000;
-
-                    using (var getRangeResp = (HttpWebResponse)await Task.Factory.FromAsync(
-                        getRangeReq.BeginGetResponse, getRangeReq.EndGetResponse, null))
+                    using (var request = new HttpRequestMessage(HttpMethod.Get, url))
                     {
-                        if (getRangeResp.StatusCode == HttpStatusCode.PartialContent)
+                        request.Headers.Range = new RangeHeaderValue(0, 0);
+                        using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct))
                         {
-                            supportsRange = true;
-                            var contentRange = getRangeResp.Headers["Content-Range"];
-                            if (!string.IsNullOrEmpty(contentRange))
+                            if (response.StatusCode == HttpStatusCode.PartialContent)
                             {
-                                int slashIdx = contentRange.LastIndexOf('/');
-                                if (slashIdx >= 0 && long.TryParse(contentRange.Substring(slashIdx + 1), out long parsedSize))
+                                supportsRange = true;
+                                var contentRange = response.Content.Headers.ContentRange;
+                                if (contentRange != null && contentRange.Length.HasValue)
                                 {
-                                    totalSize = parsedSize;
+                                    totalSize = contentRange.Length.Value;
                                     Logger.Info($"GET Range 探测成功！文件大小: {totalSize / 1024 / 1024}MB");
                                 }
                             }
@@ -118,9 +125,6 @@ namespace GOI.Services
                 return;
             }
 
-            ServicePointManager.DefaultConnectionLimit = 512;
-            ServicePointManager.Expect100Continue = false;
-
             Logger.Info($"内置多线程下载: {threadCount} 线程, 大小: {totalSize / 1024 / 1024}MB");
 
             long segmentSize = totalSize / threadCount;
@@ -136,79 +140,77 @@ namespace GOI.Services
                 };
             }
 
-            using (var fs = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            // 1. 预先设置目标文件长度
+            using (var fsPre = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
             {
-                fs.SetLength(totalSize);
-                long totalDownloaded = 0;
-                var lockObj = new object();
+                fsPre.SetLength(totalSize);
+            }
 
-                var tasks = new Task[threadCount];
-                for (int i = 0; i < threadCount; i++)
+            long totalDownloaded = 0;
+            var lockObj = new object();
+
+            var tasks = new Task[threadCount];
+            for (int i = 0; i < threadCount; i++)
+            {
+                var seg = segments[i];
+                tasks[i] = Task.Run(async () =>
                 {
-                    var seg = segments[i];
-                    tasks[i] = Task.Run(async () =>
+                    int retries = 0;
+                    const int maxRetries = 3;
+
+                    while (retries < maxRetries)
                     {
-                        int retries = 0;
-                        const int maxRetries = 3;
-
-                        while (retries < maxRetries)
+                        try
                         {
-                            try
+                            using (var request = new HttpRequestMessage(HttpMethod.Get, url))
                             {
-                                var req = (HttpWebRequest)WebRequest.Create(url);
-                                req.Method = "GET";
-                                req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-                                req.AddRange(seg.Start + seg.Downloaded, seg.End);
-                                req.Timeout = 30000;
-                                req.ReadWriteTimeout = 30000;
-
-                                using (var resp = (HttpWebResponse)await Task.Factory.FromAsync(
-                                    req.BeginGetResponse, req.EndGetResponse, null))
-                                using (var stream = resp.GetResponseStream())
+                                request.Headers.Range = new RangeHeaderValue(seg.Start + seg.Downloaded, seg.End);
+                                using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct))
                                 {
-                                    var buffer = new byte[BufferSize];
-                                    int bytesRead;
-
-                                    while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
+                                    response.EnsureSuccessStatusCode();
+                                    using (var stream = await response.Content.ReadAsStreamAsync())
+                                    // 2. 每个分段下载线程打开独立的 FileStream 句柄，通过 FileShare.ReadWrite 并行无锁写入各自的分段区间
+                                    using (var fs = new FileStream(savePath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite, 8192, true))
                                     {
-                                        ct.ThrowIfCancellationRequested();
-                                        
-                                        lock (lockObj)
-                                        {
-                                            fs.Seek(seg.Start + seg.Downloaded, SeekOrigin.Begin);
-                                            fs.Write(buffer, 0, bytesRead);
-                                        }
-                                        
-                                        seg.Downloaded += bytesRead;
+                                        fs.Position = seg.Start + seg.Downloaded;
+                                        var buffer = new byte[BufferSize];
+                                        int bytesRead;
 
-                                        lock (lockObj)
+                                        while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
                                         {
-                                            totalDownloaded += bytesRead;
-                                            int pct = (int)(totalDownloaded * 100 / totalSize);
-                                            progress?.Report(Math.Min(pct, 100));
+                                            ct.ThrowIfCancellationRequested();
+                                            await fs.WriteAsync(buffer, 0, bytesRead, ct);
+                                            seg.Downloaded += bytesRead;
+
+                                            lock (lockObj)
+                                            {
+                                                totalDownloaded += bytesRead;
+                                                int pct = (int)(totalDownloaded * 100 / totalSize);
+                                                progress?.Report(Math.Min(pct, 100));
+                                            }
                                         }
                                     }
                                 }
-                                break;
                             }
-                            catch (OperationCanceledException) { throw; }
-                            catch (Exception ex)
-                            {
-                                retries++;
-                                if (retries >= maxRetries)
-                                {
-                                    Logger.Error($"分段 {seg.Index} 下载失败", ex);
-                                    throw;
-                                }
-                                Logger.Info($"分段 {seg.Index} 下载失败，重试 {retries}...");
-                                await Task.Delay(1000 * retries, ct);
-                            }
+                            break;
                         }
-                    }, ct);
-                }
-
-                await Task.WhenAll(tasks);
+                        catch (OperationCanceledException) { throw; }
+                        catch (Exception ex)
+                        {
+                            retries++;
+                            if (retries >= maxRetries)
+                            {
+                                Logger.Error($"分段 {seg.Index} 下载失败", ex);
+                                throw;
+                            }
+                            Logger.Info($"分段 {seg.Index} 下载失败，重试 {retries}...");
+                            await Task.Delay(1000 * retries, ct);
+                        }
+                    }
+                }, ct);
             }
+
+            await Task.WhenAll(tasks);
             progress?.Report(100);
             Logger.Info("内置多线程下载完成");
         }
@@ -228,10 +230,13 @@ namespace GOI.Services
             string zipPath = Path.Combine(AppConfig.RootPath, "aria2c.zip");
             try
             {
-                using (var client = new WebClient())
+                using (var response = await _httpClient.GetAsync(Aria2ZipUrl, ct))
                 {
-                    ct.Register(() => client.CancelAsync());
-                    await client.DownloadFileTaskAsync(new Uri(Aria2ZipUrl), zipPath);
+                    response.EnsureSuccessStatusCode();
+                    using (var fs = File.Create(zipPath))
+                    {
+                        await response.Content.CopyToAsync(fs);
+                    }
                 }
 
                 Logger.Info("aria2c.zip 下载完成，正在解压提取...");
@@ -261,7 +266,7 @@ namespace GOI.Services
             }
             finally
             {
-                try { if (File.Exists(zipPath)) File.Delete(zipPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs at UnknownMethod", ex_captured); }
+                try { if (File.Exists(zipPath)) File.Delete(zipPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs at GetOrDownloadAria2Async finally", ex_captured); }
             }
         }
 
@@ -301,7 +306,7 @@ namespace GOI.Services
             {
                 proc.Start();
 
-                using (ct.Register(() => { try { proc.Kill(); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs at UnknownMethod", ex_captured); } }))
+                using (ct.Register(() => { try { proc.Kill(); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs at DownloadWithAria2Async cancel registration", ex_captured); } }))
                 {
                     var reader = proc.StandardOutput;
                     while (!reader.EndOfStream)
@@ -309,7 +314,6 @@ namespace GOI.Services
                         string line = await reader.ReadLineAsync();
                         if (line == null) break;
 
-                        // 匹配类似 (2%), (99%) 的进度表示
                         var match = Regex.Match(line, @"\((\d+)%\)");
                         if (match.Success)
                         {
@@ -332,20 +336,16 @@ namespace GOI.Services
             IProgress<int> progress, CancellationToken ct)
         {
             Logger.Info("回退单线程下载");
-            var req = (HttpWebRequest)WebRequest.Create(url);
-            req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-            req.Timeout = 30000;
-
-            using (var resp = (HttpWebResponse)await Task.Factory.FromAsync(
-                req.BeginGetResponse, req.EndGetResponse, null))
+            using (var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct))
             {
+                response.EnsureSuccessStatusCode();
                 if (totalSize <= 0)
                 {
-                    totalSize = resp.ContentLength;
+                    totalSize = response.Content.Headers.ContentLength ?? -1;
                 }
 
-                using (var stream = resp.GetResponseStream())
-                using (var fs = new FileStream(savePath, FileMode.Create, FileAccess.Write))
+                using (var stream = await response.Content.ReadAsStreamAsync())
+                using (var fs = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
                 {
                     var buffer = new byte[BufferSize];
                     long downloaded = 0;
