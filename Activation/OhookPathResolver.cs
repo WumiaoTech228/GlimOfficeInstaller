@@ -74,35 +74,35 @@ namespace GOI.Activation
                     if (!Directory.Exists(license16) && !Directory.Exists(license15))
                         continue;
 
-                    // 读取架构
+                    // 读取架构和版本
                     var arch = "x64";
-                    var configKey = key.OpenSubKey("Configuration");
-                    if (configKey != null)
+                    var v = "16.0";
+                    using (var configKey = key.OpenSubKey("Configuration"))
                     {
-                        var platform = configKey.GetValue("Platform") as string;
-                        if (!string.IsNullOrEmpty(platform))
-                            arch = platform;
-                        configKey.Dispose();
-                    }
-                    // 兼容旧版 propertyBag
-                    if (arch == "x64")
-                    {
-                        var propBagKey = key.OpenSubKey("propertyBag");
-                        if (propBagKey != null)
+                        if (configKey != null)
                         {
-                            var platform = propBagKey.GetValue("Platform") as string;
+                            var platform = configKey.GetValue("Platform") as string;
                             if (!string.IsNullOrEmpty(platform))
                                 arch = platform;
-                            propBagKey.Dispose();
+
+                            var ver = configKey.GetValue("VersionToReport") as string;
+                            if (!string.IsNullOrEmpty(ver))
+                                v = ver;
                         }
                     }
 
-                    // 读取版本
-                    var v = "16.0";
-                    if (configKey != null)
+                    // 兼容旧版 propertyBag
+                    if (arch == "x64")
                     {
-                        var ver = configKey.GetValue("VersionToReport") as string;
-                        if (!string.IsNullOrEmpty(ver)) v = ver;
+                        using (var propBagKey = key.OpenSubKey("propertyBag"))
+                        {
+                            if (propBagKey != null)
+                            {
+                                var platform = propBagKey.GetValue("Platform") as string;
+                                if (!string.IsNullOrEmpty(platform))
+                                    arch = platform;
+                            }
+                        }
                     }
 
                     var is64 = arch.Equals("x64", StringComparison.OrdinalIgnoreCase);
