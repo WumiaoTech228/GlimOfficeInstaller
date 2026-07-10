@@ -12,7 +12,25 @@ namespace GOI.Helpers
     public class LocalizationStrings
     {
         public enum AppLanguage { SimplifiedChinese, TraditionalChinese, English }
-        public static AppLanguage Detected { get; set; }
+        private static readonly object _langLock = new object();
+        private static AppLanguage _detected;
+        public static AppLanguage Detected
+        {
+            get
+            {
+                lock (_langLock)
+                {
+                    return _detected;
+                }
+            }
+            set
+            {
+                lock (_langLock)
+                {
+                    _detected = value;
+                }
+            }
+        }
 
         static LocalizationStrings()
         {

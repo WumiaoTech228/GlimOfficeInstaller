@@ -205,8 +205,46 @@ namespace GOI.Helpers
 			}
 		}
 
+		private static bool IsCurrentUserAdmin()
+		{
+			try
+			{
+				using WindowsIdentity identity = WindowsIdentity.GetCurrent();
+				WindowsPrincipal principal = new WindowsPrincipal(identity);
+				return principal.IsInRole(WindowsBuiltInRole.Administrator);
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
 		private static void ForceDeleteRegistryKey(RegistryKey parentKey, string subKeyName)
 		{
+			// 1. 尝试防御性地直接删除，如果可以直接成功，就绝不触碰和修改任何所有者和 ACL 权限
+			try
+			{
+				parentKey.DeleteSubKeyTree(subKeyName, throwOnMissingSubKey: false);
+				Logger.Info("已直接清理注册表项: " + subKeyName);
+				return;
+			}
+			catch (UnauthorizedAccessException)
+			{
+				// 权限受限，回退到夺权流程
+			}
+			catch (Exception ex)
+			{
+				Logger.Warn("直接清理注册表项 " + subKeyName + " 异常 (将尝试夺权修复): " + ex.Message);
+			}
+
+			// 2. 检查管理员权限
+			if (!IsCurrentUserAdmin())
+			{
+				Logger.Warn("当前运行权限不足且非管理员，跳过注册表夺权操作: " + subKeyName);
+				return;
+			}
+
+			// 3. 夺取所有者权限 (TakeOwnership)
 			try
 			{
 				using RegistryKey registryKey = parentKey.OpenSubKey(subKeyName, RegistryRights.TakeOwnership);
@@ -217,7 +255,9 @@ namespace GOI.Helpers
 					registryKey.SetAccessControl(accessControl);
 				}
 			}
-			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs at ForceDeleteRegistryKey", ex_captured); }
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs at ForceDeleteRegistryKey (TakeOwnership)", ex_captured); }
+
+			// 4. 调整 ACL 权限控制列表 (允许 FullControl 并清除 Deny 规则)
 			try
 			{
 				using RegistryKey registryKey2 = parentKey.OpenSubKey(subKeyName, RegistryRights.ChangePermissions);
@@ -238,7 +278,9 @@ namespace GOI.Helpers
 					registryKey2.SetAccessControl(accessControl2);
 				}
 			}
-			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs at ForceDeleteRegistryKey", ex_captured); }
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs at ForceDeleteRegistryKey (ChangePermissions)", ex_captured); }
+
+			// 5. 递归处理子键
 			try
 			{
 				using RegistryKey registryKey3 = parentKey.OpenSubKey(subKeyName, writable: true);
@@ -251,15 +293,17 @@ namespace GOI.Helpers
 					}
 				}
 			}
-			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs at ForceDeleteRegistryKey", ex_captured); }
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs at ForceDeleteRegistryKey (Recurse)", ex_captured); }
+
+			// 6. 最终尝试删除子键树
 			try
 			{
 				parentKey.DeleteSubKeyTree(subKeyName, throwOnMissingSubKey: false);
-				Logger.Info("已强制清理受保护注册表项: " + subKeyName);
+				Logger.Info("已通过夺权强制清理受保护注册表项: " + subKeyName);
 			}
 			catch (Exception ex)
 			{
-				Logger.Warn("强制清理受保护注册表项 " + subKeyName + " 失败: " + ex.Message);
+				Logger.Warn("夺权强制清理受保护注册表项 " + subKeyName + " 失败: " + ex.Message);
 			}
 		}
 
@@ -273,19 +317,27 @@ namespace GOI.Helpers
 					string filePath = process.MainModule?.FileName?.ToLowerInvariant();
 					if (string.IsNullOrEmpty(filePath)) return false;
 
+					// 1. 优先校验路径是否包含明确的 Office 专有目录
 					if (filePath.Contains("microsoft office") || 
 						filePath.Contains("office16") || 
-						filePath.Contains("microsoft shared") || 
-						filePath.Contains("odt") || 
 						filePath.Contains("officeclicktorun") || 
-						filePath.Contains("common files\\microsoft shared"))
+						filePath.Contains("common files\\microsoft shared\\office16") ||
+						filePath.Contains("odt"))
 					{
 						return true;
 					}
 
+					// 2. 如果路径模糊，二次验证文件描述，必须同时属于微软公司且是 Office 套件产品 (排除通用 VC++ 或 .NET 安装器)
 					var versionInfo = FileVersionInfo.GetVersionInfo(filePath);
-					if (versionInfo.CompanyName != null && 
-						(versionInfo.CompanyName.Contains("Microsoft") || versionInfo.CompanyName.Contains("Office")))
+					bool isMicrosoft = versionInfo.CompanyName != null && versionInfo.CompanyName.Contains("Microsoft");
+					bool isOfficeProduct = versionInfo.ProductName != null && 
+										  (versionInfo.ProductName.Contains("Office") || 
+										   versionInfo.ProductName.Contains("Word") || 
+										   versionInfo.ProductName.Contains("Excel") || 
+										   versionInfo.ProductName.Contains("PowerPoint") || 
+										   versionInfo.ProductName.Contains("Click-to-Run"));
+
+					if (isMicrosoft && isOfficeProduct)
 					{
 						return true;
 					}
