@@ -54,9 +54,17 @@ namespace GOI.Helpers
 
         // ===================== 通用 =====================
         public string AppTitle => "Glim Office Installer";
-        public string AppVersion => S("版本 2.1.4 Stable | 基于 Fluent 2.0 规范深度重构",
-                                       "版本 2.1.4 Stable | 基於 Fluent 2.0 規範深度重構",
-                                       "Version 2.1.4 Stable | Rebuilt on Fluent 2.0 Design");
+        public string AppVersion
+        {
+            get
+            {
+                var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                string verStr = $"{version.Major}.{version.Minor}.{version.Build}";
+                return S($"版本 {verStr} Stable | 基于 Fluent 2.0 规范深度重构",
+                         $"版本 {verStr} Stable | 基於 Fluent 2.0 規範深度重構",
+                         $"Version {verStr} Stable | Rebuilt on Fluent 2.0 Design");
+            }
+        }
         public string BtnDeploy => S("一键开始部署", "一鍵開始部署", "One-Click Deploy");
         public string BtnOk => S("确定", "確定", "OK");
         public string BtnContinue => S("继续部署", "繼續部署", "Continue");
