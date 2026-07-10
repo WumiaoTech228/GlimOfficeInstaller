@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Win32;
+using GOI.Helpers;
 
 namespace GOI.Activation
 {
@@ -223,6 +224,50 @@ namespace GOI.Activation
             var commonFiles = Environment.GetFolderPath(
                 Environment.SpecialFolder.CommonProgramFiles);
             return Path.Combine(commonFiles, "Microsoft Shared", "OfficeSoftwareProtectionPlatform");
+        }
+
+        /// <summary>获取当前已安装的 Office 产品 ID 列表</summary>
+        public static List<string> GetInstalledProductIds()
+        {
+            var productIds = new List<string>();
+            try
+            {
+                // 先在 64 位下查，再查 32 位
+                foreach (var view in new[] { RegistryView.Registry64, RegistryView.Registry32 })
+                {
+                    using var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+                    using var key = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Office\ClickToRun\ProductReleaseIDs");
+                    if (key == null) continue;
+
+                    foreach (var subKeyName in key.GetSubKeyNames())
+                    {
+                        using var subKey = key.OpenSubKey(subKeyName);
+                        if (subKey == null) continue;
+
+                        foreach (var prodName in subKey.GetSubKeyNames())
+                        {
+                            // 排除 "culture" 等非产品子键
+                            if (prodName.Equals("culture", StringComparison.OrdinalIgnoreCase))
+                                continue;
+
+                            string cleanName = prodName;
+                            if (cleanName.EndsWith(".16", StringComparison.OrdinalIgnoreCase))
+                            {
+                                cleanName = cleanName.Substring(0, cleanName.Length - 3);
+                            }
+                            if (!productIds.Contains(cleanName))
+                            {
+                                productIds.Add(cleanName);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("[Ohook] 获取安装产品列表失败", ex);
+            }
+            return productIds;
         }
     }
 

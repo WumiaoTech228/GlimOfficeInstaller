@@ -715,6 +715,25 @@
                             </Grid>
                         </Border>
 
+                        <!-- Open Log Folder Card -->
+                        <Border Style="{StaticResource FluentCardBaseStyle}" Margin="0,0,0,12" Cursor="Arrow">
+                            <Grid Margin="16,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="&#xE8B7;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                    <TextBlock Text="{Binding Loc.SettingsOpenLogFolderTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Loc.SettingsOpenLogFolderDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Button Grid.Column="2" Content="{Binding Loc.BtnOpenLogFolder}" Command="{Binding OpenLogFolderCommand}"
+                                        VerticalAlignment="Center" Padding="15,5"
+                                        Style="{StaticResource DefaultButtonStyle}"/>
+                            </Grid>
+                        </Border>
+
                         <!-- About Section title -->
                         <TextBlock Text="{Binding Loc.SettingsAboutSectionTitle}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Left" Margin="4,12,0,8"/>
 
@@ -735,7 +754,7 @@
                                                 <TextBlock Text="{Binding Loc.AppVersion}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12"/>
                                                 <TextBlock Text="    " FontSize="12"/>
                                                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" FontSize="12">
-                                                    <Hyperlink Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/WumiaoTech228" TextDecorations="None" Foreground="{DynamicResource SystemControlHighlightAccentBrush}">
+                                                    <Hyperlink Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/WumiaoTech228" TextDecorations="None" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}">
                                                         <TextBlock Text="{Binding Loc.AboutAuthor}"/>
                                                     </Hyperlink>
                                                 </TextBlock>
@@ -743,6 +762,11 @@
                                             <TextBlock Margin="0,3,0,0" Style="{StaticResource CaptionTextBlockStyle}" FontSize="12">
                                                 <Hyperlink Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/WumiaoTech228/GlimOfficeInstaller" TextDecorations="None" Foreground="{DynamicResource SystemControlHighlightAccentBrush}">
                                                     <Run Text="GitHub: github.com/WumiaoTech228/GlimOfficeInstaller"/>
+                                                </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="0,3,0,0" Style="{StaticResource CaptionTextBlockStyle}" FontSize="12">
+                                                <Hyperlink Command="{Binding OpenUrlCommand}" CommandParameter="https://blog.110228.xyz" TextDecorations="None" Foreground="{DynamicResource SystemControlHighlightAccentBrush}">
+                                                    <Run Text="Blog: blog.110228.xyz"/>
                                                 </Hyperlink>
                                             </TextBlock>
                                         </StackPanel>

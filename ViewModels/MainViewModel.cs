@@ -648,6 +648,9 @@ namespace GOI.ViewModels
 		private ICommand _exportXmlCommand;
 		public ICommand ExportXmlCommand => _exportXmlCommand ??= new RelayCommand(ExportXml);
 
+		private ICommand _openLogFolderCommand;
+		public ICommand OpenLogFolderCommand => _openLogFolderCommand ??= new RelayCommand(OpenLogFolder);
+
 		private ICommand _installCommand;
 		public ICommand InstallCommand => _installCommand ??= new RelayCommand(async delegate
 		{
@@ -1353,6 +1356,29 @@ namespace GOI.ViewModels
 					Logger.Error("导出 XML 失败", ex);
 					_ = DialogService.ShowMessageAsync(Loc.DlgExportXmlFailTitle, ex.Message);
 				}
+			}
+		}
+
+		private void OpenLogFolder()
+		{
+			try
+			{
+				if (Directory.Exists(AppConfig.LogPath))
+				{
+					Process.Start(new ProcessStartInfo
+					{
+						FileName = AppConfig.LogPath,
+						UseShellExecute = true
+					});
+				}
+				else
+				{
+					_ = DialogService.ShowMessageAsync("提示", "暂无日志文件生成");
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Error("无法打开日志文件夹", ex);
 			}
 		}
 

@@ -276,6 +276,9 @@ namespace GOI.Helpers
         public string SettingsExportXmlDesc => S("将主页中当前选择的 Office 部署设置导出为 XML 文件，用于调试或手动部署", "將主頁中目前選擇的 Office 部署設定匯出為 XML 檔案，用於除錯或手動部署", "Export the Office deployment settings currently selected on the main page to an XML file for debugging or manual deployment");
         public string SettingsEnableExportXmlTitle => S("在主页开启导出 XML", "在主頁開啟匯出 XML", "Enable Export XML on Home Page");
         public string SettingsEnableExportXmlDesc => S("开启后，将在 Microsoft Office 部署页面显示“导出 XML”按钮", "開啟後，將在 Microsoft Office 部署頁面顯示「匯出 XML」按鈕", "When enabled, the \"Export XML\" button will be shown on the Microsoft Office page.");
+        public string SettingsOpenLogFolderTitle => S("打开日志文件夹", "開啟記錄資料夾", "Open Log Folder");
+        public string SettingsOpenLogFolderDesc => S("打开 GOI 的日志文件夹，便于查看详细的部署与激活诊断日志", "打開 GOI 的日誌資料夾，便於查看詳細的部署與激活診斷日誌", "Open GOI's log directory to view detailed installation and activation logs.");
+        public string BtnOpenLogFolder => S("打开文件夹", "開啟資料夾", "Open Folder");
         public string SettingsAboutSectionTitle => S("关于软件", "關於軟體", "About");
         public string AboutDesc1 => S("本软件为完全免费开源项目，专为高效、静默部署各类常用办公套件设计。",
                                        "本軟體為完全免費開源專案，專為高效、靜默部署各類常用辦公套件設計。",
