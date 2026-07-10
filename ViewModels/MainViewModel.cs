@@ -61,8 +61,6 @@ namespace GOI.ViewModels
 
 		private bool _isProgressVisible;
 
-		private bool _isAboutVisible;
-
 		private string _selectedTheme = "Default";
 
 		private string _selectedAppLanguage = "SimplifiedChinese";
@@ -461,28 +459,6 @@ namespace GOI.ViewModels
 		}
 
 		public bool CanInstall => Phase != InstallPhase.Cleaning && Phase != InstallPhase.Downloading && Phase != InstallPhase.Installing && Phase != InstallPhase.Activating;
-
-		public bool IsAboutVisible
-		{
-			get
-			{
-				return _isAboutVisible;
-			}
-			set
-			{
-				Set(ref _isAboutVisible, value, "IsAboutVisible");
-			}
-		}
-
-		public ICommand TitleClickCommand => new RelayCommand(delegate
-		{
-			IsAboutVisible = true;
-		});
-
-		public ICommand CloseAboutCommand => new RelayCommand(delegate
-		{
-			IsAboutVisible = false;
-		});
 
 		public string SelectedTheme
 		{

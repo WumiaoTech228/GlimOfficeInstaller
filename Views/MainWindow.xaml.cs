@@ -34,25 +34,6 @@ namespace GOI.Views
                     }
                 }
             };
-
-            bool isShowing = false;
-            vm.PropertyChanged += async (s, e) =>
-            {
-                if (e.PropertyName == nameof(vm.IsAboutVisible))
-                {
-                    if (vm.IsAboutVisible && !isShowing)
-                    {
-                        isShowing = true;
-                        await AboutDialog.ShowAsync();
-                        isShowing = false;
-                        vm.IsAboutVisible = false;
-                    }
-                    else if (!vm.IsAboutVisible && isShowing)
-                    {
-                        AboutDialog.Hide();
-                    }
-                }
-            };
         }
 
 
