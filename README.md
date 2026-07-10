@@ -67,6 +67,7 @@ An elegant, modern, and Fluent 2.0 styled minimalist Office suite deployment uti
 本项目的顺利完成离不开以下优秀开源项目的支持：
 
 * **[iNKORE.UI.WPF.Modern](https://github.com/iNKORE-NET/iNKORE.UI.WPF.Modern)** - 提供极致的 Fluent 2.0 WPF 控件库与原生主题适应。
+* **[Microsoft-Activation-Scripts (MAS)](https://github.com/massgravel/Microsoft-Activation-Scripts)** - 提供行业基础的 Windows/Office 开源激活解决方案（本项目集成并修改了其 Ohook 核心脚本）。
 * **[Costura.Fody](https://github.com/Fody/Costura)** - 用于将 DLL 依赖项合并到主执行文件中以实现单文件分发。
 * **[SharpCompress](https://github.com/adamhathcock/sharpcompress)** - 跨平台的高性能解压缩支持，用于解压与提取本地安装包。
 
