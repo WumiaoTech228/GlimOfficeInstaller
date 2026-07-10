@@ -733,9 +733,18 @@
                                             <TextBlock Text="{Binding Loc.AppTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                             <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
                                                 <TextBlock Text="{Binding Loc.AppVersion}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12"/>
-                                                <TextBlock Text="  •  " Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseLowBrush}" FontSize="12"/>
-                                                <TextBlock Text="{Binding Loc.AboutAuthor}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12"/>
+                                                <TextBlock Text="    " FontSize="12"/>
+                                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" FontSize="12">
+                                                    <Hyperlink Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/WumiaoTech228" TextDecorations="None" Foreground="{DynamicResource SystemControlHighlightAccentBrush}">
+                                                        <TextBlock Text="{Binding Loc.AboutAuthor}"/>
+                                                    </Hyperlink>
+                                                </TextBlock>
                                             </StackPanel>
+                                            <TextBlock Margin="0,3,0,0" Style="{StaticResource CaptionTextBlockStyle}" FontSize="12">
+                                                <Hyperlink Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/WumiaoTech228/GlimOfficeInstaller" TextDecorations="None" Foreground="{DynamicResource SystemControlHighlightAccentBrush}">
+                                                    <Run Text="GitHub: github.com/WumiaoTech228/GlimOfficeInstaller"/>
+                                                </Hyperlink>
+                                            </TextBlock>
                                         </StackPanel>
                                     </Grid>
                                     <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,12"/>

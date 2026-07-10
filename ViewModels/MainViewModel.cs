@@ -271,6 +271,18 @@ namespace GOI.ViewModels
 			SelectedWpsVersion = WpsVersion.WpsLatest;
 		});
 
+		public ICommand OpenUrlCommand => new RelayCommand<string>(delegate(string url)
+		{
+			try
+			{
+				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+			}
+			catch (Exception ex)
+			{
+				GOI.Helpers.Logger.Error("Failed to open URL: " + url, ex);
+			}
+		});
+
 		private bool _yozoPersonalSelected = true;
 		public bool YozoPersonalSelected
 		{
