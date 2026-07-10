@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using GOI.Activation;
 using GOI.Helpers;
 using GOI.Models;
 
@@ -129,49 +131,20 @@ namespace GOI.Services
 
 
 
-        /// <summary>Office Ohook 激活</summary>
+        /// <summary>Office Ohook 激活（C# 原生实现，不再依赖外部脚本）</summary>
         public async Task<bool> ActivateOhookAsync()
         {
-            var script = ResourceHelper.GetScriptPath("Ohook_Activation_AIO.cmd");
-            if (script == null) return false;
-            return await RunScriptAsync(script, "/Ohook");
+            var result = await OhookActivator.ActivateAsync(
+                new Progress<string>(msg => Logger.Info($"[Ohook] {msg}")));
+            return result.Success;
         }
 
-        /// <summary>删除 Office Ohook 激活</summary>
+        /// <summary>删除 Office Ohook 激活（C# 原生实现）</summary>
         public async Task<bool> RemoveOfficeActivationAsync()
         {
-            var script = ResourceHelper.GetScriptPath("Ohook_Activation_AIO.cmd");
-            if (script == null) return false;
-            return await RunScriptAsync(script, "/Ohook-Uninstall");
-        }
-
-        /// <summary>低层：以管理员权限静默运行脚本并等待退出，返回是否成功</summary>
-        private async Task<bool> RunScriptAsync(string scriptPath, string args)
-        {
-            try
-            {
-                // 必须以 runas 提权运行，Ohook 需要管理员权限写入注册表
-                var psi = new ProcessStartInfo("cmd.exe",
-                    $"/c \"\"{scriptPath}\" {args}\"")
-                {
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WorkingDirectory = Path.GetDirectoryName(scriptPath)
-                };
-
-                using (var proc = Process.Start(psi))
-                {
-                    if (proc == null) return false;
-                    await Task.Run(() => proc.WaitForExit());
-                    Logger.Info($"MAS [{Path.GetFileName(scriptPath)} {args}] 退出码: {proc.ExitCode}");
-                    return proc.ExitCode == 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"运行激活脚本失败 [{args}]", ex);
-                return false;
-            }
+            var result = await OhookActivator.DeactivateAsync(
+                new Progress<string>(msg => Logger.Info($"[Ohook] {msg}")));
+            return result.Success;
         }
     }
 }
