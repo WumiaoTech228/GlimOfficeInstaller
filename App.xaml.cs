@@ -16,7 +16,6 @@ namespace GOI
                 (System.Net.SecurityProtocolType)12288; // TLS 1.3
             
             Helpers.AppConfig.Initialize();
-            Helpers.ResourceHelper.ExtractAllScripts();
         }
 
         protected override void OnExit(ExitEventArgs e)

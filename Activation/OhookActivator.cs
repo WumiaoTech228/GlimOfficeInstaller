@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using GOI.Helpers;
@@ -13,6 +14,20 @@ namespace GOI.Activation
     /// </summary>
     public static class OhookActivator
     {
+        private static bool IsUserAnAdmin()
+        {
+            try
+            {
+                using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+                var principal = new System.Security.Principal.WindowsPrincipal(identity);
+                return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// 激活本机所有已安装的 Microsoft Office。
         /// </summary>
@@ -27,7 +42,15 @@ namespace GOI.Activation
 
             try
             {
-                progress?.Report("正在探测已安装的 Office 版本...");
+                if (!IsUserAnAdmin())
+                {
+                    result.Success = false;
+                    result.Error = "检测到当前未以管理员身份运行。请在程序图标上右键选择“以管理员身份运行”以进行激活。";
+                    progress?.Report(result.Error);
+                    return result;
+                }
+
+                progress?.Report("正在探测已安装 of Office 版本...");
 
                 var installations = OhookPathResolver.FindAllInstallations();
                 if (installations.Count == 0)
@@ -47,10 +70,25 @@ namespace GOI.Activation
                     var label = $"Office {installation.Version} ({installation.Type}, {installation.Architecture})";
                     progress?.Report($"正在处理: {label}");
 
-                    // 提取并修补 DLL
+                    // 提取并获取对应架构的原始文件时间戳进行克隆修补，避免自曝
                     var dllBytes = OhookDllExtractor.ExtractForArch(installation.Is64BitOffice);
-                    var offset = installation.Is64BitOffice ? 3076 : 2564; // PE 导出表时间戳偏移
-                    dllBytes = PeTimestampPatcher.Patch(dllBytes, offset);
+                    int timestamp;
+                    if (installation.Type == OfficeInstallType.C2R)
+                    {
+                        var systemSppc = OhookPathResolver.GetSystemSppcPath(installation.Is64BitOffice);
+                        timestamp = PeTimestampPatcher.ReadTimestamp(systemSppc);
+                    }
+                    else
+                    {
+                        var osppPath = OhookPathResolver.GetOsppPath() ?? OhookPathResolver.GetCommonOfficeSharedPath();
+                        var originalMsiDll = Path.Combine(osppPath, "sppcs.dll");
+                        if (!File.Exists(originalMsiDll))
+                        {
+                            originalMsiDll = Path.Combine(osppPath, "OSPPC.DLL");
+                        }
+                        timestamp = PeTimestampPatcher.ReadTimestamp(originalMsiDll);
+                    }
+                    dllBytes = PeTimestampPatcher.Patch(dllBytes, timestamp);
 
                     // 部署
                     DeployResult deployResult;
@@ -60,7 +98,7 @@ namespace GOI.Activation
                     }
                     else // MSI
                     {
-                        // MSI 是通过 OSPP 路径操作
+                        // MSI 是通过 OSPP 路径操作，同时在 Office 根目录下建立 sppcs.dll 符号链接以供 Office 加载器重定向
                         var osppInst = new OfficeInstallation
                         {
                             Type = OfficeInstallType.MSI,
@@ -124,7 +162,15 @@ namespace GOI.Activation
 
             try
             {
-                progress?.Report("正在探测已安装的 Office 版本...");
+                if (!IsUserAnAdmin())
+                {
+                    result.Success = false;
+                    result.Error = "检测到当前未以管理员身份运行。请在程序图标上右键选择“以管理员身份运行”以进行卸载。";
+                    progress?.Report(result.Error);
+                    return result;
+                }
+
+                progress?.Report("正在探测已安装 of Office 版本...");
 
                 var installations = OhookPathResolver.FindAllInstallations();
                 if (installations.Count == 0)

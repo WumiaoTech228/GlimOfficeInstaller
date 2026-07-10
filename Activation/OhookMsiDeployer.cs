@@ -89,7 +89,8 @@ namespace GOI.Activation
                 File.WriteAllBytes(osppcPath, dllBytes);
                 result.Steps.Add($"已写入 hook DLL: {osppcPath}");
 
-                // 5. 如果有 vfs 路径，创建符号链接
+                // 5. 在 Office 根目录下创建 sppcs.dll 符号链接指向 OSPP 下的 sppcs.dll 备份（原版 OSPPC.DLL）。
+                // 这是为了使 Office 应用程序在加载 hook OSPPC.DLL 后，能正确将原版函数调用重定向到真实备份（等效于 MAS CMD 原理）。
                 if (!string.IsNullOrEmpty(install.VfsPath) && Directory.Exists(install.VfsPath))
                 {
                     var symlinkPath = Path.Combine(install.VfsPath, "sppcs.dll");
