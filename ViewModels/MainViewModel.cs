@@ -765,7 +765,7 @@ namespace GOI.ViewModels
 				if (!string.IsNullOrEmpty(installedVersion))
 				{
 					string companyName = GetProductDisplayName(CurrentProductType);
-					if (!(await ShowFluentConfirmDialogAsync(Loc.DlgConfirmInstallTitle, Loc.DlgConfirmInstallMsg(installedVersion), Loc.BtnContinue, Loc.BtnCancel)))
+					if (!(await DialogService.ShowConfirmAsync(Loc.DlgConfirmInstallTitle, Loc.DlgConfirmInstallMsg(installedVersion), Loc.BtnContinue, Loc.BtnCancel)))
 					{
 						Phase = InstallPhase.Idle;
 						IsProgressVisible = false;
@@ -813,11 +813,11 @@ namespace GOI.ViewModels
 				if (ok)
 				{
 					var info = Loc.GetInstallSuccessInfo(CurrentProductType);
-					await ShowFluentMessageDialogAsync(info.Title, info.Msg);
+					await DialogService.ShowMessageAsync(info.Title, info.Msg);
 				}
 				else
 				{
-					await HandleOperationFailureAsync(Loc.DlgDeployFailTitle, Loc.DlgDeployFailMsg);
+					await DialogService.HandleFailureAsync(Loc.DlgDeployFailTitle, Loc.DlgDeployFailMsg);
 				}
 				RefreshInstalledVersion();
 			}
@@ -834,7 +834,7 @@ namespace GOI.ViewModels
 		private async Task UninstallSelectedAsync()
 		{
 			string productName = GetProductDisplayName(ProductTypeToUninstall);
-			if (!(await ShowFluentConfirmDialogAsync(Loc.SettingsUninstallTitle, Loc.DlgConfirmUninstallMsg(productName), Loc.BtnUninstall, Loc.BtnCancel)))
+			if (!(await DialogService.ShowConfirmAsync(Loc.SettingsUninstallTitle, Loc.DlgConfirmUninstallMsg(productName), Loc.BtnUninstall, Loc.BtnCancel)))
 			{
 				return;
 			}
@@ -852,14 +852,14 @@ namespace GOI.ViewModels
 				DownloadProgress = 100;
 				Phase = InstallPhase.Completed;
 				StatusText = Loc.DlgUninstallSuccessMsg;
-				await ShowFluentMessageDialogAsync(Loc.DlgUninstallSuccessTitle, Loc.DlgUninstallSuccessMsg);
+				await DialogService.ShowMessageAsync(Loc.DlgUninstallSuccessTitle, Loc.DlgUninstallSuccessMsg);
 			}
 			catch (Exception ex)
 			{
 				Logger.Error(productName + " 卸载失败", ex);
 				Phase = InstallPhase.Failed;
 				StatusText = Loc.ErrInstallFailed(ex.Message);
-				await HandleOperationFailureAsync(Loc.DlgUninstallFailTitle, ex.Message);
+				await DialogService.HandleFailureAsync(Loc.DlgUninstallFailTitle, ex.Message);
 			}
 			finally
 			{
@@ -888,14 +888,14 @@ namespace GOI.ViewModels
 				DownloadProgress = 100;
 				Phase = InstallPhase.Completed;
 				StatusText = Loc.StatusAssociationsCleaned;
-				await ShowFluentMessageDialogAsync(Loc.DlgCleanAssociationsTitle, Loc.DlgCleanAssociationsMsg);
+				await DialogService.ShowMessageAsync(Loc.DlgCleanAssociationsTitle, Loc.DlgCleanAssociationsMsg);
 			}
 			catch (Exception ex)
 			{
 				Logger.Error("文件关联净化失败", ex);
 				Phase = InstallPhase.Failed;
 				StatusText = Loc.StatusCleanAssociationsFailed(ex.Message);
-				await HandleOperationFailureAsync(Loc.DlgCleanAssociationsFailTitle, ex.Message);
+				await DialogService.HandleFailureAsync(Loc.DlgCleanAssociationsFailTitle, ex.Message);
 			}
 			finally
 			{
@@ -919,14 +919,14 @@ namespace GOI.ViewModels
 				DownloadProgress = 100;
 				Phase = InstallPhase.Completed;
 				StatusText = Loc.StatusIconCacheRefreshed;
-				await ShowFluentMessageDialogAsync(Loc.DlgRefreshIconCacheTitle, Loc.DlgRefreshIconCacheMsg);
+				await DialogService.ShowMessageAsync(Loc.DlgRefreshIconCacheTitle, Loc.DlgRefreshIconCacheMsg);
 			}
 			catch (Exception ex)
 			{
 				Logger.Error("刷新图标缓存失败", ex);
 				Phase = InstallPhase.Failed;
 				StatusText = Loc.StatusRefreshIconCacheFailed(ex.Message);
-				await HandleOperationFailureAsync(Loc.DlgRefreshIconCacheFailTitle, ex.Message);
+				await DialogService.HandleFailureAsync(Loc.DlgRefreshIconCacheFailTitle, ex.Message);
 			}
 			finally
 			{
@@ -955,7 +955,7 @@ namespace GOI.ViewModels
 				DownloadProgress = 100;
 				Phase = InstallPhase.Completed;
 				StatusText = Loc.StatusAssociationsRepaired;
-				await ShowFluentMessageDialogAsync(Loc.DlgRepairAssociationsTitle, Loc.DlgRepairAssociationsMsg);
+				await DialogService.ShowMessageAsync(Loc.DlgRepairAssociationsTitle, Loc.DlgRepairAssociationsMsg);
 				await PromptUserToSelectDefaultOfficeAppsAsync();
 			}
 			catch (Exception ex)
@@ -964,7 +964,7 @@ namespace GOI.ViewModels
 				Phase = InstallPhase.Completed;
 				StatusText = Loc.StatusRepairAssociationsFailed(ex.Message);
 				Logger.Error("独立修复文件关联失败", ex);
-				await HandleOperationFailureAsync(Loc.DlgRepairAssociationsFailTitle, Loc.DlgRepairAssociationsFailMsg(ex.Message));
+				await DialogService.HandleFailureAsync(Loc.DlgRepairAssociationsFailTitle, Loc.DlgRepairAssociationsFailMsg(ex.Message));
 			}
 			finally
 			{
@@ -991,7 +991,7 @@ namespace GOI.ViewModels
 				return;
 			}
 
-			bool confirmed = await ShowFluentConfirmDialogAsync(Loc.DlgDefaultAppTitle, Loc.DlgDefaultAppMsg, Loc.BtnDefaultAppStart, Loc.BtnDefaultAppSkip);
+			bool confirmed = await DialogService.ShowConfirmAsync(Loc.DlgDefaultAppTitle, Loc.DlgDefaultAppMsg, Loc.BtnDefaultAppStart, Loc.BtnDefaultAppSkip);
 			if (!confirmed)
 			{
 				return;
@@ -1068,7 +1068,7 @@ namespace GOI.ViewModels
 				}
 			}
 			StatusText = Loc.StatusDefaultAppGuided;
-			await ShowFluentMessageDialogAsync(Loc.DlgDefaultAppSuccessTitle, Loc.DlgDefaultAppSuccessMsg);
+			await DialogService.ShowMessageAsync(Loc.DlgDefaultAppSuccessTitle, Loc.DlgDefaultAppSuccessMsg);
 		}
 
 		private async Task RepairCOMAsync()
@@ -1090,7 +1090,7 @@ namespace GOI.ViewModels
 				DownloadProgress = 100;
 				Phase = InstallPhase.Completed;
 				StatusText = Loc.StatusCOMRepaired;
-				await ShowFluentMessageDialogAsync(Loc.DlgRepairComTitle, Loc.DlgRepairComMsg);
+				await DialogService.ShowMessageAsync(Loc.DlgRepairComTitle, Loc.DlgRepairComMsg);
 			}
 			catch (Exception ex)
 			{
@@ -1098,7 +1098,7 @@ namespace GOI.ViewModels
 				Phase = InstallPhase.Completed;
 				StatusText = Loc.StatusRepairCOMFailed(ex.Message);
 				Logger.Error("独立修复 COM 组件失败", ex);
-				await HandleOperationFailureAsync(Loc.DlgRepairComFailTitle, Loc.DlgRepairComFailMsg(ex.Message));
+				await DialogService.HandleFailureAsync(Loc.DlgRepairComFailTitle, Loc.DlgRepairComFailMsg(ex.Message));
 			}
 			finally
 			{
@@ -1107,134 +1107,15 @@ namespace GOI.ViewModels
 			}
 		}
 
-		private string LocateOsppVbs()
-		{
-			string[] array = new string[3] { "winword.exe", "excel.exe", "powerpnt.exe" };
-			string[] array2 = new string[2] { "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" };
-			string[] array3 = array;
-			foreach (string text in array3)
-			{
-				string[] array4 = array2;
-				foreach (string text2 in array4)
-				{
-					try
-					{
-						RegistryView[] array5 = new RegistryView[2]
-						{
-							RegistryView.Registry64,
-							RegistryView.Registry32
-						};
-						foreach (RegistryView view in array5)
-						{
-							using RegistryKey registryKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
-							using RegistryKey registryKey2 = registryKey.OpenSubKey(text2 + text);
-							if (registryKey2 == null)
-							{
-								continue;
-							}
-							string text3 = registryKey2.GetValue("") as string;
-							if (!string.IsNullOrEmpty(text3) && File.Exists(text3))
-							{
-								string directoryName = Path.GetDirectoryName(text3);
-								string text4 = Path.Combine(directoryName, "OSPP.VBS");
-								if (File.Exists(text4))
-								{
-									Logger.Info("通过 App Paths 注册表成功定位 OSPP.VBS: " + text4);
-									return text4;
-								}
-							}
-						}
-					}
-					catch (Exception ex)
-					{
-						Logger.Warn("读取 App Paths 注册表失败 (" + text2 + text + "): " + ex.Message);
-					}
-				}
-			}
-			try
-			{
-				RegistryView[] array6 = new RegistryView[2]
-				{
-					RegistryView.Registry64,
-					RegistryView.Registry32
-				};
-				foreach (RegistryView view2 in array6)
-				{
-					using RegistryKey registryKey3 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view2);
-					using RegistryKey registryKey4 = registryKey3.OpenSubKey("SOFTWARE\\Microsoft\\Office\\ClickToRun\\Configuration");
-					if (registryKey4 == null)
-					{
-						continue;
-					}
-					string text5 = registryKey4.GetValue("InstallPath") as string;
-					if (!string.IsNullOrEmpty(text5) && Directory.Exists(text5))
-					{
-						string text6 = Path.Combine(text5, "root\\Office16\\OSPP.VBS");
-						if (File.Exists(text6))
-						{
-							return text6;
-						}
-						string text7 = Path.Combine(text5, "root\\Office15\\OSPP.VBS");
-						if (File.Exists(text7))
-						{
-							return text7;
-						}
-					}
-				}
-			}
-			catch (Exception ex2)
-			{
-				Logger.Warn("读取 ClickToRun 注册表路径失败: " + ex2.Message);
-			}
-			string[] array7 = array;
-			foreach (string text8 in array7)
-			{
-				try
-				{
-					using RegistryKey registryKey5 = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + text8);
-					if (registryKey5 == null)
-					{
-						continue;
-					}
-					string text9 = registryKey5.GetValue("") as string;
-					if (!string.IsNullOrEmpty(text9) && File.Exists(text9))
-					{
-						string directoryName2 = Path.GetDirectoryName(text9);
-						string text10 = Path.Combine(directoryName2, "OSPP.VBS");
-						if (File.Exists(text10))
-						{
-							Logger.Info("通过 HKCU App Paths 注册表成功定位 OSPP.VBS: " + text10);
-							return text10;
-						}
-					}
-				}
-				catch (Exception ex)
-				{
-					Logger.Warn("从 HKCU App Paths 读取 OSPP 失败: " + ex.Message);
-				}
-			}
-			string[] array8 = new string[10] { "C:\\Program Files\\Microsoft Office\\root\\Office16\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\OSPP.VBS", "C:\\Program Files\\Microsoft Office\\root\\Office15\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\root\\Office15\\OSPP.VBS", "C:\\Program Files\\Microsoft Office\\Office16\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\Office16\\OSPP.VBS", "C:\\Program Files\\Microsoft Office\\Office15\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\Office15\\OSPP.VBS", "C:\\Program Files\\Microsoft Office\\Office14\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\Office14\\OSPP.VBS" };
-			string[] array9 = array8;
-			foreach (string text11 in array9)
-			{
-				if (File.Exists(text11))
-				{
-					Logger.Info("找到 OSPP.VBS 静态路径: " + text11);
-					return text11;
-				}
-			}
-			return null;
-		}
-
 		private async Task ClearOfficeActivationAsync()
 		{
 			StatusText = Loc.StatusScanningActivationKeys;
 			IsProgressVisible = true;
 			DownloadProgress = 20;
-			string osppPath = LocateOsppVbs();
+			string osppPath = RegistryHelper.LocateOsppVbs();
 			if (osppPath == null)
 			{
-				await ShowFluentMessageDialogAsync(Loc.DlgClearLicenseFailTitle, Loc.ErrOsppNotFound);
+				await DialogService.ShowMessageAsync(Loc.DlgClearLicenseFailTitle, Loc.ErrOsppNotFound);
 				IsProgressVisible = false;
 				StatusText = Loc.StatusPathNotFound;
 				return;
@@ -1284,12 +1165,12 @@ namespace GOI.ViewModels
 			});
 			if (keys.Count == 0)
 			{
-				await ShowFluentMessageDialogAsync(Loc.DlgScanNoKeysTitle, Loc.DlgScanNoKeysMsg);
+				await DialogService.ShowMessageAsync(Loc.DlgScanNoKeysTitle, Loc.DlgScanNoKeysMsg);
 				IsProgressVisible = false;
 				StatusText = Loc.StatusNoKeysFound;
 				return;
 			}
-			if (!(await ShowFluentConfirmDialogAsync(Loc.DlgConfirmClearTitle, Loc.DlgConfirmClearMsg(keys.Count, string.Join(", ", keys)), Loc.BtnDeleteConfirm, Loc.BtnCancel)))
+			if (!(await DialogService.ShowConfirmAsync(Loc.DlgConfirmClearTitle, Loc.DlgConfirmClearMsg(keys.Count, string.Join(", ", keys)), Loc.BtnDeleteConfirm, Loc.BtnCancel)))
 			{
 				StatusText = Loc.StatusClearCancelled;
 				IsProgressVisible = false;
@@ -1335,12 +1216,12 @@ namespace GOI.ViewModels
 			DownloadProgress = 100;
 			IsProgressVisible = false;
 			StatusText = Loc.StatusClearSuccess(deletedCount);
-			await ShowFluentMessageDialogAsync(Loc.DlgClearLicenseTitle, Loc.DlgClearSuccessMsg(deletedCount));
+			await DialogService.ShowMessageAsync(Loc.DlgClearLicenseTitle, Loc.DlgClearSuccessMsg(deletedCount));
 		}
 
 		private async Task ActivateOfficeOhookAsync()
 		{
-			if (await ShowFluentConfirmDialogAsync(Loc.DlgConfirmOhookTitle, Loc.DlgConfirmOhookMsg, Loc.BtnOhookConfirm, Loc.BtnCancel))
+			if (await DialogService.ShowConfirmAsync(Loc.DlgConfirmOhookTitle, Loc.DlgConfirmOhookMsg, Loc.BtnOhookConfirm, Loc.BtnCancel))
 			{
 				StatusText = Loc.StatusReleasingOhook;
 				IsProgressVisible = true;
@@ -1351,12 +1232,12 @@ namespace GOI.ViewModels
 				if (ok)
 				{
 					StatusText = Loc.StatusOhookSuccess;
-					await ShowFluentMessageDialogAsync(Loc.DlgActivateSuccessTitle, Loc.DlgOhookSuccessMsg);
+					await DialogService.ShowMessageAsync(Loc.DlgActivateSuccessTitle, Loc.DlgOhookSuccessMsg);
 				}
 				else
 				{
 					StatusText = Loc.StatusOhookFail;
-					await HandleOperationFailureAsync(Loc.DlgActivateFailTitle, Loc.DlgOhookFailMsg);
+					await DialogService.HandleFailureAsync(Loc.DlgActivateFailTitle, Loc.DlgOhookFailMsg);
 				}
 				RefreshInstalledVersion();
 			}
@@ -1379,62 +1260,16 @@ namespace GOI.ViewModels
 				try
 				{
 					File.WriteAllText(saveFileDialog.FileName, contents, Encoding.UTF8);
-					_ = ShowFluentMessageDialogAsync(Loc.DlgExportXmlTitle, Loc.DlgExportXmlMsg(saveFileDialog.FileName));
+					_ = DialogService.ShowMessageAsync(Loc.DlgExportXmlTitle, Loc.DlgExportXmlMsg(saveFileDialog.FileName));
 				}
 				catch (Exception ex)
 				{
 					Logger.Error("导出 XML 失败", ex);
-					_ = ShowFluentMessageDialogAsync(Loc.DlgExportXmlFailTitle, ex.Message);
+					_ = DialogService.ShowMessageAsync(Loc.DlgExportXmlFailTitle, ex.Message);
 				}
 			}
 		}
 
-		private async Task<bool> ShowFluentConfirmDialogAsync(string title, string content, string primaryText, string closeText)
-		{
-			ContentDialog val = new ContentDialog
-			{
-				Title = title
-			};
-			((ContentControl)val).Content = content;
-			val.PrimaryButtonText = primaryText;
-			val.CloseButtonText = closeText;
-			val.DefaultButton = (ContentDialogButton)1;
-			ContentDialog dialog = val;
-			if (Application.Current?.MainWindow != null)
-			{
-				dialog.Owner = Application.Current.MainWindow;
-			}
-			return (int)(await dialog.ShowAsync()) == 1;
-		}
-
-		private async Task ShowFluentMessageDialogAsync(string title, string content, string closeButtonText = null)
-		{
-			ContentDialog val = new ContentDialog
-			{
-				Title = title
-			};
-			((ContentControl)val).Content = content;
-			val.CloseButtonText = closeButtonText ?? Loc.BtnOk;
-			ContentDialog dialog = val;
-			if (Application.Current?.MainWindow != null)
-			{
-				dialog.Owner = Application.Current.MainWindow;
-			}
-			await dialog.ShowAsync();
-		}
-
-		private async Task HandleOperationFailureAsync(string title, string content)
-		{
-			await ShowFluentMessageDialogAsync(title, content + Loc.ErrSubmitLogHint);
-			try
-			{
-				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Logger.LogFilePath) { UseShellExecute = true });
-			}
-			catch (Exception ex)
-			{
-				Logger.Warn("启动日志文件查看失败: " + ex.Message);
-			}
-		}
 	}
 
 	public class ComponentItem : ObservableObject

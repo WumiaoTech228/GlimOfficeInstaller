@@ -1532,6 +1532,126 @@ namespace GOI.Helpers
 			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs at RunSc", ex_captured); }
 		}
 
+		/// <summary>
+		/// 定位 OSPP.VBS 许可管理脚本：依次尝试 HKLM/HKCU App Paths、ClickToRun 安装路径、以及一组已知的静态安装路径。
+		/// </summary>
+		public static string LocateOsppVbs()
+		{
+			string[] officeExes = new string[3] { "winword.exe", "excel.exe", "powerpnt.exe" };
+			string[] appPathsRoots = new string[2] { "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" };
+			foreach (string exe in officeExes)
+			{
+				foreach (string root in appPathsRoots)
+				{
+					try
+					{
+						RegistryView[] views = new RegistryView[2] { RegistryView.Registry64, RegistryView.Registry32 };
+						foreach (RegistryView view in views)
+						{
+							using RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+							using RegistryKey subKey = baseKey.OpenSubKey(root + exe);
+							if (subKey == null)
+							{
+								continue;
+							}
+							string exePath = subKey.GetValue("") as string;
+							if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
+							{
+								string candidate = Path.Combine(Path.GetDirectoryName(exePath), "OSPP.VBS");
+								if (File.Exists(candidate))
+								{
+									Logger.Info("通过 App Paths 注册表成功定位 OSPP.VBS: " + candidate);
+									return candidate;
+								}
+							}
+						}
+					}
+					catch (Exception ex)
+					{
+						Logger.Warn("读取 App Paths 注册表失败 (" + root + exe + "): " + ex.Message);
+					}
+				}
+			}
+			try
+			{
+				RegistryView[] views = new RegistryView[2] { RegistryView.Registry64, RegistryView.Registry32 };
+				foreach (RegistryView view in views)
+				{
+					using RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+					using RegistryKey cfg = baseKey.OpenSubKey("SOFTWARE\\Microsoft\\Office\\ClickToRun\\Configuration");
+					if (cfg == null)
+					{
+						continue;
+					}
+					string installPath = cfg.GetValue("InstallPath") as string;
+					if (!string.IsNullOrEmpty(installPath) && Directory.Exists(installPath))
+					{
+						string office16 = Path.Combine(installPath, "root\\Office16\\OSPP.VBS");
+						if (File.Exists(office16))
+						{
+							return office16;
+						}
+						string office15 = Path.Combine(installPath, "root\\Office15\\OSPP.VBS");
+						if (File.Exists(office15))
+						{
+							return office15;
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Warn("读取 ClickToRun 注册表路径失败: " + ex.Message);
+			}
+			foreach (string exe in officeExes)
+			{
+				try
+				{
+					using RegistryKey subKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + exe);
+					if (subKey == null)
+					{
+						continue;
+					}
+					string exePath = subKey.GetValue("") as string;
+					if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
+					{
+						string candidate = Path.Combine(Path.GetDirectoryName(exePath), "OSPP.VBS");
+						if (File.Exists(candidate))
+						{
+							Logger.Info("通过 HKCU App Paths 注册表成功定位 OSPP.VBS: " + candidate);
+							return candidate;
+						}
+					}
+				}
+				catch (Exception ex)
+				{
+					Logger.Warn("从 HKCU App Paths 读取 OSPP 失败: " + ex.Message);
+				}
+			}
+			string[] staticPaths = new string[10]
+			{
+				"C:\\Program Files\\Microsoft Office\\root\\Office16\\OSPP.VBS",
+				"C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\OSPP.VBS",
+				"C:\\Program Files\\Microsoft Office\\root\\Office15\\OSPP.VBS",
+				"C:\\Program Files (x86)\\Microsoft Office\\root\\Office15\\OSPP.VBS",
+				"C:\\Program Files\\Microsoft Office\\Office16\\OSPP.VBS",
+				"C:\\Program Files (x86)\\Microsoft Office\\Office16\\OSPP.VBS",
+				"C:\\Program Files\\Microsoft Office\\Office15\\OSPP.VBS",
+				"C:\\Program Files (x86)\\Microsoft Office\\Office15\\OSPP.VBS",
+				"C:\\Program Files\\Microsoft Office\\Office14\\OSPP.VBS",
+				"C:\\Program Files (x86)\\Microsoft Office\\Office14\\OSPP.VBS"
+			};
+			foreach (string path in staticPaths)
+			{
+				if (File.Exists(path))
+				{
+					Logger.Info("找到 OSPP.VBS 静态路径: " + path);
+					return path;
+				}
+			}
+			return null;
+		}
+
 		[DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern void SHChangeNotify(int wEventId, int uFlags, IntPtr dwItem1, IntPtr dwItem2);
 
