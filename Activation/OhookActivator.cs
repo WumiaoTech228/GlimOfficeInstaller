@@ -64,8 +64,7 @@ namespace GOI.Activation
                         var osppInst = new OfficeInstallation
                         {
                             Type = OfficeInstallType.MSI,
-                            VfsPath = installation.RootPath
-                                ?? OhookPathResolver.GetOsppPath(),
+                            VfsPath = installation.RootPath, // 在 MSI 部署中，符号链接创建在 Office 安装的 RootPath 下
                             Is64BitOffice = installation.Is64BitOffice
                         };
                         deployResult = OhookMsiDeployer.Deploy(osppInst, dllBytes);

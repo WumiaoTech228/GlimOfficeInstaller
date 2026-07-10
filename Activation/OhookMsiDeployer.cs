@@ -77,10 +77,11 @@ namespace GOI.Activation
                 // 3. 备份原版 OSPPC.DLL → sppcs.dll
                 if (File.Exists(osppcPath))
                 {
-                    var tempPath = Path.Combine(osppPath, $"OSPPC_{Guid.NewGuid():N}.bak");
-                    File.Copy(osppcPath, tempPath, overwrite: true);
-                    File.Delete(osppcPath);
-                    File.Move(tempPath, sppcsBackupPath);
+                    if (File.Exists(sppcsBackupPath))
+                    {
+                        File.Delete(sppcsBackupPath);
+                    }
+                    File.Move(osppcPath, sppcsBackupPath);
                     result.Steps.Add("已备份原版 OSPPC.DLL → sppcs.dll");
                 }
 

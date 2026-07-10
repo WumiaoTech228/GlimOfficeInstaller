@@ -42,8 +42,9 @@ namespace GOI.Activation
                 throw new InvalidOperationException(
                     $"Ohook DLL 资源未找到: {resourceName}。请确保 Activation/sppc32.dll 和 sppc64.dll 的 Build Action 设为 EmbeddedResource。");
 
-            var buffer = new byte[stream.Length];
-            stream.Read(buffer, 0, buffer.Length);
+            using var ms = new MemoryStream();
+            stream.CopyTo(ms);
+            var buffer = ms.ToArray();
 
             if (buffer.Length < 1024)
                 throw new InvalidOperationException(
