@@ -13,15 +13,16 @@ namespace GOI.Services
     {
         private static readonly string[] WpsUrls =
         {
-            /* 2013 */ "https://share.osbox.top/d/Office/WPS/WPSOffice_Professional_2013_9.1.0.5026(2024.08.15).exe?sign=RN7RcHfiroz81R-gZzoUljzXjGzveyRTIiRDmpJSw48=:1783540085",
-            /* 2016 */ "https://share.osbox.top/d/Office/WPS/WPS%20Office%202016%20%E4%B8%93%E4%B8%9A%E5%A2%9E%E5%BC%BA%E7%89%88_10.8.2.7164_mefcl_Setup.exe?sign=79sBvillY6_oqXPyUl4CKdDA_ooAG2duWXJ7D7tSsPg=:1783540085",
-            /* 2019 */ "https://share.osbox.top/d/Office/WPS/WPSOffice2019ProPlus_11.8.2.12330_mefcl.exe?sign=qL5uRhU1DuyQj5M7NvKPXllmsNP6sRLw9UdYx8ITyTk=:1783540085",
+            /* 2013 */ "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2013.exe",
+            /* 2016 */ "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2016.exe",
+            /* 2019 */ "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2019.exe",
+            /* 2023 */ "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2023.exe",
             /* 最新版(官方) */ "https://official-package.wpscdn.cn/wps/download/WPS_Setup_26899.exe"
         };
 
         private static readonly string[] WpsFileNames =
         {
-            "WPS2013.exe", "WPS2016.exe", "WPS2019.exe", "WPS_Setup_26899.exe"
+            "WPS2013.exe", "WPS2016.exe", "WPS2019.exe", "WPS2023.exe", "WPS_Setup_26899.exe"
         };
 
         /// <summary>下载并静默安装 WPS，以伪进度条报告进度</summary>
@@ -29,6 +30,7 @@ namespace GOI.Services
             WpsVersion version,
             IProgress<string> phaseText,
             IProgress<int> progressPercent,
+            IProgress<InstallPhase> phaseProgress,
             CancellationToken ct = default)
         {
             int idx = (int)version;
@@ -37,7 +39,8 @@ namespace GOI.Services
             string localPath = Path.Combine(AppConfig.RootPath, fileName);
 
             // ── 阶段 1：下载 ──
-            phaseText.Report($"正在下载 WPS {GetVersionLabel(version)}...");
+            phaseProgress?.Report(InstallPhase.Downloading);
+            phaseText.Report(LocalizationStrings.Instance.StatusDownloadingProduct($"WPS {GetVersionLabel(version)}"));
             try
             {
                 var downloader = new MultiThreadDownloader();
@@ -50,13 +53,14 @@ namespace GOI.Services
             catch (Exception ex)
             {
                 Logger.Error("下载 WPS 失败", ex);
-                phaseText.Report("WPS 下载失败，请检查网络连接。");
+                phaseText.Report(LocalizationStrings.Instance.ErrDownloadFailedWithMsg);
                 try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
                 return false;
             }
 
             // ── 阶段 2：静默安装 ──
-            phaseText.Report($"正在静默安装 WPS {GetVersionLabel(version)}...");
+            phaseProgress?.Report(InstallPhase.Installing);
+            phaseText.Report(LocalizationStrings.Instance.StatusInstallingProduct($"WPS {GetVersionLabel(version)}"));
             progressPercent?.Report(55);
 
             try
@@ -73,23 +77,43 @@ namespace GOI.Services
                     CreateNoWindow = true
                 };
 
-                // 启动伪进度推进（55 → 95）
-                var fakeTask = FakeProgressAsync(progressPercent, 55, 95, durationMs: 90000, ct: ct);
-
-                using (var proc = Process.Start(psi))
+                // 启动并关联局部 CancellationTokenSource 以便在安装结束时立即取消伪进度，防止进度条后台继续跳动
+                using (var ctsFake = new CancellationTokenSource())
                 {
-                    if (proc == null)
+                    var fakeTask = FakeProgressAsync(progressPercent, 55, 95, durationMs: 90000, ct: ctsFake.Token);
+
+                    using (var proc = Process.Start(psi))
                     {
-                        phaseText.Report("无法启动 WPS 安装程序。");
-                        return false;
+                        if (proc == null)
+                        {
+                            phaseText.Report(LocalizationStrings.Instance.ErrCannotStartInstallerWithMsg);
+                            return false;
+                        }
+                        await Task.Run(() => proc.WaitForExit(), ct);
+                        Logger.Info($"WPS 安装退出码: {proc.ExitCode}");
+ 
+                        ctsFake.Cancel();
+                        
+                        if (proc.ExitCode != 0)
+                        {
+                            string wpsVer = RegistryHelper.GetInstalledProductVersion(ProductType.Wps);
+                            if (!string.IsNullOrEmpty(wpsVer))
+                            {
+                                Logger.Info($"WPS 安装退出码虽为 {proc.ExitCode}，但检测到系统注册表中已成功注册 WPS ({wpsVer})，判定为安装成功！");
+                            }
+                            else
+                            {
+                                phaseText.Report(LocalizationStrings.Instance.ErrInstallerAbortedWithCode("WPS", proc.ExitCode));
+                                try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
+                                return false;
+                            }
+                        }
                     }
-                    await Task.Run(() => proc.WaitForExit(), ct);
-                    Logger.Info($"WPS 安装退出码: {proc.ExitCode}");
                 }
-
+ 
                 progressPercent?.Report(100);
-                phaseText.Report($"WPS {GetVersionLabel(version)} 安装完成！");
-
+                phaseText.Report(LocalizationStrings.Instance.StatusProductInstalled($"WPS {GetVersionLabel(version)}"));
+ 
                 // 清理安装包
                 try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
                 return true;
@@ -97,7 +121,8 @@ namespace GOI.Services
             catch (Exception ex)
             {
                 Logger.Error("WPS 安装失败", ex);
-                phaseText.Report("WPS 安装失败: " + ex.Message);
+                phaseText.Report(LocalizationStrings.Instance.StatusProductInstallFailed("WPS", ex.Message));
+                try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
                 return false;
             }
         }
@@ -120,7 +145,8 @@ namespace GOI.Services
             WpsVersion.Wps2013 => "2013",
             WpsVersion.Wps2016 => "2016",
             WpsVersion.Wps2019 => "2019",
-            WpsVersion.WpsLatest => "官方最新版",
+            WpsVersion.Wps2023 => "2023",
+            WpsVersion.WpsLatest => LocalizationStrings.Instance.WpsVersionLatestLabel,
             _ => ""
         };
     }

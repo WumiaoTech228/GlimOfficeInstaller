@@ -11,17 +11,27 @@
                 <ui:XamlControlsResources />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- 颜色 -->
-            <SolidColorBrush x:Key="GlimBlue" Color="#007ACC"/>
-            <SolidColorBrush x:Key="OfficeOrange" Color="#E84125"/>
-            <SolidColorBrush x:Key="BgLight" Color="#F2F2F7"/>
-            <SolidColorBrush x:Key="TextMain" Color="#1A1A1A"/>
-            <SolidColorBrush x:Key="TextMuted" Color="#969696"/>
 
-            <!-- 系统图标字体：Segoe MDL2 Assets（Windows 10/11 自带，零依赖） -->
-            <FontFamily x:Key="IconFont">Segoe MDL2 Assets</FontFamily>
+
+            <!-- 系统图标字体：内嵌 Segoe MDL2 Assets（Windows 7 完美兼容） -->
+            <FontFamily x:Key="IconFont">pack://application:,,,/iNKORE.UI.WPF.Modern;component/Assets/Fonts/#Segoe MDL2 Assets, Segoe MDL2 Assets</FontFamily>
 
             <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
+            <!-- Fluent 2.0 Selectable Card Base Style -->
+            <Style x:Key="FluentCardBaseStyle" TargetType="Border">
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

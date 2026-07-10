@@ -6,6 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.IO;
+using System.Text;
+using System.Diagnostics;
+using Microsoft.Win32;
+using iNKORE.UI.WPF.Modern;
+using iNKORE.UI.WPF.Modern.Controls;
+using System.Windows.Controls;
 using GOI.Models;
 using GOI.Services;
 using GOI.Helpers;
@@ -13,361 +20,1405 @@ using GOI.Helpers;
 namespace GOI.ViewModels
 {
     public class MainViewModel : ObservableObject
-    {
-        private readonly InstallService _installService;
-        private readonly WpsInstallService _wpsService;
-        private readonly YozoInstallService _yozoService;
-        private readonly OnlyOfficeInstallService _onlyOfficeService;
-        private readonly LibreOfficeInstallService _libreOfficeService;
-        private readonly CleanupService _cleanupService;
+	{
+		private readonly InstallService _installService;
 
-        public MainViewModel(InstallService installService)
-        {
-            _installService = installService;
-            _wpsService = new WpsInstallService();
-            _yozoService = new YozoInstallService();
-            _onlyOfficeService = new OnlyOfficeInstallService();
-            _libreOfficeService = new LibreOfficeInstallService();
-            _cleanupService = new CleanupService();
+		private readonly WpsInstallService _wpsService;
 
-            DetectedArch = Environment.Is64BitOperatingSystem ? Architecture.x64 : Architecture.x86;
-            ArchText = DetectedArch == Architecture.x64 ? "系统架构：x64（64 位）" : "系统架构：x86（32 位）";
+		private readonly YozoInstallService _yozoService;
 
-            // 初始化 Office 2024 作为默认选择，并计算初始翻页逻辑
-            SelectLeft();
-            RefreshCards();
+		private readonly OnlyOfficeInstallService _onlyOfficeService;
 
-            // 首次刷新检测安装版本
-            RefreshInstalledVersion();
-        }
+		private readonly LibreOfficeInstallService _libreOfficeService;
 
-        // ========== 架构 ==========
-        private Architecture DetectedArch { get; } = Architecture.x64;
-        private string _archText = "";
-        public string ArchText { get => _archText; set => Set(ref _archText, value); }
+		private readonly CleanupService _cleanupService;
 
-        // ========== 产品类型切换（MS Office / WPS / 永中 / OnlyOffice / LibreOffice）==========
-        private ProductType _productType = ProductType.MsOffice;
-        public ProductType CurrentProductType
-        {
-            get => _productType;
-            set
-            {
-                Set(ref _productType, value);
-                OnPropertyChanged(nameof(IsMsOffice));
-                OnPropertyChanged(nameof(IsWps));
-                OnPropertyChanged(nameof(IsYozo));
-                OnPropertyChanged(nameof(IsOnlyOffice));
-                OnPropertyChanged(nameof(IsLibreOffice));
+		private string _archText = "";
 
-                // 切换产品时，刷新已安装版本状态
-                RefreshInstalledVersion();
-            }
-        }
-        public bool IsMsOffice => CurrentProductType == ProductType.MsOffice;
-        public bool IsWps => CurrentProductType == ProductType.Wps;
-        public bool IsYozo => CurrentProductType == ProductType.Yozo;
-        public bool IsOnlyOffice => CurrentProductType == ProductType.OnlyOffice;
-        public bool IsLibreOffice => CurrentProductType == ProductType.LibreOffice;
+		private ProductType _productType = ProductType.MsOffice;
 
-        public ICommand SelectMsOfficeCommand => new RelayCommand(() => CurrentProductType = ProductType.MsOffice);
-        public ICommand SelectWpsCommand => new RelayCommand(() => CurrentProductType = ProductType.Wps);
-        public ICommand SelectYozoCommand => new RelayCommand(() => CurrentProductType = ProductType.Yozo);
-        public ICommand SelectOnlyOfficeCommand => new RelayCommand(() => CurrentProductType = ProductType.OnlyOffice);
-        public ICommand SelectLibreOfficeCommand => new RelayCommand(() => CurrentProductType = ProductType.LibreOffice);
+		private string _installedVersionText = "";
 
-        // ========== 已安装版本检测与警告属性 ==========
-        private string _installedVersionText = "";
-        public string InstalledVersionText { get => _installedVersionText; set => Set(ref _installedVersionText, value); }
+		private bool _isInstalledWarningVisible;
 
-        private bool _isInstalledWarningVisible;
-        public bool IsInstalledWarningVisible { get => _isInstalledWarningVisible; set => Set(ref _isInstalledWarningVisible, value); }
+		private WpsVersion _selectedWpsVersion = WpsVersion.WpsLatest;
 
-        public void RefreshInstalledVersion()
-        {
-            var version = RegistryHelper.GetInstalledProductVersion(CurrentProductType);
-            if (!string.IsNullOrEmpty(version))
-            {
-                InstalledVersionText = $"系统检测到已安装版本: {version}。建议先进行卸载以防冲突。";
-                IsInstalledWarningVisible = true;
-            }
-            else
-            {
-                InstalledVersionText = "";
-                IsInstalledWarningVisible = false;
-            }
-        }
+		private OfficeVersion _currentVersion = OfficeVersion.Office2024;
 
-        // ========== WPS 版本选择 ==========
-        private WpsVersion _selectedWpsVersion = WpsVersion.WpsLatest;
-        public WpsVersion SelectedWpsVersion { get => _selectedWpsVersion; set { Set(ref _selectedWpsVersion, value); OnPropertyChanged(nameof(Wps2013Selected)); OnPropertyChanged(nameof(Wps2016Selected)); OnPropertyChanged(nameof(Wps2019Selected)); OnPropertyChanged(nameof(WpsLatestSelected)); } }
+		private bool _isM365;
 
-        public bool Wps2013Selected => SelectedWpsVersion == WpsVersion.Wps2013;
-        public bool Wps2016Selected => SelectedWpsVersion == WpsVersion.Wps2016;
-        public bool Wps2019Selected => SelectedWpsVersion == WpsVersion.Wps2019;
-        public bool WpsLatestSelected => SelectedWpsVersion == WpsVersion.WpsLatest;
+		private string _selectedBitness = "64";
 
-        public ICommand SelectWps2013Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2013);
-        public ICommand SelectWps2016Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2016);
-        public ICommand SelectWps2019Command => new RelayCommand(() => SelectedWpsVersion = WpsVersion.Wps2019);
-        public ICommand SelectWpsLatestCommand => new RelayCommand(() => SelectedWpsVersion = WpsVersion.WpsLatest);
+		private string _selectedUpdateChannel = "Current";
 
-        // ========== 永中版本选择（仅1个） ==========
-        private YozoVersion _selectedYozoVersion = YozoVersion.YozoPersonal;
-        public YozoVersion SelectedYozoVersion { get => _selectedYozoVersion; set { Set(ref _selectedYozoVersion, value); OnPropertyChanged(nameof(YozoPersonalSelected)); } }
-        public bool YozoPersonalSelected => SelectedYozoVersion == YozoVersion.YozoPersonal;
-        public ICommand SelectYozoPersonalCommand => new RelayCommand(() => SelectedYozoVersion = YozoVersion.YozoPersonal);
+		private string _selectedOfficeLanguage = "zh-cn (简体中文)";
 
-        // ========== OnlyOffice版本选择（仅1个） ==========
-        private OnlyOfficeVersion _selectedOnlyOfficeVersion = OnlyOfficeVersion.OnlyOfficeDesktop;
-        public OnlyOfficeVersion SelectedOnlyOfficeVersion { get => _selectedOnlyOfficeVersion; set { Set(ref _selectedOnlyOfficeVersion, value); OnPropertyChanged(nameof(OnlyOfficeSelected)); } }
-        public bool OnlyOfficeSelected => SelectedOnlyOfficeVersion == OnlyOfficeVersion.OnlyOfficeDesktop;
-        public ICommand SelectOnlyOfficeDesktopCommand => new RelayCommand(() => SelectedOnlyOfficeVersion = OnlyOfficeVersion.OnlyOfficeDesktop);
+		private InstallPhase _phase = InstallPhase.Idle;
 
-        // ========== LibreOffice版本选择（仅1个） ==========
-        private LibreOfficeVersion _selectedLibreOfficeVersion = LibreOfficeVersion.LibreOfficeStable;
-        public LibreOfficeVersion SelectedLibreOfficeVersion { get => _selectedLibreOfficeVersion; set { Set(ref _selectedLibreOfficeVersion, value); OnPropertyChanged(nameof(LibreOfficeSelected)); } }
-        public bool LibreOfficeSelected => SelectedLibreOfficeVersion == LibreOfficeVersion.LibreOfficeStable;
-        public ICommand SelectLibreOfficeStableCommand => new RelayCommand(() => SelectedLibreOfficeVersion = LibreOfficeVersion.LibreOfficeStable);
+		private string _statusText = "准备就绪";
 
-        // ========== MS Office 激活方式与配置 ==========
-        private OfficeVersion _currentVersion = OfficeVersion.Office2024;
-        private ActivationMethod _actMethod = ActivationMethod.Ohook;
-        public ActivationMethod CurrentActivationMethod { get => _actMethod; set { Set(ref _actMethod, value); OnPropertyChanged(nameof(IsOhook)); OnPropertyChanged(nameof(IsKMS)); } }
+		private int _downloadProgress;
 
-        public bool IsOhook { get => CurrentActivationMethod == ActivationMethod.Ohook; set { if (value) CurrentActivationMethod = ActivationMethod.Ohook; } }
-        public bool IsKMS { get => CurrentActivationMethod == ActivationMethod.KMS; set { if (value) CurrentActivationMethod = ActivationMethod.KMS; } }
+		private bool _isProgressVisible;
 
-        // ========== MS Office 组件列表 (三列布局 UniformGrid) ==========
-        public ObservableCollection<ComponentItem> Components { get; } = new ObservableCollection<ComponentItem>
-        {
-            new ComponentItem("Word 文字", OfficeComponent.Word, true),
-            new ComponentItem("Excel 表格", OfficeComponent.Excel, true),
-            new ComponentItem("PowerPoint 演示", OfficeComponent.PowerPoint, true),
-            new ComponentItem("Outlook 邮箱", OfficeComponent.Outlook, false),
-            new ComponentItem("OneNote 笔记", OfficeComponent.OneNote, false),
-            new ComponentItem("Access 数据库", OfficeComponent.Access, false),
-            new ComponentItem("Publisher 出版", OfficeComponent.Publisher, false),
-            new ComponentItem("Project 项目", OfficeComponent.Project, false),
-            new ComponentItem("Visio 绘图", OfficeComponent.Visio, false),
-            new ComponentItem("Teams 协作", OfficeComponent.Teams, false),
-            new ComponentItem("OneDrive 网盘", OfficeComponent.OneDrive, false)
-        };
+		private bool _isAboutVisible;
 
-        // ========== MS Office 翻页与卡片属性 ==========
-        private int _versionGroup = 0; // 0: 2024/M365, 1: 2021/2019, 2: 2016
-        public int VersionGroup { get => _versionGroup; set { Set(ref _versionGroup, value); RefreshCards(); } }
+		private string _selectedTheme = "Default";
 
-        private string _leftTitle; public string LeftTitle { get => _leftTitle; set => Set(ref _leftTitle, value); }
-        private string _leftSub; public string LeftSub { get => _leftSub; set => Set(ref _leftSub, value); }
-        private string _leftDesc; public string LeftDesc { get => _leftDesc; set => Set(ref _leftDesc, value); }
-        private bool _leftSelected; public bool LeftSelected { get => _leftSelected; set => Set(ref _leftSelected, value); }
+		private string _selectedAppLanguage = "SimplifiedChinese";
 
-        private string _rightTitle; public string RightTitle { get => _rightTitle; set => Set(ref _rightTitle, value); }
-        private string _rightSub; public string RightSub { get => _rightSub; set => Set(ref _rightSub, value); }
-        private string _rightDesc; public string RightDesc { get => _rightDesc; set => Set(ref _rightDesc, value); }
-        private bool _rightSelected; public bool RightSelected { get => _rightSelected; set => Set(ref _rightSelected, value); }
+		private bool _isExportXmlEnabled = false;
 
-        private bool _rightVisible = true; public bool RightVisible { get => _rightVisible; set => Set(ref _rightVisible, value); }
-        private bool _leftArrowVisible; public bool LeftArrowVisible { get => _leftArrowVisible; set => Set(ref _leftArrowVisible, value); }
-        private bool _rightArrowVisible; public bool RightArrowVisible { get => _rightArrowVisible; set => Set(ref _rightArrowVisible, value); }
+		private ProductType _productTypeToUninstall = ProductType.MsOffice;
 
-        // ========== 安装状态、进度 ==========
-        private InstallPhase _phase = InstallPhase.Idle;
-        public InstallPhase Phase
-        {
-            get => _phase;
-            set
-            {
-                Set(ref _phase, value);
-                OnPropertyChanged(nameof(StatusText));
-                OnPropertyChanged(nameof(CanInstall));
-                CommandManager.InvalidateRequerySuggested();
-            }
-        }
+		private CancellationTokenSource _installCts;
 
-        private string _statusText = "准备就绪";
-        public string StatusText { get => _statusText; set => Set(ref _statusText, value); }
+		public LocalizationStrings Loc { get; } = new LocalizationStrings();
 
-        private int _downloadProgress;
-        public int DownloadProgress { get => _downloadProgress; set => Set(ref _downloadProgress, value); }
+		private GOI.Models.Architecture DetectedArch { get; } = Environment.Is64BitOperatingSystem ? GOI.Models.Architecture.x64 : GOI.Models.Architecture.x86;
 
-        private bool _isProgressVisible;
-        public bool IsProgressVisible { get => _isProgressVisible; set => Set(ref _isProgressVisible, value); }
+		public string ArchText
+		{
+			get
+			{
+				return _archText;
+			}
+			set
+			{
+				Set(ref _archText, value, "ArchText");
+			}
+		}
 
-        public bool CanInstall => Phase != InstallPhase.Cleaning && Phase != InstallPhase.Downloading
-                               && Phase != InstallPhase.Installing && Phase != InstallPhase.Activating;
+		public ProductType CurrentProductType
+		{
+			get
+			{
+				return _productType;
+			}
+			set
+			{
+				if (Set(ref _productType, value, "CurrentProductType"))
+				{
+					OnPropertyChanged("IsMsOffice");
+					OnPropertyChanged("IsWps");
+					OnPropertyChanged("IsYozo");
+					OnPropertyChanged("IsOnlyOffice");
+					OnPropertyChanged("IsLibreOffice");
+					OnPropertyChanged("IsSettings");
+					OnPropertyChanged("IsActionButtonsVisible");
+					OnPropertyChanged("HeaderIconPath");
+					OnPropertyChanged("HeaderTitleText");
+					OnPropertyChanged("IsExportXmlButtonVisible");
+					RefreshInstalledVersion();
+				}
+			}
+		}
 
-        // ========== 标题点击（关于） ==========
-        public ICommand TitleClickCommand => new RelayCommand(() =>
-        {
-            MessageBox.Show("GOI - Glim Office Installer\n\n版本 2.0.0\n© 2025-2026 GlimStudio\n\n本软件仅供学习研究使用。",
-                "关于 GOI");
-        });
+		public bool IsMsOffice => CurrentProductType == ProductType.MsOffice;
 
-        // ========== 导航命令 ==========
-        public ICommand InstallCommand => new RelayCommand(async () => await InstallAsync(), () => CanInstall);
-        public ICommand UninstallCurrentCommand => new RelayCommand(async () => await UninstallCurrentAsync(), () => CanInstall);
-        public ICommand SelectLeftCommand => new RelayCommand(SelectLeft);
-        public ICommand SelectRightCommand => new RelayCommand(SelectRight);
-        public ICommand PrevGroupCommand => new RelayCommand(() => { if (VersionGroup > 0) VersionGroup--; });
-        public ICommand NextGroupCommand => new RelayCommand(() => { if (VersionGroup < 2) VersionGroup++; });
+		public bool IsWps => CurrentProductType == ProductType.Wps;
 
-        private void SelectLeft()
-        {
-            LeftSelected = true; RightSelected = false;
-            _currentVersion = VersionGroup switch
-            {
-                0 => OfficeVersion.Office2024, 1 => OfficeVersion.Office2021,
-                2 => OfficeVersion.Office2016, _ => OfficeVersion.Office2024
-            };
-            IsM365 = false;
-        }
+		public bool IsYozo => CurrentProductType == ProductType.Yozo;
 
-        private void SelectRight()
-        {
-            LeftSelected = false; RightSelected = true;
-            _currentVersion = OfficeVersion.Microsoft365Pro;
-            IsM365 = true;
-        }
+		public bool IsOnlyOffice => CurrentProductType == ProductType.OnlyOffice;
 
-        private bool _isM365;
-        public bool IsM365 { get => _isM365; set => Set(ref _isM365, value); }
+		public bool IsLibreOffice => CurrentProductType == ProductType.LibreOffice;
 
-        private void RefreshCards()
-        {
-            switch (VersionGroup)
-            {
-                case 0:
-                    LeftTitle = "Office 2024"; LeftSub = "最新功能 · 持续更新"; LeftDesc = "零售版";
-                    RightTitle = "Microsoft 365"; RightSub = "云端同步 · 订阅服务"; RightDesc = "个人/家庭版";
-                    RightVisible = true; break;
-                case 1:
-                    LeftTitle = "Office 2021"; LeftSub = "买断制 · 永久授权"; LeftDesc = "零售版";
-                    RightTitle = "Office 2019"; RightSub = "经典稳定 · 广泛兼容"; RightDesc = "零售版";
-                    RightVisible = true; break;
-                case 2:
-                    LeftTitle = "Office 2016"; LeftSub = "经典版本 · 兼容性好"; LeftDesc = "零售版";
-                    RightTitle = ""; RightSub = ""; RightDesc = "";
-                    RightVisible = false; break;
-            }
-            LeftArrowVisible = VersionGroup > 0;
-            RightArrowVisible = VersionGroup < 2;
-            SelectLeft();
-        }
+		public bool IsSettings => CurrentProductType == ProductType.Settings;
 
-        // ========== 安装入口（自动分流不同 Office 软件）==========
-        private CancellationTokenSource _installCts;
+		public bool IsActionButtonsVisible => CurrentProductType != ProductType.Settings;
 
-        private async Task InstallAsync()
-        {
-            Phase = InstallPhase.Downloading;
-            IsProgressVisible = true;
-            DownloadProgress = 0;
-            _installCts = new CancellationTokenSource();
+		public string HeaderIconPath
+		{
+			get
+			{
+				ProductType currentProductType = CurrentProductType;
+				
+				string result = currentProductType switch
+				{
+					ProductType.MsOffice => "pack://application:,,,/GOI;component/Resources/ms_office_logo.png", 
+					ProductType.Wps => "pack://application:,,,/GOI;component/Resources/wps_office_logo.png", 
+					ProductType.Yozo => "pack://application:,,,/GOI;component/Resources/yozo_office_logo.png", 
+					ProductType.OnlyOffice => "pack://application:,,,/GOI;component/Resources/onlyoffice_logo.png", 
+					ProductType.LibreOffice => "pack://application:,,,/GOI;component/Resources/libreoffice_logo.png", 
+					ProductType.Settings => "pack://application:,,,/GOI;component/Resources/logo.png", 
+					_ => "pack://application:,,,/GOI;component/Resources/logo.png", 
+				};
+				
+				return result;
+			}
+		}
 
-            var phases = new Progress<string>(msg =>
-            {
-                StatusText = msg;
-                if (msg.Contains("清理")) Phase = InstallPhase.Cleaning;
-                else if (msg.Contains("下载")) Phase = InstallPhase.Downloading;
-                else if (msg.Contains("安装")) Phase = InstallPhase.Installing;
-                else if (msg.Contains("激活")) Phase = InstallPhase.Activating;
-            });
-            var dl = new Progress<int>(p => DownloadProgress = p);
+		public string HeaderTitleText
+		{
+			get
+			{
+				ProductType currentProductType = CurrentProductType;
+				
+				string result = currentProductType switch
+				{
+					ProductType.MsOffice => "Microsoft Office", 
+					ProductType.Wps => "WPS Office", 
+					ProductType.Yozo => Loc.YozoTitle, 
+					ProductType.OnlyOffice => "OnlyOffice", 
+					ProductType.LibreOffice => "LibreOffice", 
+					ProductType.Settings => Loc.NavSettings, 
+					_ => Loc.AppTitle, 
+				};
+				
+				return result;
+			}
+		}
 
-            bool ok;
-            if (CurrentProductType == ProductType.Wps)
-            {
-                ok = await _wpsService.InstallAsync(SelectedWpsVersion, phases, dl, _installCts.Token);
-            }
-            else if (CurrentProductType == ProductType.Yozo)
-            {
-                ok = await _yozoService.InstallAsync(SelectedYozoVersion, phases, dl, _installCts.Token);
-            }
-            else if (CurrentProductType == ProductType.OnlyOffice)
-            {
-                ok = await _onlyOfficeService.InstallAsync(SelectedOnlyOfficeVersion, phases, dl, _installCts.Token);
-            }
-            else if (CurrentProductType == ProductType.LibreOffice)
-            {
-                ok = await _libreOfficeService.InstallAsync(SelectedLibreOfficeVersion, phases, dl, _installCts.Token);
-            }
-            else
-            {
-                var selected = new HashSet<OfficeComponent>(Components.Where(c => c.IsSelected).Select(c => c.Component));
-                if (selected.Count == 0) { Phase = InstallPhase.Idle; IsProgressVisible = false; return; }
-                ok = await _installService.RunAsync(_currentVersion, DetectedArch, selected, phases, dl);
-            }
+		public ICommand SelectMsOfficeCommand => new RelayCommand(delegate
+		{
+			CurrentProductType = ProductType.MsOffice;
+		});
 
-            Phase = ok ? InstallPhase.Completed : InstallPhase.Failed;
-            StatusText = ok
-                ? "部署完成！软件已成功安装。"
-                : "安装失败，请查看日志了解详情。";
-            IsProgressVisible = false;
+		public ICommand SelectWpsCommand => new RelayCommand(delegate
+		{
+			CurrentProductType = ProductType.Wps;
+		});
 
-            // 安装完成刷新已安装版本状态
-            RefreshInstalledVersion();
-        }
+		public ICommand SelectYozoCommand => new RelayCommand(delegate
+		{
+			CurrentProductType = ProductType.Yozo;
+		});
 
-        // ========== 独立深层卸载当前软件 ==========
-        private async Task UninstallCurrentAsync()
-        {
-            string productName = CurrentProductType switch
-            {
-                ProductType.MsOffice => "MS Office",
-                ProductType.Wps => "WPS Office",
-                ProductType.Yozo => "永中 Office",
-                ProductType.OnlyOffice => "OnlyOffice",
-                ProductType.LibreOffice => "LibreOffice",
-                _ => "Office"
-            };
+		public ICommand SelectOnlyOfficeCommand => new RelayCommand(delegate
+		{
+			CurrentProductType = ProductType.OnlyOffice;
+		});
 
-            var result = MessageBox.Show(
-                $"深度卸载将强制终止所有正在运行的 {productName} 进程，并删除相关的注册表及残留文件夹。\n\n确认要继续吗？请务必先保存正在编辑的文档。",
-                $"{productName} 深度卸载确认",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+		public ICommand SelectLibreOfficeCommand => new RelayCommand(delegate
+		{
+			CurrentProductType = ProductType.LibreOffice;
+		});
 
-            if (result != MessageBoxResult.Yes) return;
+		public string InstalledVersionText
+		{
+			get
+			{
+				return _installedVersionText;
+			}
+			set
+			{
+				Set(ref _installedVersionText, value, "InstalledVersionText");
+			}
+		}
 
-            Phase = InstallPhase.Cleaning;
-            IsProgressVisible = true;
-            DownloadProgress = 10;
-            StatusText = $"正在清理 {productName} 残留...";
+		public bool IsInstalledWarningVisible
+		{
+			get
+			{
+				return _isInstalledWarningVisible;
+			}
+			set
+			{
+				Set(ref _isInstalledWarningVisible, value, "IsInstalledWarningVisible");
+			}
+		}
 
-            var phases = new Progress<string>(msg => StatusText = msg);
+		public WpsVersion SelectedWpsVersion
+		{
+			get
+			{
+				return _selectedWpsVersion;
+			}
+			set
+			{
+				if (Set(ref _selectedWpsVersion, value, "SelectedWpsVersion"))
+				{
+					OnPropertyChanged("Wps2013Selected");
+					OnPropertyChanged("Wps2016Selected");
+					OnPropertyChanged("Wps2019Selected");
+					OnPropertyChanged("Wps2023Selected");
+					OnPropertyChanged("WpsLatestSelected");
+				}
+			}
+		}
 
-            try
-            {
-                await _cleanupService.CleanAsync(CurrentProductType, phases);
-                DownloadProgress = 100;
-                Phase = InstallPhase.Completed;
-                StatusText = $"{productName} 残留清理完成！";
+		public bool Wps2013Selected => SelectedWpsVersion == WpsVersion.Wps2013;
 
-                // 刷新已安装版本状态
-                RefreshInstalledVersion();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"{productName} 深度卸载失败", ex);
-                Phase = InstallPhase.Failed;
-                StatusText = "清理失败: " + ex.Message;
-            }
-            finally
-            {
-                IsProgressVisible = false;
-            }
-        }
-    }
+		public bool Wps2016Selected => SelectedWpsVersion == WpsVersion.Wps2016;
 
-    public class ComponentItem : ObservableObject
-    {
-        public string Name { get; }
-        public OfficeComponent Component { get; }
-        private bool _isSelected;
-        public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
-        public ComponentItem(string name, OfficeComponent c, bool sel = false)
-        { Name = name; Component = c; _isSelected = sel; }
-    }
+		public bool Wps2019Selected => SelectedWpsVersion == WpsVersion.Wps2019;
+
+		public bool Wps2023Selected => SelectedWpsVersion == WpsVersion.Wps2023;
+
+		public bool WpsLatestSelected => SelectedWpsVersion == WpsVersion.WpsLatest;
+
+		public ICommand SelectWps2013Command => new RelayCommand(delegate
+		{
+			SelectedWpsVersion = WpsVersion.Wps2013;
+		});
+
+		public ICommand SelectWps2016Command => new RelayCommand(delegate
+		{
+			SelectedWpsVersion = WpsVersion.Wps2016;
+		});
+
+		public ICommand SelectWps2019Command => new RelayCommand(delegate
+		{
+			SelectedWpsVersion = WpsVersion.Wps2019;
+		});
+
+		public ICommand SelectWps2023Command => new RelayCommand(delegate
+		{
+			SelectedWpsVersion = WpsVersion.Wps2023;
+		});
+
+		public ICommand SelectWpsLatestCommand => new RelayCommand(delegate
+		{
+			SelectedWpsVersion = WpsVersion.WpsLatest;
+		});
+
+		public bool YozoPersonalSelected => true;
+		public ICommand SelectYozoPersonalCommand => new RelayCommand(delegate {});
+
+		public bool OnlyOfficeSelected => true;
+		public ICommand SelectOnlyOfficeDesktopCommand => new RelayCommand(delegate {});
+
+		public bool LibreOfficeSelected => true;
+		public ICommand SelectLibreOfficeStableCommand => new RelayCommand(delegate {});
+
+		public bool IsM365
+		{
+			get
+			{
+				return _isM365;
+			}
+			set
+			{
+				Set(ref _isM365, value, "IsM365");
+			}
+		}
+
+		public bool Office2024Selected => _currentVersion == OfficeVersion.Office2024 && !IsM365;
+
+		public bool M365Selected => IsM365;
+
+		public bool Office2021Selected => _currentVersion == OfficeVersion.Office2021 && !IsM365;
+
+		public bool Office2019Selected => _currentVersion == OfficeVersion.Office2019 && !IsM365;
+
+		public bool Office2016Selected => _currentVersion == OfficeVersion.Office2016 && !IsM365;
+
+		public ICommand SelectOffice2024Command => new RelayCommand(delegate
+		{
+			SetOfficeVersion(OfficeVersion.Office2024, isM365: false);
+		});
+
+		public ICommand SelectM365Command => new RelayCommand(delegate
+		{
+			SetOfficeVersion(OfficeVersion.Microsoft365Pro, isM365: true);
+		});
+
+		public ICommand SelectOffice2021Command => new RelayCommand(delegate
+		{
+			SetOfficeVersion(OfficeVersion.Office2021, isM365: false);
+		});
+
+		public ICommand SelectOffice2019Command => new RelayCommand(delegate
+		{
+			SetOfficeVersion(OfficeVersion.Office2019, isM365: false);
+		});
+
+		public ICommand SelectOffice2016Command => new RelayCommand(delegate
+		{
+			SetOfficeVersion(OfficeVersion.Office2016, isM365: false);
+		});
+
+		public string SelectedBitness
+		{
+			get
+			{
+				return _selectedBitness;
+			}
+			set
+			{
+				Set(ref _selectedBitness, value, "SelectedBitness");
+			}
+		}
+
+		public string SelectedUpdateChannel
+		{
+			get
+			{
+				return _selectedUpdateChannel;
+			}
+			set
+			{
+				Set(ref _selectedUpdateChannel, value, "SelectedUpdateChannel");
+			}
+		}
+
+		public string SelectedOfficeLanguage
+		{
+			get
+			{
+				return _selectedOfficeLanguage;
+			}
+			set
+			{
+				Set(ref _selectedOfficeLanguage, value, "SelectedOfficeLanguage");
+			}
+		}
+
+		public string ResolvedOfficeLanguage
+		{
+			get
+			{
+				if (string.IsNullOrWhiteSpace(SelectedOfficeLanguage))
+				{
+					return "zh-cn";
+				}
+				string[] array = SelectedOfficeLanguage.Trim().Split(new char[2] { ' ', '(' }, StringSplitOptions.RemoveEmptyEntries);
+				return (array.Length != 0) ? array[0].ToLower().Trim() : "zh-cn";
+			}
+		}
+
+		public ObservableCollection<ComponentItem> Components { get; }
+
+		public InstallPhase Phase
+		{
+			get
+			{
+				return _phase;
+			}
+			set
+			{
+				if (Set(ref _phase, value, "Phase"))
+				{
+					OnPropertyChanged("StatusText");
+					OnPropertyChanged("CanInstall");
+					CommandManager.InvalidateRequerySuggested();
+				}
+			}
+		}
+
+		public string StatusText
+		{
+			get
+			{
+				return _statusText;
+			}
+			set
+			{
+				Set(ref _statusText, value, "StatusText");
+			}
+		}
+
+		public int DownloadProgress
+		{
+			get
+			{
+				return _downloadProgress;
+			}
+			set
+			{
+				Set(ref _downloadProgress, value, "DownloadProgress");
+			}
+		}
+
+		public bool IsProgressVisible
+		{
+			get
+			{
+				return _isProgressVisible;
+			}
+			set
+			{
+				Set(ref _isProgressVisible, value, "IsProgressVisible");
+			}
+		}
+
+		public bool CanInstall => Phase != InstallPhase.Cleaning && Phase != InstallPhase.Downloading && Phase != InstallPhase.Installing && Phase != InstallPhase.Activating;
+
+		public bool IsAboutVisible
+		{
+			get
+			{
+				return _isAboutVisible;
+			}
+			set
+			{
+				Set(ref _isAboutVisible, value, "IsAboutVisible");
+			}
+		}
+
+		public ICommand TitleClickCommand => new RelayCommand(delegate
+		{
+			IsAboutVisible = true;
+		});
+
+		public ICommand CloseAboutCommand => new RelayCommand(delegate
+		{
+			IsAboutVisible = false;
+		});
+
+		public string SelectedTheme
+		{
+			get
+			{
+				return _selectedTheme;
+			}
+			set
+			{
+				if (Set(ref _selectedTheme, value, "SelectedTheme"))
+				{
+					UpdateAppTheme(value);
+				}
+			}
+		}
+
+		public string SelectedAppLanguage
+		{
+			get
+			{
+				return _selectedAppLanguage;
+			}
+			set
+			{
+				if (Set(ref _selectedAppLanguage, value, "SelectedAppLanguage"))
+				{
+					
+					LocalizationStrings.AppLanguage appLanguage = ((value == "TraditionalChinese") ? LocalizationStrings.AppLanguage.TraditionalChinese : ((value == "English") ? LocalizationStrings.AppLanguage.English : LocalizationStrings.AppLanguage.SimplifiedChinese));
+					
+					LocalizationStrings.AppLanguage appLanguage2 = appLanguage;
+					SetAppLanguage(appLanguage2);
+				}
+			}
+		}
+
+		public bool IsExportXmlEnabled
+		{
+			get
+			{
+				return _isExportXmlEnabled;
+			}
+			set
+			{
+				if (Set(ref _isExportXmlEnabled, value, "IsExportXmlEnabled"))
+				{
+					OnPropertyChanged("IsExportXmlButtonVisible");
+				}
+			}
+		}
+
+		public bool IsExportXmlButtonVisible => IsMsOffice && IsExportXmlEnabled;
+
+		public ProductType ProductTypeToUninstall
+		{
+			get
+			{
+				return _productTypeToUninstall;
+			}
+			set
+			{
+				Set(ref _productTypeToUninstall, value, "ProductTypeToUninstall");
+			}
+		}
+
+		public ICommand UninstallSelectedCommand => new RelayCommand(async delegate
+		{
+			await UninstallSelectedAsync();
+		}, () => CanInstall);
+
+		public ICommand ClearOfficeActivationCommand => new RelayCommand(async delegate
+		{
+			await ClearOfficeActivationAsync();
+		}, () => CanInstall);
+
+		public ICommand ActivateOfficeOhookCommand => new RelayCommand(async delegate
+		{
+			await ActivateOfficeOhookAsync();
+		}, () => CanInstall);
+
+		public ICommand CleanOrphanedAssociationsCommand => new RelayCommand(async delegate
+		{
+			await CleanOrphanedAssociationsAsync();
+		}, () => CanInstall);
+
+		public ICommand RefreshIconCacheCommand => new RelayCommand(async delegate
+		{
+			await RefreshIconCacheAsync();
+		}, () => CanInstall);
+
+		public ICommand RepairAssociationsCommand => new RelayCommand(async delegate
+		{
+			await RepairAssociationsAsync();
+		}, () => CanInstall);
+
+		public ICommand RepairCOMCommand => new RelayCommand(async delegate
+		{
+			await RepairCOMAsync();
+		}, () => CanInstall);
+
+		public ICommand ExportXmlCommand => new RelayCommand(ExportXml);
+
+		public ICommand InstallCommand => new RelayCommand(async delegate
+		{
+			await InstallAsync();
+		}, () => CanInstall);
+
+		public MainViewModel(InstallService installService)
+		{
+			_installService = installService;
+			_wpsService = new WpsInstallService();
+			_yozoService = new YozoInstallService();
+			_onlyOfficeService = new OnlyOfficeInstallService();
+			_libreOfficeService = new LibreOfficeInstallService();
+			_cleanupService = new CleanupService();
+			ArchText = ((DetectedArch == GOI.Models.Architecture.x64) ? Loc.ArchX64 : Loc.ArchX86);
+			SelectedBitness = (Environment.Is64BitOperatingSystem ? "64" : "32");
+			LocalizationStrings.AppLanguage detected = LocalizationStrings.Detected;
+			
+			string selectedOfficeLanguage = detected switch
+			{
+				LocalizationStrings.AppLanguage.TraditionalChinese => "zh-tw (繁體中文)", 
+				LocalizationStrings.AppLanguage.English => "en-us (English - US)", 
+				_ => "zh-cn (简体中文)", 
+			};
+			
+			SelectedOfficeLanguage = selectedOfficeLanguage;
+			SelectedUpdateChannel = "Current";
+			LocalizationStrings.AppLanguage detected2 = LocalizationStrings.Detected;
+			
+			selectedOfficeLanguage = detected2 switch
+			{
+				LocalizationStrings.AppLanguage.TraditionalChinese => "TraditionalChinese", 
+				LocalizationStrings.AppLanguage.English => "English", 
+				_ => "SimplifiedChinese", 
+			};
+			
+			_selectedAppLanguage = selectedOfficeLanguage;
+			Components = new ObservableCollection<ComponentItem>
+			{
+				new ComponentItem(Loc.CompWord, OfficeComponent.Word, sel: true),
+				new ComponentItem(Loc.CompExcel, OfficeComponent.Excel, sel: true),
+				new ComponentItem(Loc.CompPowerPoint, OfficeComponent.PowerPoint, sel: true),
+				new ComponentItem(Loc.CompOutlook, OfficeComponent.Outlook),
+				new ComponentItem(Loc.CompOneNote, OfficeComponent.OneNote),
+				new ComponentItem(Loc.CompAccess, OfficeComponent.Access),
+				new ComponentItem(Loc.CompPublisher, OfficeComponent.Publisher),
+				new ComponentItem(Loc.CompProject, OfficeComponent.Project),
+				new ComponentItem(Loc.CompVisio, OfficeComponent.Visio),
+				new ComponentItem(Loc.CompTeams, OfficeComponent.Teams),
+				new ComponentItem(Loc.CompOneDrive, OfficeComponent.OneDrive)
+			};
+			SetOfficeVersion(OfficeVersion.Office2024, isM365: false);
+			RefreshInstalledVersion();
+			StatusText = Loc.StatusReady;
+		}
+
+		public void RefreshInstalledVersion()
+		{
+			string installedProductVersion = RegistryHelper.GetInstalledProductVersion(CurrentProductType);
+			if (!string.IsNullOrEmpty(installedProductVersion))
+			{
+				InstalledVersionText = Loc.DlgConfirmInstallMsg(installedProductVersion);
+				IsInstalledWarningVisible = true;
+			}
+			else
+			{
+				InstalledVersionText = "";
+				IsInstalledWarningVisible = false;
+			}
+		}
+
+		private void SetOfficeVersion(OfficeVersion version, bool isM365)
+		{
+			_currentVersion = version;
+			IsM365 = isM365;
+			OnPropertyChanged("Office2024Selected");
+			OnPropertyChanged("M365Selected");
+			OnPropertyChanged("Office2021Selected");
+			OnPropertyChanged("Office2019Selected");
+			OnPropertyChanged("Office2016Selected");
+		}
+
+		private void UpdateAppTheme(string themeStr)
+		{
+			if (themeStr == "Light")
+			{
+				ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
+			}
+			else if (themeStr == "Dark")
+			{
+				ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+			}
+			else
+			{
+				ThemeManager.Current.ApplicationTheme = null;
+			}
+		}
+
+		private void SetAppLanguage(LocalizationStrings.AppLanguage lang)
+		{
+			LocalizationStrings.Detected = lang;
+			OnPropertyChanged(string.Empty);
+			UpdateComponentsLanguage();
+			ArchText = ((DetectedArch == GOI.Models.Architecture.x64) ? Loc.ArchX64 : Loc.ArchX86);
+			RefreshInstalledVersion();
+		}
+
+		private void UpdateComponentsLanguage()
+		{
+			if (Components == null)
+			{
+				return;
+			}
+			foreach (var item in Components)
+			{
+				switch (item.Component)
+				{
+					case OfficeComponent.Word: item.Name = Loc.CompWord; break;
+					case OfficeComponent.Excel: item.Name = Loc.CompExcel; break;
+					case OfficeComponent.PowerPoint: item.Name = Loc.CompPowerPoint; break;
+					case OfficeComponent.Outlook: item.Name = Loc.CompOutlook; break;
+					case OfficeComponent.OneNote: item.Name = Loc.CompOneNote; break;
+					case OfficeComponent.Access: item.Name = Loc.CompAccess; break;
+					case OfficeComponent.Publisher: item.Name = Loc.CompPublisher; break;
+					case OfficeComponent.Project: item.Name = Loc.CompProject; break;
+					case OfficeComponent.Visio: item.Name = Loc.CompVisio; break;
+					case OfficeComponent.Teams: item.Name = Loc.CompTeams; break;
+					case OfficeComponent.OneDrive: item.Name = Loc.CompOneDrive; break;
+				}
+			}
+		}
+
+		private async Task InstallAsync()
+		{
+			Phase = InstallPhase.Downloading;
+			IsProgressVisible = true;
+			DownloadProgress = 0;
+			_installCts = new CancellationTokenSource();
+			Progress<string> phases = new Progress<string>(delegate(string msg)
+			{
+				StatusText = msg;
+			});
+			Progress<InstallPhase> phaseProgress = new Progress<InstallPhase>(delegate(InstallPhase p)
+			{
+				Phase = p;
+			});
+			Progress<int> dl = new Progress<int>(delegate(int p)
+			{
+				DownloadProgress = p;
+			});
+			string installedVersion = RegistryHelper.GetInstalledProductVersion(CurrentProductType);
+			if (!string.IsNullOrEmpty(installedVersion))
+			{
+				ProductType currentProductType = CurrentProductType;
+				
+				string text = currentProductType switch
+				{
+					ProductType.MsOffice => "Microsoft Office", 
+					ProductType.Wps => "WPS Office", 
+					ProductType.Yozo => Loc.YozoTitle, 
+					ProductType.OnlyOffice => "OnlyOffice", 
+					ProductType.LibreOffice => "LibreOffice", 
+					_ => "Office", 
+				};
+				
+				string companyName = text;
+				if (!(await ShowFluentConfirmDialogAsync(Loc.DlgConfirmInstallTitle, Loc.DlgConfirmInstallMsg(installedVersion), Loc.BtnContinue, Loc.BtnCancel)))
+				{
+					Phase = InstallPhase.Idle;
+					IsProgressVisible = false;
+					StatusText = Loc.StatusDeploymentCancelled;
+					return;
+				}
+				Phase = InstallPhase.Cleaning;
+				DownloadProgress = 10;
+				StatusText = Loc.StatusCleaningOldVersions(companyName);
+				await _cleanupService.CleanAsync(CurrentProductType, phases);
+			}
+			bool ok;
+			if (CurrentProductType == ProductType.Wps)
+			{
+				ok = await _wpsService.InstallAsync(SelectedWpsVersion, phases, dl, phaseProgress, _installCts.Token);
+			}
+			else if (CurrentProductType == ProductType.Yozo)
+			{
+				ok = await _yozoService.InstallAsync(phases, dl, phaseProgress, _installCts.Token);
+			}
+			else if (CurrentProductType == ProductType.OnlyOffice)
+			{
+				ok = await _onlyOfficeService.InstallAsync(phases, dl, phaseProgress, _installCts.Token);
+			}
+			else if (CurrentProductType == ProductType.LibreOffice)
+			{
+				ok = await _libreOfficeService.InstallAsync(phases, dl, phaseProgress, _installCts.Token);
+			}
+			else
+			{
+				HashSet<OfficeComponent> selected = new HashSet<OfficeComponent>(from c in Components
+					where c.IsSelected
+					select c.Component);
+				if (selected.Count == 0)
+				{
+					Phase = InstallPhase.Idle;
+					IsProgressVisible = false;
+					return;
+				}
+				ok = await _installService.RunAsync(_currentVersion, SelectedBitness, SelectedUpdateChannel, ResolvedOfficeLanguage, selected, autoActivate: true, phases, dl, phaseProgress);
+			}
+			Phase = (ok ? InstallPhase.Completed : InstallPhase.Failed);
+			StatusText = (ok ? Loc.StatusDeploySuccess : Loc.StatusDeployFail);
+			IsProgressVisible = false;
+			if (ok)
+			{
+				var info = Loc.GetInstallSuccessInfo(CurrentProductType);
+				await ShowFluentMessageDialogAsync(info.Title, info.Msg);
+			}
+			else
+			{
+				await HandleOperationFailureAsync(Loc.DlgDeployFailTitle, Loc.DlgDeployFailMsg);
+			}
+			RefreshInstalledVersion();
+		}
+
+		private async Task UninstallSelectedAsync()
+		{
+			ProductType productTypeToUninstall = ProductTypeToUninstall;
+			
+			string text = productTypeToUninstall switch
+			{
+				ProductType.MsOffice => "Microsoft Office", 
+				ProductType.Wps => "WPS Office", 
+				ProductType.Yozo => Loc.YozoTitle, 
+				ProductType.OnlyOffice => "OnlyOffice", 
+				ProductType.LibreOffice => "LibreOffice", 
+				_ => "Office", 
+			};
+			
+			string productName = text;
+			if (!(await ShowFluentConfirmDialogAsync(Loc.SettingsUninstallTitle, Loc.DlgConfirmUninstallMsg(productName), Loc.BtnUninstall, Loc.BtnCancel)))
+			{
+				return;
+			}
+			Phase = InstallPhase.Cleaning;
+			IsProgressVisible = true;
+			DownloadProgress = 10;
+			StatusText = Loc.StatusCleaningOldVersions(productName);
+			Progress<string> phases = new Progress<string>(delegate(string msg)
+			{
+				StatusText = msg;
+			});
+			try
+			{
+				await _cleanupService.CleanAsync(ProductTypeToUninstall, phases);
+				DownloadProgress = 100;
+				Phase = InstallPhase.Completed;
+				StatusText = Loc.DlgUninstallSuccessMsg;
+				await ShowFluentMessageDialogAsync(Loc.DlgUninstallSuccessTitle, Loc.DlgUninstallSuccessMsg);
+			}
+			catch (Exception ex)
+			{
+				Logger.Error(productName + " 卸载失败", ex);
+				Phase = InstallPhase.Failed;
+				StatusText = Loc.ErrInstallFailed(ex.Message);
+				await HandleOperationFailureAsync(Loc.DlgUninstallFailTitle, ex.Message);
+			}
+			finally
+			{
+				IsProgressVisible = false;
+				RefreshInstalledVersion();
+			}
+		}
+
+		private async Task CleanOrphanedAssociationsAsync()
+		{
+			Phase = InstallPhase.Cleaning;
+			IsProgressVisible = true;
+			DownloadProgress = 20;
+			StatusText = Loc.StatusScanningAssociations;
+			Progress<string> phases = new Progress<string>(delegate(string msg)
+			{
+				StatusText = msg;
+			});
+			try
+			{
+				int cleanedCount = 0;
+				await Task.Run(delegate
+				{
+					cleanedCount = RegistryHelper.CleanOrphanedFileAssociations(phases);
+				});
+				DownloadProgress = 100;
+				Phase = InstallPhase.Completed;
+				StatusText = Loc.StatusAssociationsCleaned;
+				await ShowFluentMessageDialogAsync(Loc.DlgCleanAssociationsTitle, Loc.DlgCleanAssociationsMsg);
+			}
+			catch (Exception ex)
+			{
+				Logger.Error("文件关联净化失败", ex);
+				Phase = InstallPhase.Failed;
+				StatusText = Loc.StatusCleanAssociationsFailed(ex.Message);
+				await HandleOperationFailureAsync(Loc.DlgCleanAssociationsFailTitle, ex.Message);
+			}
+			finally
+			{
+				IsProgressVisible = false;
+				RefreshInstalledVersion();
+			}
+		}
+
+		private async Task RefreshIconCacheAsync()
+		{
+			Phase = InstallPhase.Cleaning;
+			IsProgressVisible = true;
+			DownloadProgress = 30;
+			StatusText = Loc.StatusRebuildingIconCache;
+			try
+			{
+				await Task.Run(delegate
+				{
+					RegistryHelper.RefreshIconCache();
+				});
+				DownloadProgress = 100;
+				Phase = InstallPhase.Completed;
+				StatusText = Loc.StatusIconCacheRefreshed;
+				await ShowFluentMessageDialogAsync(Loc.DlgRefreshIconCacheTitle, Loc.DlgRefreshIconCacheMsg);
+			}
+			catch (Exception ex)
+			{
+				Logger.Error("刷新图标缓存失败", ex);
+				Phase = InstallPhase.Failed;
+				StatusText = Loc.StatusRefreshIconCacheFailed(ex.Message);
+				await HandleOperationFailureAsync(Loc.DlgRefreshIconCacheFailTitle, ex.Message);
+			}
+			finally
+			{
+				IsProgressVisible = false;
+				RefreshInstalledVersion();
+			}
+		}
+
+		private async Task RepairAssociationsAsync()
+		{
+			Phase = InstallPhase.Cleaning;
+			IsProgressVisible = true;
+			DownloadProgress = 30;
+			StatusText = Loc.StatusRepairingAssociations;
+			try
+			{
+				Progress<string> progressReporter = new Progress<string>(delegate(string msg)
+				{
+					StatusText = msg;
+				});
+				await Task.Run(delegate
+				{
+					RegistryHelper.RestoreInstalledProductAssociations(progressReporter);
+					RegistryHelper.RefreshIconCache();
+				});
+				DownloadProgress = 100;
+				Phase = InstallPhase.Completed;
+				StatusText = Loc.StatusAssociationsRepaired;
+				await ShowFluentMessageDialogAsync(Loc.DlgRepairAssociationsTitle, Loc.DlgRepairAssociationsMsg);
+				await PromptUserToSelectDefaultOfficeAppsAsync();
+			}
+			catch (Exception ex)
+			{
+				DownloadProgress = 100;
+				Phase = InstallPhase.Completed;
+				StatusText = Loc.StatusRepairAssociationsFailed(ex.Message);
+				Logger.Error("独立修复文件关联失败", ex);
+				await HandleOperationFailureAsync(Loc.DlgRepairAssociationsFailTitle, Loc.DlgRepairAssociationsFailMsg(ex.Message));
+			}
+			finally
+			{
+				IsProgressVisible = false;
+				RefreshInstalledVersion();
+			}
+		}
+
+		private async Task PromptUserToSelectDefaultOfficeAppsAsync()
+		{
+			List<ProductType> installedProducts = new List<ProductType>();
+			foreach (ProductType pt in Enum.GetValues(typeof(ProductType)))
+			{
+				if (pt != ProductType.MsOffice && !string.IsNullOrEmpty(RegistryHelper.GetInstalledProductVersion(pt)))
+				{
+					installedProducts.Add(pt);
+				}
+			}
+			bool isMsInstalled = !string.IsNullOrEmpty(RegistryHelper.GetInstalledProductVersion(ProductType.MsOffice));
+			if (((!isMsInstalled || installedProducts.Count <= 0) && installedProducts.Count <= 1) || !(await ShowFluentConfirmDialogAsync(Loc.DlgDefaultAppTitle, Loc.DlgDefaultAppMsg, Loc.BtnDefaultAppStart, Loc.BtnDefaultAppSkip)))
+			{
+				return;
+			}
+			string tempDir = Path.GetTempPath();
+			List<(string ext, string name)> formats = new List<(string, string)>
+			{
+				(".docx", Loc.FormatWord),
+				(".doc", Loc.FormatWordLegacy),
+				(".xlsx", Loc.FormatExcel),
+				(".xls", Loc.FormatExcelLegacy)
+			};
+			if (isMsInstalled || installedProducts.Contains(ProductType.Wps) || installedProducts.Contains(ProductType.Yozo) || installedProducts.Contains(ProductType.LibreOffice))
+			{
+				formats.Add((".pptx", Loc.FormatPowerPoint));
+				formats.Add((".ppt", Loc.FormatPowerPointLegacy));
+			}
+			formats.Add((".pdf", Loc.FormatPdf));
+			foreach (var item in formats)
+			{
+				string tempFile = Path.Combine(tempDir, "GOI_Sample_Document" + item.ext);
+				try
+				{
+					if (!File.Exists(tempFile))
+					{
+						File.WriteAllBytes(tempFile, new byte[0]);
+					}
+					StatusText = Loc.StatusGuidingDefaultApp(item.name);
+					ProcessStartInfo psi = new ProcessStartInfo
+					{
+						FileName = "rundll32.exe",
+						Arguments = "shell32.dll,OpenAs_RunDLL \"" + tempFile + "\"",
+						UseShellExecute = false,
+						CreateNoWindow = true
+					};
+					Process process = Process.Start(psi);
+					try
+					{
+						if (process != null)
+						{
+							await Task.Run(delegate
+							{
+								process.WaitForExit();
+							});
+						}
+					}
+					finally
+					{
+						if (process != null)
+						{
+							((IDisposable)process).Dispose();
+						}
+					}
+					await Task.Delay(2000);
+				}
+				catch (Exception ex)
+				{
+					Exception ex2 = ex;
+					Logger.Error("引导设置 " + item.name + " 默认关联失败", ex2);
+				}
+				finally
+				{
+					try
+					{
+						if (File.Exists(tempFile))
+						{
+							File.Delete(tempFile);
+						}
+					}
+					catch (Exception ex)
+					{
+						Logger.Warn("删除默认应用临时配置失败: " + ex.Message);
+					}
+				}
+			}
+			StatusText = Loc.StatusDefaultAppGuided;
+			await ShowFluentMessageDialogAsync(Loc.DlgDefaultAppSuccessTitle, Loc.DlgDefaultAppSuccessMsg);
+		}
+
+		private async Task RepairCOMAsync()
+		{
+			Phase = InstallPhase.Cleaning;
+			IsProgressVisible = true;
+			DownloadProgress = 20;
+			StatusText = Loc.StatusRepairingCOM;
+			try
+			{
+				Progress<string> progressReporter = new Progress<string>(delegate(string msg)
+				{
+					StatusText = msg;
+				});
+				await Task.Run(delegate
+				{
+					RegistryHelper.RepairOfficeComComponents(progressReporter);
+				});
+				DownloadProgress = 100;
+				Phase = InstallPhase.Completed;
+				StatusText = Loc.StatusCOMRepaired;
+				await ShowFluentMessageDialogAsync(Loc.DlgRepairComTitle, Loc.DlgRepairComMsg);
+			}
+			catch (Exception ex)
+			{
+				DownloadProgress = 100;
+				Phase = InstallPhase.Completed;
+				StatusText = Loc.StatusRepairCOMFailed(ex.Message);
+				Logger.Error("独立修复 COM 组件失败", ex);
+				await HandleOperationFailureAsync(Loc.DlgRepairComFailTitle, Loc.DlgRepairComFailMsg(ex.Message));
+			}
+			finally
+			{
+				IsProgressVisible = false;
+				RefreshInstalledVersion();
+			}
+		}
+
+		private string LocateOsppVbs()
+		{
+			string[] array = new string[3] { "winword.exe", "excel.exe", "powerpnt.exe" };
+			string[] array2 = new string[2] { "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" };
+			string[] array3 = array;
+			foreach (string text in array3)
+			{
+				string[] array4 = array2;
+				foreach (string text2 in array4)
+				{
+					try
+					{
+						RegistryView[] array5 = new RegistryView[2]
+						{
+							RegistryView.Registry64,
+							RegistryView.Registry32
+						};
+						foreach (RegistryView view in array5)
+						{
+							using RegistryKey registryKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+							using RegistryKey registryKey2 = registryKey.OpenSubKey(text2 + text);
+							if (registryKey2 == null)
+							{
+								continue;
+							}
+							string text3 = registryKey2.GetValue("") as string;
+							if (!string.IsNullOrEmpty(text3) && File.Exists(text3))
+							{
+								string directoryName = Path.GetDirectoryName(text3);
+								string text4 = Path.Combine(directoryName, "OSPP.VBS");
+								if (File.Exists(text4))
+								{
+									Logger.Info("通过 App Paths 注册表成功定位 OSPP.VBS: " + text4);
+									return text4;
+								}
+							}
+						}
+					}
+					catch (Exception ex)
+					{
+						Logger.Warn("读取 App Paths 注册表失败 (" + text2 + text + "): " + ex.Message);
+					}
+				}
+			}
+			try
+			{
+				RegistryView[] array6 = new RegistryView[2]
+				{
+					RegistryView.Registry64,
+					RegistryView.Registry32
+				};
+				foreach (RegistryView view2 in array6)
+				{
+					using RegistryKey registryKey3 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view2);
+					using RegistryKey registryKey4 = registryKey3.OpenSubKey("SOFTWARE\\Microsoft\\Office\\ClickToRun\\Configuration");
+					if (registryKey4 == null)
+					{
+						continue;
+					}
+					string text5 = registryKey4.GetValue("InstallPath") as string;
+					if (!string.IsNullOrEmpty(text5) && Directory.Exists(text5))
+					{
+						string text6 = Path.Combine(text5, "root\\Office16\\OSPP.VBS");
+						if (File.Exists(text6))
+						{
+							return text6;
+						}
+						string text7 = Path.Combine(text5, "root\\Office15\\OSPP.VBS");
+						if (File.Exists(text7))
+						{
+							return text7;
+						}
+					}
+				}
+			}
+			catch (Exception ex2)
+			{
+				Logger.Warn("读取 ClickToRun 注册表路径失败: " + ex2.Message);
+			}
+			string[] array7 = array;
+			foreach (string text8 in array7)
+			{
+				try
+				{
+					using RegistryKey registryKey5 = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + text8);
+					if (registryKey5 == null)
+					{
+						continue;
+					}
+					string text9 = registryKey5.GetValue("") as string;
+					if (!string.IsNullOrEmpty(text9) && File.Exists(text9))
+					{
+						string directoryName2 = Path.GetDirectoryName(text9);
+						string text10 = Path.Combine(directoryName2, "OSPP.VBS");
+						if (File.Exists(text10))
+						{
+							Logger.Info("通过 HKCU App Paths 注册表成功定位 OSPP.VBS: " + text10);
+							return text10;
+						}
+					}
+				}
+				catch (Exception ex)
+				{
+					Logger.Warn("从 HKCU App Paths 读取 OSPP 失败: " + ex.Message);
+				}
+			}
+			string[] array8 = new string[10] { "C:\\Program Files\\Microsoft Office\\root\\Office16\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\OSPP.VBS", "C:\\Program Files\\Microsoft Office\\root\\Office15\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\root\\Office15\\OSPP.VBS", "C:\\Program Files\\Microsoft Office\\Office16\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\Office16\\OSPP.VBS", "C:\\Program Files\\Microsoft Office\\Office15\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\Office15\\OSPP.VBS", "C:\\Program Files\\Microsoft Office\\Office14\\OSPP.VBS", "C:\\Program Files (x86)\\Microsoft Office\\Office14\\OSPP.VBS" };
+			string[] array9 = array8;
+			foreach (string text11 in array9)
+			{
+				if (File.Exists(text11))
+				{
+					Logger.Info("找到 OSPP.VBS 静态路径: " + text11);
+					return text11;
+				}
+			}
+			return null;
+		}
+
+		private async Task ClearOfficeActivationAsync()
+		{
+			StatusText = Loc.StatusScanningActivationKeys;
+			IsProgressVisible = true;
+			DownloadProgress = 20;
+			string osppPath = LocateOsppVbs();
+			if (osppPath == null)
+			{
+				await ShowFluentMessageDialogAsync(Loc.DlgClearLicenseFailTitle, Loc.ErrOsppNotFound);
+				IsProgressVisible = false;
+				StatusText = Loc.StatusPathNotFound;
+				return;
+			}
+			ProcessStartInfo startInfo = new ProcessStartInfo
+			{
+				FileName = "cscript.exe",
+				Arguments = "//NoLogo \"" + osppPath + "\" /dstatus",
+				RedirectStandardOutput = true,
+				UseShellExecute = false,
+				CreateNoWindow = true
+			};
+			List<string> keys = new List<string>();
+			await Task.Run(delegate
+			{
+				try
+				{
+					using Process process = Process.Start(startInfo);
+					if (process != null)
+					{
+						string text = process.StandardOutput.ReadToEnd();
+						process.WaitForExit();
+						Logger.Info("OSPP /dstatus 扫描输出:\n" + text);
+						string[] array = text.Split(new string[2] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+						string[] array2 = array;
+						foreach (string text2 in array2)
+						{
+							if (text2.Contains("Last 5 characters of installed product key:"))
+							{
+								string[] array3 = text2.Split(':');
+								if (array3.Length > 1)
+								{
+									string text3 = array3[1].Trim();
+									if (!string.IsNullOrEmpty(text3) && !keys.Contains(text3))
+									{
+										keys.Add(text3);
+									}
+								}
+							}
+						}
+					}
+				}
+				catch (Exception ex)
+				{
+					Logger.Error("执行 cscript /dstatus 出错", ex);
+				}
+			});
+			if (keys.Count == 0)
+			{
+				await ShowFluentMessageDialogAsync(Loc.DlgScanNoKeysTitle, Loc.DlgScanNoKeysMsg);
+				IsProgressVisible = false;
+				StatusText = Loc.StatusNoKeysFound;
+				return;
+			}
+			if (!(await ShowFluentConfirmDialogAsync(Loc.DlgConfirmClearTitle, Loc.DlgConfirmClearMsg(keys.Count, string.Join(", ", keys)), Loc.BtnDeleteConfirm, Loc.BtnCancel)))
+			{
+				StatusText = Loc.StatusClearCancelled;
+				IsProgressVisible = false;
+				return;
+			}
+			StatusText = Loc.StatusClearingKeys;
+			int deletedCount = 0;
+			await Task.Run(delegate
+			{
+				foreach (string item in keys)
+				{
+					ProcessStartInfo startInfo2 = new ProcessStartInfo
+					{
+						FileName = "cscript.exe",
+						Arguments = "//NoLogo \"" + osppPath + "\" /unpkey:" + item,
+						RedirectStandardOutput = true,
+						UseShellExecute = false,
+						CreateNoWindow = true
+					};
+					try
+					{
+						using Process process = Process.Start(startInfo2);
+						if (process != null)
+						{
+							process.WaitForExit();
+							if (process.ExitCode == 0)
+							{
+								deletedCount++;
+								Logger.Info("成功清除密钥: " + item);
+							}
+							else
+							{
+								Logger.Warn($"清除密钥失败: {item}, ExitCode: {process.ExitCode}");
+							}
+						}
+					}
+					catch (Exception ex)
+					{
+						Logger.Error("清除密钥异常: " + item, ex);
+					}
+				}
+			});
+			DownloadProgress = 100;
+			IsProgressVisible = false;
+			StatusText = Loc.StatusClearSuccess(deletedCount);
+			await ShowFluentMessageDialogAsync(Loc.DlgClearLicenseTitle, Loc.DlgClearSuccessMsg(deletedCount));
+		}
+
+		private async Task ActivateOfficeOhookAsync()
+		{
+			if (await ShowFluentConfirmDialogAsync(Loc.DlgConfirmOhookTitle, Loc.DlgConfirmOhookMsg, Loc.BtnOhookConfirm, Loc.BtnCancel))
+			{
+				StatusText = Loc.StatusReleasingOhook;
+				IsProgressVisible = true;
+				DownloadProgress = 30;
+				bool ok = await Task.Run(async () => await _installService.ActivateOhookAsync());
+				DownloadProgress = 100;
+				IsProgressVisible = false;
+				if (ok)
+				{
+					StatusText = Loc.StatusOhookSuccess;
+					await ShowFluentMessageDialogAsync(Loc.DlgActivateSuccessTitle, Loc.DlgOhookSuccessMsg);
+				}
+				else
+				{
+					StatusText = Loc.StatusOhookFail;
+					await HandleOperationFailureAsync(Loc.DlgActivateFailTitle, Loc.DlgOhookFailMsg);
+				}
+				RefreshInstalledVersion();
+			}
+		}
+
+		private void ExportXml()
+		{
+			HashSet<OfficeComponent> selected = new HashSet<OfficeComponent>(from c in Components
+				where c.IsSelected
+				select c.Component);
+			string contents = XmlConfigHelper.Generate(_currentVersion, SelectedBitness, SelectedUpdateChannel, ResolvedOfficeLanguage, selected);
+			SaveFileDialog saveFileDialog = new SaveFileDialog
+			{
+				Filter = "XML Files (*.xml)|*.xml",
+				FileName = "configuration.xml",
+				Title = Loc.BtnExportXml
+			};
+			if (saveFileDialog.ShowDialog() == true)
+			{
+				try
+				{
+					File.WriteAllText(saveFileDialog.FileName, contents, Encoding.UTF8);
+					_ = ShowFluentMessageDialogAsync(Loc.DlgExportXmlTitle, Loc.DlgExportXmlMsg(saveFileDialog.FileName));
+				}
+				catch (Exception ex)
+				{
+					Logger.Error("导出 XML 失败", ex);
+					_ = ShowFluentMessageDialogAsync(Loc.DlgExportXmlFailTitle, ex.Message);
+				}
+			}
+		}
+
+		private async Task<bool> ShowFluentConfirmDialogAsync(string title, string content, string primaryText, string closeText)
+		{
+			ContentDialog val = new ContentDialog
+			{
+				Title = title
+			};
+			((ContentControl)val).Content = content;
+			val.PrimaryButtonText = primaryText;
+			val.CloseButtonText = closeText;
+			val.DefaultButton = (ContentDialogButton)1;
+			ContentDialog dialog = val;
+			if (Application.Current?.MainWindow != null)
+			{
+				dialog.Owner = Application.Current.MainWindow;
+			}
+			return (int)(await dialog.ShowAsync()) == 1;
+		}
+
+		private async Task ShowFluentMessageDialogAsync(string title, string content, string closeButtonText = null)
+		{
+			ContentDialog val = new ContentDialog
+			{
+				Title = title
+			};
+			((ContentControl)val).Content = content;
+			val.CloseButtonText = closeButtonText ?? Loc.BtnOk;
+			ContentDialog dialog = val;
+			if (Application.Current?.MainWindow != null)
+			{
+				dialog.Owner = Application.Current.MainWindow;
+			}
+			await dialog.ShowAsync();
+		}
+
+		private async Task HandleOperationFailureAsync(string title, string content)
+		{
+			await ShowFluentMessageDialogAsync(title, content + Loc.ErrSubmitLogHint);
+			try
+			{
+				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Logger.LogFilePath) { UseShellExecute = true });
+			}
+			catch (Exception ex)
+			{
+				Logger.Warn("启动日志文件查看失败: " + ex.Message);
+			}
+		}
+	}
+
+	public class ComponentItem : ObservableObject
+	{
+		private bool _isSelected;
+		private string _name;
+
+		public string Name
+		{
+			get { return _name; }
+			set { Set(ref _name, value, "Name"); }
+		}
+
+		public OfficeComponent Component { get; }
+
+		public bool IsSelected
+		{
+			get
+			{
+				return _isSelected;
+			}
+			set
+			{
+				Set(ref _isSelected, value, "IsSelected");
+			}
+		}
+
+		public ComponentItem(string name, OfficeComponent c, bool sel = false)
+		{
+			_name = name;
+			Component = c;
+			_isSelected = sel;
+		}
+	}
 }

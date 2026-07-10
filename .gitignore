@@ -12,3 +12,14 @@ obj/
 # Temporary files
 *.log
 GOI_Data/
+
+# Release artifacts
+Release/
+
+# NuGet packages
+packages/
+*.nupkg
+
+# Development notes / logs
+*锐评*
+*修复记录*

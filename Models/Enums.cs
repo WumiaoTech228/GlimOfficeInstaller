@@ -7,7 +7,8 @@ namespace GOI.Models
         Wps,
         Yozo,
         OnlyOffice,
-        LibreOffice
+        LibreOffice,
+        Settings
     }
 
     /// <summary>WPS Office 版本</summary>
@@ -16,25 +17,8 @@ namespace GOI.Models
         Wps2013,
         Wps2016,
         Wps2019,
+        Wps2023,
         WpsLatest
-    }
-
-    /// <summary>永中 Office 版本</summary>
-    public enum YozoVersion
-    {
-        YozoPersonal
-    }
-
-    /// <summary>OnlyOffice 版本</summary>
-    public enum OnlyOfficeVersion
-    {
-        OnlyOfficeDesktop
-    }
-
-    /// <summary>LibreOffice 版本</summary>
-    public enum LibreOfficeVersion
-    {
-        LibreOfficeStable
     }
 
     /// <summary>Office 版本枚举</summary>

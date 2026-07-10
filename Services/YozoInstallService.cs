@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GOI.Helpers;
 using GOI.Models;
+using System.Windows;
 using SharpCompress.Archives;
 using SharpCompress.Common;
 using SharpCompress.Readers;
@@ -20,16 +21,17 @@ namespace GOI.Services
 
         /// <summary>下载并静默安装永中Office，以伪进度条报告进度</summary>
         public async Task<bool> InstallAsync(
-            YozoVersion version,
             IProgress<string> phaseText,
             IProgress<int> progressPercent,
+            IProgress<InstallPhase> phaseProgress,
             CancellationToken ct = default)
         {
             string localPath = Path.Combine(AppConfig.RootPath, YozoFileName);
             string extractPath = Path.Combine(AppConfig.RootPath, "YozoExtract");
 
             // ── 阶段 1：下载 ──
-            phaseText.Report("正在下载 永中Office 官方压缩包...");
+            phaseProgress?.Report(InstallPhase.Downloading);
+            phaseText.Report(LocalizationStrings.Instance.StatusDownloadYozoRar);
             try
             {
                 var downloader = new MultiThreadDownloader();
@@ -42,19 +44,20 @@ namespace GOI.Services
             catch (Exception ex)
             {
                 Logger.Error("下载 永中Office 失败", ex);
-                phaseText.Report("下载失败，请检查网络连接。");
+                phaseText.Report(LocalizationStrings.Instance.ErrDownloadFailedWithMsg);
                 try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
                 return false;
             }
 
             // ── 阶段 2：解压 RAR ──
-            phaseText.Report("正在解压 永中Office 安装包...");
+            phaseProgress?.Report(InstallPhase.Installing);
+            phaseText.Report(LocalizationStrings.Instance.StatusExtractingProduct(LocalizationStrings.Instance.YozoTitle));
             progressPercent?.Report(52);
             try
             {
                 if (Directory.Exists(extractPath)) Directory.Delete(extractPath, true);
                 Directory.CreateDirectory(extractPath);
-
+ 
                 await Task.Run(() =>
                 {
                     using (var fs = File.OpenRead(localPath))
@@ -77,13 +80,13 @@ namespace GOI.Services
             catch (Exception ex)
             {
                 Logger.Error("解压 永中Office 失败", ex);
-                phaseText.Report("安装包解压失败: " + ex.Message);
+                phaseText.Report(LocalizationStrings.Instance.ErrExtractFailed(ex.Message));
                 CleanTempFiles(localPath, extractPath);
                 return false;
             }
 
-            // ── 阶段 3：定位并静默安装（/S 参数）──
-            phaseText.Report("正在静默安装 永中Office 个人版...");
+            // ── 阶段 3：引导安装 ──
+            phaseText.Report(LocalizationStrings.Instance.StatusInstallingProductGuide(LocalizationStrings.Instance.YozoTitle));
             progressPercent?.Report(60);
 
             try
@@ -110,43 +113,61 @@ namespace GOI.Services
 
                 if (string.IsNullOrEmpty(installExe) || !File.Exists(installExe))
                 {
-                    phaseText.Report("未能在压缩包内找到安装执行文件。");
+                    phaseText.Report(LocalizationStrings.Instance.ErrYozoExeNotFound);
                     CleanTempFiles(localPath, extractPath);
                     return false;
                 }
 
-                Logger.Info($"找到永中安装程序: {installExe}，开始执行静默安装...");
-                var psi = new ProcessStartInfo(installExe, "/S")
+                // 弹出提示框告知用户官方暂不支持静默安装，需要人工交互安装
+                MessageBox.Show(
+                    LocalizationStrings.Instance.DlgConfirmYozoMsg,
+                    LocalizationStrings.Instance.DlgConfirmYozoTitle,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                Logger.Info($"找到永中安装程序: {installExe}，开始引导交互式安装...");
+                var psi = new ProcessStartInfo(installExe)
                 {
-                    UseShellExecute = false,
-                    CreateNoWindow = true
+                    UseShellExecute = true
                 };
 
-                // 启动伪进度推进（60 → 95）
-                var fakeTask = FakeProgressAsync(progressPercent, 60, 95, durationMs: 45000, ct: ct);
-
-                using (var proc = Process.Start(psi))
+                // 启动并关联局部 CancellationTokenSource 以便在安装结束时立即取消伪进度，防止进度条后台继续跳动
+                using (var ctsFake = new CancellationTokenSource())
                 {
-                    if (proc == null)
+                    var fakeTask = FakeProgressAsync(progressPercent, 60, 95, durationMs: 45000, ct: ctsFake.Token);
+
+                    using (var proc = Process.Start(psi))
                     {
-                        phaseText.Report("无法启动安装程序。");
-                        CleanTempFiles(localPath, extractPath);
-                        return false;
+                        if (proc == null)
+                        {
+                            phaseText.Report(LocalizationStrings.Instance.ErrCannotStartInstallerWithMsg);
+                            CleanTempFiles(localPath, extractPath);
+                            return false;
+                        }
+                        await Task.Run(() => proc.WaitForExit(), ct);
+                        Logger.Info($"永中Office 安装退出码: {proc.ExitCode}");
+
+                        ctsFake.Cancel();
+
+                        if (proc.ExitCode != 0)
+                        {
+                            phaseText.Report(LocalizationStrings.Instance.ErrInstallerAbortedWithCode(LocalizationStrings.Instance.YozoTitle, proc.ExitCode));
+                            CleanTempFiles(localPath, extractPath);
+                            return false;
+                        }
                     }
-                    await Task.Run(() => proc.WaitForExit(), ct);
-                    Logger.Info($"永中Office 安装退出码: {proc.ExitCode}");
                 }
 
                 progressPercent?.Report(100);
-                phaseText.Report("永中Office 安装完成！");
-
+                phaseText.Report(LocalizationStrings.Instance.StatusProductInstalled(LocalizationStrings.Instance.YozoTitle));
+ 
                 CleanTempFiles(localPath, extractPath);
                 return true;
             }
             catch (Exception ex)
             {
                 Logger.Error("永中Office 安装失败", ex);
-                phaseText.Report("安装失败: " + ex.Message);
+                phaseText.Report(LocalizationStrings.Instance.StatusProductInstallFailed(LocalizationStrings.Instance.YozoTitle, ex.Message));
                 CleanTempFiles(localPath, extractPath);
                 return false;
             }

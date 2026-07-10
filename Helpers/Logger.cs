@@ -20,7 +20,7 @@ namespace GOI.Helpers
                 return _logFile;
             }
         }
-
+        public static string LogFilePath => LogFile;
         public static void Info(string msg) => Log("INFO", msg);
         public static void Warn(string msg) => Log("WARN", msg);
         public static void Error(string msg, Exception ex = null)

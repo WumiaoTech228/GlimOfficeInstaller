@@ -1,0 +1,32 @@
+<UserControl x:Class="GOI.Views.VersionCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             x:Name="self"
+             d:DesignHeight="60" d:DesignWidth="300">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </UserControl.Resources>
+    
+    <Border Style="{DynamicResource FluentCardBaseStyle}" Margin="0,0,0,8">
+        <Border.InputBindings>
+            <MouseBinding Command="{Binding ElementName=self, Path=Command}" MouseAction="LeftClick"/>
+        </Border.InputBindings>
+        <Grid Margin="16,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="30"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="{Binding ElementName=self, Path=IconGlyph}" FontFamily="{DynamicResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                <TextBlock Text="{Binding ElementName=self, Path=Title}" Style="{DynamicResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding ElementName=self, Path=Description}" Style="{DynamicResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
+            </StackPanel>
+            <TextBlock Grid.Column="2" Text="&#xE73E;" FontFamily="{DynamicResource IconFont}" FontSize="12" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"
+                       Visibility="{Binding ElementName=self, Path=IsSelected, Converter={StaticResource BoolToVisibility}}"/>
+        </Grid>
+    </Border>
+</UserControl>

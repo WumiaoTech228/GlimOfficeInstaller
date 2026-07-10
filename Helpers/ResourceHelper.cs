@@ -35,6 +35,10 @@ namespace GOI.Helpers
         public static string GetScriptPath(string fileName)
         {
             var p = Path.Combine(AppConfig.ToolsPath, fileName);
+            if (!File.Exists(p))
+            {
+                ExtractAllScripts();
+            }
             return File.Exists(p) ? p : null;
         }
     }

@@ -16,15 +16,16 @@ namespace GOI.Services
 
         /// <summary>下载并静默安装 LibreOffice，以伪进度条报告进度</summary>
         public async Task<bool> InstallAsync(
-            LibreOfficeVersion version,
             IProgress<string> phaseText,
             IProgress<int> progressPercent,
+            IProgress<InstallPhase> phaseProgress,
             CancellationToken ct = default)
         {
             string localPath = Path.Combine(AppConfig.RootPath, LibreOfficeFileName);
 
             // ── 阶段 1：下载 ──
-            phaseText.Report("正在下载 LibreOffice 稳定版...");
+            phaseProgress?.Report(InstallPhase.Downloading);
+            phaseText.Report(LocalizationStrings.Instance.StatusDownloadingProduct("LibreOffice"));
             try
             {
                 var downloader = new MultiThreadDownloader();
@@ -37,13 +38,14 @@ namespace GOI.Services
             catch (Exception ex)
             {
                 Logger.Error("下载 LibreOffice 失败", ex);
-                phaseText.Report("下载失败，请检查网络连接。");
+                phaseText.Report(LocalizationStrings.Instance.ErrDownloadFailedWithMsg);
                 try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
                 return false;
             }
 
             // ── 阶段 2：静默安装（msiexec /i /qn /norestart）──
-            phaseText.Report("正在静默安装 LibreOffice...");
+            phaseProgress?.Report(InstallPhase.Installing);
+            phaseText.Report(LocalizationStrings.Instance.StatusInstallingProduct("LibreOffice"));
             progressPercent?.Report(55);
 
             try
@@ -54,22 +56,42 @@ namespace GOI.Services
                     CreateNoWindow = true
                 };
 
-                // 启动伪进度推进（55 → 95）
-                var fakeTask = FakeProgressAsync(progressPercent, 55, 95, durationMs: 90000, ct: ct);
-
-                using (var proc = Process.Start(psi))
+                // 启动并关联局部 CancellationTokenSource 以便在安装结束时立即取消伪进度，防止进度条后台继续跳动
+                using (var ctsFake = new CancellationTokenSource())
                 {
-                    if (proc == null)
+                    var fakeTask = FakeProgressAsync(progressPercent, 55, 95, durationMs: 90000, ct: ctsFake.Token);
+
+                    using (var proc = Process.Start(psi))
                     {
-                        phaseText.Report("无法启动 MSI 安装引擎。");
-                        return false;
+                        if (proc == null)
+                        {
+                            phaseText.Report(LocalizationStrings.Instance.ErrCannotStartMsiWithMsg);
+                            return false;
+                        }
+                        await Task.Run(() => proc.WaitForExit(), ct);
+                        Logger.Info($"LibreOffice 安装退出码: {proc.ExitCode}");
+
+                        ctsFake.Cancel();
+
+                        if (proc.ExitCode != 0 && proc.ExitCode != 3010)
+                        {
+                            string libreOfficeVer = RegistryHelper.GetInstalledProductVersion(ProductType.LibreOffice);
+                            if (!string.IsNullOrEmpty(libreOfficeVer))
+                            {
+                                Logger.Info($"LibreOffice 安装退出码虽为 {proc.ExitCode}，但检测到系统注册表中已成功注册 LibreOffice ({libreOfficeVer})，判定为安装成功！");
+                            }
+                            else
+                            {
+                                phaseText.Report(LocalizationStrings.Instance.ErrInstallerAbortedWithCode("LibreOffice", proc.ExitCode));
+                                try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
+                                return false;
+                            }
+                        }
                     }
-                    await Task.Run(() => proc.WaitForExit(), ct);
-                    Logger.Info($"LibreOffice 安装退出码: {proc.ExitCode}");
                 }
 
                 progressPercent?.Report(100);
-                phaseText.Report("LibreOffice 安装完成！");
+                phaseText.Report(LocalizationStrings.Instance.StatusProductInstalled("LibreOffice"));
 
                 // 清理安装包
                 try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
@@ -78,7 +100,8 @@ namespace GOI.Services
             catch (Exception ex)
             {
                 Logger.Error("LibreOffice 安装失败", ex);
-                phaseText.Report("安装失败: " + ex.Message);
+                phaseText.Report(LocalizationStrings.Instance.StatusProductInstallFailed("LibreOffice", ex.Message));
+                try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
                 return false;
             }
         }

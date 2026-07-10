@@ -16,44 +16,52 @@ namespace GOI.Services
         /// <summary>全流程安装：清理 → 下载 → 生成配置 → 安装（伪进度）→ 激活</summary>
         public async Task<bool> RunAsync(
             OfficeVersion version,
-            Architecture arch,
+            string bitness,
+            string channel,
+            string lang,
             System.Collections.Generic.HashSet<OfficeComponent> selected,
+            bool autoActivate,
             IProgress<string> phaseText,
-            IProgress<int> downloadProgress)
+            IProgress<int> downloadProgress,
+            IProgress<InstallPhase> phaseProgress)
         {
+            var loc = new LocalizationStrings();
             try
             {
                 // 阶段 1: 清理
-                phaseText.Report("正在清理旧版本 Office 残留...");
+                phaseProgress?.Report(InstallPhase.Cleaning);
+                phaseText.Report(loc.StatusClean);
                 downloadProgress.Report(0);
                 await _cleanup.CleanAsync(ProductType.MsOffice, phaseText);
 
                 // 阶段 2: 下载 setup.exe（进度 0-5%）
-                phaseText.Report("正在下载安装组件...");
+                phaseProgress?.Report(InstallPhase.Downloading);
+                phaseText.Report(loc.StatusDownloading);
                 var dlProgress = new Progress<int>(p => downloadProgress.Report(p / 20)); // 0-100% → 0-5%
                 var ok = await _download.DownloadODTAsync(dlProgress);
                 if (!ok)
                 {
-                    phaseText.Report("下载失败，请检查网络连接。");
+                    phaseText.Report(loc.ErrDownloadFailed);
                     return false;
                 }
                 downloadProgress.Report(5);
 
                 // 阶段 3: 生成配置
-                phaseText.Report("正在生成安装配置...");
-                var xml = XmlConfigHelper.Generate(version, arch, selected);
+                phaseText.Report(loc.StatusConfiguringXml);
+                var xml = XmlConfigHelper.Generate(version, bitness, channel, lang, selected);
                 File.WriteAllText(AppConfig.XmlConfigPath, xml, System.Text.Encoding.UTF8);
                 Logger.Info("配置文件已生成:\n" + xml);
                 downloadProgress.Report(6);
 
                 // 阶段 4: 运行安装 + 伪进度条（6-95%）
-                // GOI.exe 已通过 manifest requireAdministrator 提权，setup.exe 继承管理员权限
-                phaseText.Report("正在安装 Office，请耐心等待（可能需要 10-30 分钟）…");
+                // 启动 Microsoft ODT 安装程序，使用 UseShellExecute=true 确保微软官方安装动画向导能完美弹出和交互
+                phaseProgress?.Report(InstallPhase.Installing);
+                phaseText.Report(loc.StatusInstallingWizard);
                 var psi = new ProcessStartInfo(AppConfig.SetupPath,
                     $"/configure \"{AppConfig.XmlConfigPath}\"")
                 {
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
+                    UseShellExecute = true,
+                    CreateNoWindow = false,
                     WorkingDirectory = AppConfig.RootPath
                 };
 
@@ -62,7 +70,7 @@ namespace GOI.Services
                 {
                     if (proc == null)
                     {
-                        phaseText.Report("无法启动安装程序。");
+                        phaseText.Report(loc.ErrCannotStartInstaller);
                         return false;
                     }
 
@@ -77,21 +85,54 @@ namespace GOI.Services
                     // 通知伪进度停止并推到 95%
                     cts.Cancel();
                     await fakeProgressTask;
+
+                    if (proc.ExitCode != 0)
+                    {
+                        phaseText.Report(loc.ErrInstallerExitCode(proc.ExitCode));
+                        return false;
+                    }
                 }
 
                 downloadProgress.Report(96);
 
                 // 阶段 5: 激活 (Ohook)
-                phaseText.Report("正在激活 Office...");
-                bool activated = await ActivateOhookAsync();
+                if (autoActivate)
+                {
+                    phaseProgress?.Report(InstallPhase.Activating);
+                    phaseText.Report(loc.StatusActivating);
+                    try
+                    {
+                        await ActivateOhookAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("自动激活过程中断", ex);
+                    }
+                }
                 downloadProgress.Report(100);
-                return activated;
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Error("安装流程出错", ex);
-                phaseText.Report("安装失败: " + ex.Message);
+                phaseText.Report(loc.ErrInstallFailed(ex.Message));
                 return false;
+            }
+            finally
+            {
+                // 彻底删除临时缓存和下载的安装包
+                try
+                {
+                    if (Directory.Exists(AppConfig.RootPath))
+                    {
+                        Directory.Delete(AppConfig.RootPath, true);
+                        Logger.Info("已成功清理部署临时缓存目录：" + AppConfig.RootPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("清理部署临时目录失败：" + ex.Message);
+                }
             }
         }
 
@@ -128,11 +169,11 @@ namespace GOI.Services
                 // 更新文字提示
                 string dots = new string('.', ((current - 6) / 5 % 4) + 1);
                 if (current < 30)
-                    phaseText.Report($"正在下载 Office 文件{dots}");
+                    phaseText.Report(LocalizationStrings.Instance.StatusDownloadingOfficeFiles(dots));
                 else if (current < 70)
-                    phaseText.Report($"正在安装 Office 组件{dots}");
+                    phaseText.Report(LocalizationStrings.Instance.StatusInstallingOfficeComponents(dots));
                 else
-                    phaseText.Report($"即将完成，请稍候{dots}");
+                    phaseText.Report(LocalizationStrings.Instance.StatusAlmostDone(dots));
             }
 
             // 快速推进到 95%
@@ -168,9 +209,8 @@ namespace GOI.Services
                 var psi = new ProcessStartInfo("cmd.exe",
                     $"/c \"\"{scriptPath}\" {args}\"")
                 {
-                    UseShellExecute = true,
-                    Verb = "runas",
-                    WindowStyle = ProcessWindowStyle.Hidden,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
                     WorkingDirectory = Path.GetDirectoryName(scriptPath)
                 };
 

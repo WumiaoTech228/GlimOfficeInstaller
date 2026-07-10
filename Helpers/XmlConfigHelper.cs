@@ -9,17 +9,16 @@ namespace GOI.Helpers
     /// <summary>生成 ODT 使用的 configuration.xml</summary>
     public static class XmlConfigHelper
     {
-        /// <summary>根据版本、架构和用户勾选的组件生成 XML 内容</summary>
-        public static string Generate(OfficeVersion version, Architecture arch, HashSet<OfficeComponent> selected)
+        /// <summary>根据版本、位数、通道、语言和用户勾选的组件生成 XML 内容</summary>
+        public static string Generate(OfficeVersion version, string bitness, string channel, string lang, HashSet<OfficeComponent> selected)
         {
             var sb = new StringBuilder();
-            var edition = arch == Architecture.x64 ? "64" : "32";
-            var (channel, productId) = GetProductInfo(version);
+            var (_, productId) = GetProductInfo(version);
 
             sb.AppendLine("<Configuration>");
-            sb.AppendLine($"  <Add OfficeClientEdition=\"{edition}\" Channel=\"{channel}\">");
+            sb.AppendLine($"  <Add OfficeClientEdition=\"{bitness}\" Channel=\"{channel}\">");
             sb.AppendLine($"    <Product ID=\"{productId}\">");
-            sb.AppendLine("      <Language ID=\"zh-cn\" />");
+            sb.AppendLine($"      <Language ID=\"{lang}\" />");
 
             // 排除用户没勾选的组件
             var allComponents = Enum.GetValues(typeof(OfficeComponent)).Cast<OfficeComponent>();
@@ -33,9 +32,9 @@ namespace GOI.Helpers
 
             // Visio / Project 作为独立 Product
             if (selected.Contains(OfficeComponent.Visio))
-                sb.AppendLine($"    <Product ID=\"{GetVisioProjectId(version, true)}\"><Language ID=\"zh-cn\" /></Product>");
+                sb.AppendLine($"    <Product ID=\"{GetVisioProjectId(version, true)}\"><Language ID=\"{lang}\" /></Product>");
             if (selected.Contains(OfficeComponent.Project))
-                sb.AppendLine($"    <Product ID=\"{GetVisioProjectId(version, false)}\"><Language ID=\"zh-cn\" /></Product>");
+                sb.AppendLine($"    <Product ID=\"{GetVisioProjectId(version, false)}\"><Language ID=\"{lang}\" /></Product>");
 
             sb.AppendLine("  </Add>");
             sb.AppendLine("  <Display Level=\"Full\" AcceptEULA=\"TRUE\" />");
@@ -53,13 +52,13 @@ namespace GOI.Helpers
         {
             switch (v)
             {
-                case OfficeVersion.Office2024: return ("PerpetualVL2024", "ProPlus2024Volume");
-                case OfficeVersion.Office2021: return ("PerpetualVL2021", "ProPlus2021Volume");
-                case OfficeVersion.Office2019: return ("PerpetualVL2019", "ProPlus2019Volume");
-                case OfficeVersion.Office2016: return ("PerpetualVL2016", "ProPlusVolume");
+                case OfficeVersion.Office2024: return ("Current", "ProPlus2024Retail");
+                case OfficeVersion.Office2021: return ("Current", "ProPlus2021Retail");
+                case OfficeVersion.Office2019: return ("Current", "ProPlus2019Retail");
+                case OfficeVersion.Office2016: return ("Current", "ProPlusRetail");
                 case OfficeVersion.Microsoft365Pro: return ("Current", "O365ProPlusRetail");
                 case OfficeVersion.Microsoft365Home: return ("Current", "O365HomePremRetail");
-                default: return ("PerpetualVL2024", "ProPlus2024Volume");
+                default: return ("Current", "ProPlus2024Retail");
             }
         }
 
@@ -89,10 +88,10 @@ namespace GOI.Helpers
             var app = isVisio ? "VisioPro" : "ProjectPro";
             switch (v)
             {
-                case OfficeVersion.Office2024: return $"{app}2024Volume";
-                case OfficeVersion.Office2021: return $"{app}2021Volume";
-                case OfficeVersion.Office2019: return $"{app}2019Volume";
-                case OfficeVersion.Office2016: return $"{app}Volume";
+                case OfficeVersion.Office2024: return $"{app}2024Retail";
+                case OfficeVersion.Office2021: return $"{app}2021Retail";
+                case OfficeVersion.Office2019: return $"{app}2019Retail";
+                case OfficeVersion.Office2016: return $"{app}Retail";
                 default: return $"{app}{GetYearSuffix(v)}Retail";
             }
         }
