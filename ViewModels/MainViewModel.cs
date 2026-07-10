@@ -47,7 +47,7 @@ namespace GOI.ViewModels
 
 		private bool _isM365;
 
-		private string _selectedBitness = "64";
+		private string _selectedBitness = Environment.Is64BitOperatingSystem ? "64" : "32";
 
 		private string _selectedUpdateChannel = "Current";
 
@@ -350,6 +350,12 @@ namespace GOI.ViewModels
 		}
 
 		public bool IsModernOfficeSupported => Environment.OSVersion.Version.Major >= 10;
+
+		public bool Is64BitOperatingSystem => Environment.Is64BitOperatingSystem;
+
+		public bool IsOnlyOfficeSupported => Environment.Is64BitOperatingSystem;
+
+		public bool IsLibreOfficeSupported => Environment.OSVersion.Version.Major >= 10 && Environment.Is64BitOperatingSystem;
 
 		public bool Office2024Selected => _currentVersion == OfficeVersion.Office2024 && !IsM365;
 
@@ -797,6 +803,15 @@ namespace GOI.ViewModels
 					return;
 				}
 				if (CurrentProductType == ProductType.MsOffice && _currentVersion != OfficeVersion.Office2016)
+				{
+					await DialogService.ShowMessageAsync(Loc.DlgUnsupportedOsTitle, Loc.DlgUnsupportedOsMsg, Loc.BtnContinue);
+					return;
+				}
+			}
+
+			if (!Environment.Is64BitOperatingSystem)
+			{
+				if (CurrentProductType == ProductType.OnlyOffice || CurrentProductType == ProductType.LibreOffice)
 				{
 					await DialogService.ShowMessageAsync(Loc.DlgUnsupportedOsTitle, Loc.DlgUnsupportedOsMsg, Loc.BtnContinue);
 					return;

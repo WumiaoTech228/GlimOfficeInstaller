@@ -66,6 +66,59 @@ namespace GOI.Helpers
             return desc;
         }
 
+        private string AppendCpuWarning(string desc)
+        {
+            if (!System.Environment.Is64BitOperatingSystem)
+            {
+                return desc + (Detected switch
+                {
+                    AppLanguage.TraditionalChinese => " (需要 64位元系統)",
+                    AppLanguage.English => " (Requires 64-bit OS)",
+                    _ => " (需要 64位系统)"
+                });
+            }
+            return desc;
+        }
+
+        private string AppendLibreOfficeWarning(string desc)
+        {
+            bool badOs = System.Environment.OSVersion.Version.Major < 10;
+            bool badCpu = !System.Environment.Is64BitOperatingSystem;
+            if (badOs || badCpu)
+            {
+                string suffix = "";
+                if (badOs && badCpu)
+                {
+                    suffix = Detected switch
+                    {
+                        AppLanguage.TraditionalChinese => " (需要 Win10+ 64位元)",
+                        AppLanguage.English => " (Requires Win10+ 64-bit)",
+                        _ => " (需要 Win10+ 64位)"
+                    };
+                }
+                else if (badOs)
+                {
+                    suffix = Detected switch
+                    {
+                        AppLanguage.TraditionalChinese => " (需要 Win10+)",
+                        AppLanguage.English => " (Requires Win10+)",
+                        _ => " (需要 Win10+)"
+                    };
+                }
+                else
+                {
+                    suffix = Detected switch
+                    {
+                        AppLanguage.TraditionalChinese => " (需要 64位元系統)",
+                        AppLanguage.English => " (Requires 64-bit OS)",
+                        _ => " (需要 64位系统)"
+                    };
+                }
+                return desc + suffix;
+            }
+            return desc;
+        }
+
         // ===================== 通用 =====================
         public string AppTitle => "Glim Office Installer";
         public string AppVersion
@@ -169,7 +222,7 @@ namespace GOI.Helpers
 
         // ===================== OnlyOffice 页 =====================
         public string OnlyOfficeTitle => "OnlyOffice";
-        public string OnlyOfficeDesc => S("Desktop Editors (开源无广告官方通道)", "Desktop Editors (開源無廣告官方管道)", "Desktop Editors (Open-Source, Ad-free Official Channel)");
+        public string OnlyOfficeDesc => AppendCpuWarning(S("Desktop Editors (开源无广告官方通道)", "Desktop Editors (開源無廣告官方管道)", "Desktop Editors (Open-Source, Ad-free Official Channel)"));
         public string OnlyOfficeFeat1Title => S("协同编辑支持", "協同編輯支援", "Collaborative Editing Support");
         public string OnlyOfficeFeat1Desc => S("支持集成云端协作模块，实现多用户在线协作处理文档", "支援整合雲端協作模組，實現多使用者線上協作處理文檔", "Supports integration with cloud collaboration modules for multi-user online document editing");
         public string OnlyOfficeFeat2Title => S("开源多标签页界面", "開源多標籤頁介面", "Open-Source Multi-Tab Interface");
@@ -177,7 +230,7 @@ namespace GOI.Helpers
 
         // ===================== LibreOffice 页 =====================
         public string LibreOfficeTitle => "LibreOffice";
-        public string LibreOfficeDesc => AppendOsWarning(S("稳定版 26.2.4 (中科大镜像源)", "穩定版 26.2.4 (中科大鏡像源)", "Stable 26.2.4 (USTC Mirror Source)"));
+        public string LibreOfficeDesc => AppendLibreOfficeWarning(S("稳定版 26.2.4 (中科大镜像源)", "穩定版 26.2.4 (中科大鏡像源)", "Stable 26.2.4 (USTC Mirror Source)"));
         public string LibreOfficeFeat1Title => S("标准开放文档格式支持", "標準開放文件格式支援", "Standard OpenDocument Format Support");
         public string LibreOfficeFeat1Desc => S("由 Document Foundation 维护，提供对 ODF 国际标准文档格式 (ODT/ODS/ODP) 的完整支持", "由 Document Foundation 維護，提供對 ODF 國際標準文件格式 (ODT/ODS/ODP) 的完整支援", "Maintained by The Document Foundation, providing full support for international ODF standard formats (ODT/ODS/ODP)");
         public string LibreOfficeFeat2Title => S("国内高校镜像源加速", "國內高校鏡像源加速", "Domestic University Mirror Acceleration");
