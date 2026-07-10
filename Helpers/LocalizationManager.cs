@@ -330,6 +330,10 @@ namespace GOI.Helpers
         }
 
         public string DlgInstallFailTitle => S("部署失败", "部署失敗", "Deployment Failed");
+        public string DlgUnsupportedOsTitle => S("系统版本受限", "系統版本受限", "OS Version Unsupported");
+        public string DlgUnsupportedOsMsg => S("当前系统为 Windows 7 / 8 / 8.1，最高仅支持部署 Office 2016。\n\nOffice 2019 及以上版本官方要求 Windows 10 或更高系统。",
+                                               "目前系統為 Windows 7 / 8 / 8.1，最高僅支援部署 Office 2016。\n\nOffice 2019 及以上版本官方要求 Windows 10 或更高系統。",
+                                               "The current operating system is Windows 7 / 8 / 8.1, which only supports deploying Office 2016.\n\nOffice 2019 and higher versions require Windows 10 or later.");
         public string DlgUninstallSuccessTitle => S("卸载完成", "解除安裝完成", "Uninstall Complete");
         public string DlgUninstallSuccessMsg => S("所选 Office 产品已成功从本机清除。", "所选 Office 產品已成功從本機清除。", "The selected Office product has been successfully removed.");
         public string DlgUninstallFailTitle => S("卸载失败", "解除安裝失敗", "Uninstall Failed");

@@ -360,26 +360,46 @@ namespace GOI.ViewModels
 		public bool Office2016Selected => _currentVersion == OfficeVersion.Office2016 && !IsM365;
 
 		private ICommand _selectOffice2024Command;
-		public ICommand SelectOffice2024Command => _selectOffice2024Command ??= new RelayCommand(delegate
+		public ICommand SelectOffice2024Command => _selectOffice2024Command ??= new RelayCommand(async delegate
 		{
+			if (Environment.OSVersion.Version.Major < 10)
+			{
+				await DialogService.ShowMessageAsync(Loc.DlgUnsupportedOsTitle, Loc.DlgUnsupportedOsMsg, Loc.BtnContinue);
+				return;
+			}
 			SetOfficeVersion(OfficeVersion.Office2024, isM365: false);
 		});
 
 		private ICommand _selectM365Command;
-		public ICommand SelectM365Command => _selectM365Command ??= new RelayCommand(delegate
+		public ICommand SelectM365Command => _selectM365Command ??= new RelayCommand(async delegate
 		{
+			if (Environment.OSVersion.Version.Major < 10)
+			{
+				await DialogService.ShowMessageAsync(Loc.DlgUnsupportedOsTitle, Loc.DlgUnsupportedOsMsg, Loc.BtnContinue);
+				return;
+			}
 			SetOfficeVersion(OfficeVersion.Microsoft365Pro, isM365: true);
 		});
 
 		private ICommand _selectOffice2021Command;
-		public ICommand SelectOffice2021Command => _selectOffice2021Command ??= new RelayCommand(delegate
+		public ICommand SelectOffice2021Command => _selectOffice2021Command ??= new RelayCommand(async delegate
 		{
+			if (Environment.OSVersion.Version.Major < 10)
+			{
+				await DialogService.ShowMessageAsync(Loc.DlgUnsupportedOsTitle, Loc.DlgUnsupportedOsMsg, Loc.BtnContinue);
+				return;
+			}
 			SetOfficeVersion(OfficeVersion.Office2021, isM365: false);
 		});
 
 		private ICommand _selectOffice2019Command;
-		public ICommand SelectOffice2019Command => _selectOffice2019Command ??= new RelayCommand(delegate
+		public ICommand SelectOffice2019Command => _selectOffice2019Command ??= new RelayCommand(async delegate
 		{
+			if (Environment.OSVersion.Version.Major < 10)
+			{
+				await DialogService.ShowMessageAsync(Loc.DlgUnsupportedOsTitle, Loc.DlgUnsupportedOsMsg, Loc.BtnContinue);
+				return;
+			}
 			SetOfficeVersion(OfficeVersion.Office2019, isM365: false);
 		});
 
@@ -671,7 +691,14 @@ namespace GOI.ViewModels
 				new ComponentItem(Loc.CompTeams, OfficeComponent.Teams),
 				new ComponentItem(Loc.CompOneDrive, OfficeComponent.OneDrive)
 			};
-			SetOfficeVersion(OfficeVersion.Office2024, isM365: false);
+			if (Environment.OSVersion.Version.Major < 10)
+			{
+				SetOfficeVersion(OfficeVersion.Office2016, isM365: false);
+			}
+			else
+			{
+				SetOfficeVersion(OfficeVersion.Office2024, isM365: false);
+			}
 			RefreshInstalledVersion();
 			StatusText = Loc.StatusReady;
 		}
