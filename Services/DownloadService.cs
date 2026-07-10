@@ -38,7 +38,7 @@ namespace GOI.Services
             catch (Exception ex)
             {
                 Logger.Error("下载 Setup.exe 失败", ex);
-                try { if (File.Exists(setupPath)) File.Delete(setupPath); } catch { }
+                try { if (File.Exists(setupPath)) File.Delete(setupPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in DownloadService.cs", ex_captured); }
                 return false;
             }
 

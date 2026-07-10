@@ -273,13 +273,40 @@ namespace GOI.ViewModels
 			SelectedWpsVersion = WpsVersion.WpsLatest;
 		});
 
-		public bool YozoPersonalSelected => true;
+		private bool _yozoPersonalSelected = true;
+		public bool YozoPersonalSelected
+		{
+			get => _yozoPersonalSelected;
+			set
+			{
+				_yozoPersonalSelected = value;
+				OnPropertyChanged("YozoPersonalSelected");
+			}
+		}
 		public ICommand SelectYozoPersonalCommand => new RelayCommand(delegate {});
 
-		public bool OnlyOfficeSelected => true;
+		private bool _onlyOfficeSelected = true;
+		public bool OnlyOfficeSelected
+		{
+			get => _onlyOfficeSelected;
+			set
+			{
+				_onlyOfficeSelected = value;
+				OnPropertyChanged("OnlyOfficeSelected");
+			}
+		}
 		public ICommand SelectOnlyOfficeDesktopCommand => new RelayCommand(delegate {});
 
-		public bool LibreOfficeSelected => true;
+		private bool _libreOfficeSelected = true;
+		public bool LibreOfficeSelected
+		{
+			get => _libreOfficeSelected;
+			set
+			{
+				_libreOfficeSelected = value;
+				OnPropertyChanged("LibreOfficeSelected");
+			}
+		}
 		public ICommand SelectLibreOfficeStableCommand => new RelayCommand(delegate {});
 
 		public bool IsM365

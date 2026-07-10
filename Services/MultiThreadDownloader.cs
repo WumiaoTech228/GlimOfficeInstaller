@@ -261,7 +261,7 @@ namespace GOI.Services
             }
             finally
             {
-                try { if (File.Exists(zipPath)) File.Delete(zipPath); } catch {}
+                try { if (File.Exists(zipPath)) File.Delete(zipPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs", ex_captured); }
             }
         }
 
@@ -301,7 +301,7 @@ namespace GOI.Services
             {
                 proc.Start();
 
-                using (ct.Register(() => { try { proc.Kill(); } catch {} }))
+                using (ct.Register(() => { try { proc.Kill(); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs", ex_captured); } }))
                 {
                     var reader = proc.StandardOutput;
                     while (!reader.EndOfStream)

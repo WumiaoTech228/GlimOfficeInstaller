@@ -174,9 +174,7 @@ namespace GOI.Helpers
 			{
 				root.DeleteSubKeyTree(path, throwOnMissingSubKey: false);
 			}
-			catch
-			{
-			}
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 		}
 
 		private static void WaitForProcessesToExit(string[] processNames, int timeoutMs = 15000)
@@ -219,9 +217,7 @@ namespace GOI.Helpers
 					registryKey.SetAccessControl(accessControl);
 				}
 			}
-			catch
-			{
-			}
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 			try
 			{
 				using RegistryKey registryKey2 = parentKey.OpenSubKey(subKeyName, RegistryRights.ChangePermissions);
@@ -242,9 +238,7 @@ namespace GOI.Helpers
 					registryKey2.SetAccessControl(accessControl2);
 				}
 			}
-			catch
-			{
-			}
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 			try
 			{
 				using RegistryKey registryKey3 = parentKey.OpenSubKey(subKeyName, writable: true);
@@ -257,9 +251,7 @@ namespace GOI.Helpers
 					}
 				}
 			}
-			catch
-			{
-			}
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 			try
 			{
 				parentKey.DeleteSubKeyTree(subKeyName, throwOnMissingSubKey: false);
@@ -311,9 +303,7 @@ namespace GOI.Helpers
 						Logger.Info("已终止进程: " + process.ProcessName);
 					}
 				}
-				catch
-				{
-				}
+				catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 			}
 		}
 
@@ -384,14 +374,10 @@ namespace GOI.Helpers
 									}
 								}
 							}
-							catch
-							{
-							}
+							catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 						}
 					}
-					catch
-					{
-					}
+					catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 				}
 			}
 			return null;
@@ -414,9 +400,7 @@ namespace GOI.Helpers
 				};
 				Process.Start(startInfo)?.WaitForExit(5000);
 			}
-			catch
-			{
-			}
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 		}
 
 		public static void CleanUninstallEntries(ProductType product)
@@ -493,14 +477,10 @@ namespace GOI.Helpers
 									Logger.Info("已清理注册表卸载项: " + text2);
 								}
 							}
-							catch
-							{
-							}
+							catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 						}
 					}
-					catch
-					{
-					}
+					catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 				}
 			}
 			if (list != null && list.Count > 0)
@@ -839,9 +819,7 @@ namespace GOI.Helpers
 									}
 								}
 							}
-							catch
-							{
-							}
+							catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 						}
 						if (flag)
 						{
@@ -890,9 +868,7 @@ namespace GOI.Helpers
 									flag2 = true;
 								}
 							}
-							catch
-							{
-							}
+							catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 						}
 						if (flag2)
 						{
@@ -1057,9 +1033,7 @@ namespace GOI.Helpers
 								}
 							}
 						}
-						catch
-						{
-						}
+						catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 					}
 					string[] subKeyNames3 = registryKey2.GetSubKeyNames();
 					foreach (string text5 in subKeyNames3)
@@ -1119,9 +1093,7 @@ namespace GOI.Helpers
 								}
 							}
 						}
-						catch
-						{
-						}
+						catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 					}
 				}
 				catch (Exception ex3)
@@ -1265,9 +1237,7 @@ namespace GOI.Helpers
 								registryKey10.SetValue("MRUList", text13);
 							}
 						}
-						catch
-						{
-						}
+						catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 					}
 				}
 			}
@@ -1355,9 +1325,7 @@ namespace GOI.Helpers
 								}
 							}
 						}
-						catch
-						{
-						}
+						catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 					}
 				}
 			}
@@ -1414,9 +1382,7 @@ namespace GOI.Helpers
 					}
 				}
 			}
-			catch
-			{
-			}
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 			try
 			{
 				RestoreInstalledProductAssociations();
@@ -1460,9 +1426,7 @@ namespace GOI.Helpers
 					}
 				}
 			}
-			catch
-			{
-			}
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 			return "";
 		}
 
@@ -1619,9 +1583,7 @@ namespace GOI.Helpers
 									Logger.Info("已强力清除 " + text5 + " 的 UserChoice 与 UserChoiceLatest 以激活 MS Office " + text4 + " 默认关联");
 								}
 							}
-							catch
-							{
-							}
+							catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 							using (RegistryKey registryKey4 = Registry.CurrentUser.CreateSubKey("Software\\Classes\\" + text5 + "\\OpenWithProgids"))
 							{
 								if (registryKey4 != null && registryKey4.GetValue(value2) == null)
@@ -1764,9 +1726,7 @@ namespace GOI.Helpers
 								Logger.Info("已强力清除 " + text10 + " 的 UserChoice 与 UserChoiceLatest 以激活 WPS " + text9 + " 默认关联");
 							}
 						}
-						catch
-						{
-						}
+						catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 						using (RegistryKey registryKey12 = Registry.CurrentUser.CreateSubKey("Software\\Classes\\" + text10 + "\\OpenWithProgids"))
 						{
 							if (registryKey12 != null && registryKey12.GetValue(value6) == null)
@@ -1955,9 +1915,7 @@ namespace GOI.Helpers
 					using Process process = Process.Start(startInfo);
 					process?.WaitForExit(3000);
 				}
-				catch
-				{
-				}
+				catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 				try
 				{
 					ProcessStartInfo startInfo2 = new ProcessStartInfo("ie4uinit.exe", "-ClearIconCache")
@@ -1968,9 +1926,7 @@ namespace GOI.Helpers
 					using Process process2 = Process.Start(startInfo2);
 					process2?.WaitForExit(3000);
 				}
-				catch
-				{
-				}
+				catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 			}
 			catch (Exception ex)
 			{
@@ -2088,9 +2044,7 @@ namespace GOI.Helpers
 					{
 						AddFontResource(text);
 					}
-					catch
-					{
-					}
+					catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 					RegistryKey registryKey = (backup.IsUserFont ? Registry.CurrentUser : Registry.LocalMachine);
 					using RegistryKey registryKey2 = registryKey.OpenSubKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts", writable: true);
 					if (registryKey2 != null)
@@ -2116,9 +2070,7 @@ namespace GOI.Helpers
 					SendMessage(HWND_BROADCAST, 29, IntPtr.Zero, IntPtr.Zero);
 					Logger.Info("已广播 WM_FONTCHANGE 字体变更消息通知系统");
 				}
-				catch
-				{
-				}
+				catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 			}
 			try
 			{
@@ -2128,9 +2080,7 @@ namespace GOI.Helpers
 					Directory.Delete(path, recursive: true);
 				}
 			}
-			catch
-			{
-			}
+			catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in RegistryHelper.cs", ex_captured); }
 		}
 	}
 }

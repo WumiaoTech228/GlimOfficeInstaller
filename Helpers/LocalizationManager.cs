@@ -45,7 +45,7 @@ namespace GOI.Helpers
         public string BtnCancel => S("取消", "取消", "Cancel");
         public string BtnUninstall => S("开始卸载", "開始解除安裝", "Uninstall");
         public string BtnClearLicense => S("开始清理", "開始清理", "Clear Now");
-        public string BtnActivate => S("本地激活", "本機啟用", "Activate");
+        public string BtnActivate => S("配置授权", "本機啟用", "Activate");
         public string BtnExportXml => S("导出 XML", "匯出 XML", "Export XML");
 
         // ===================== 导航栏 =====================
@@ -156,9 +156,9 @@ namespace GOI.Helpers
         public string SettingsUninstallTitle => S("深度清理残留", "深度清理殘留", "Deep Cleanup");
         public string SettingsUninstallDesc => S("强制终止所选 Office 进程，并彻底清除注册表与残留文件", "強制終止所選 Office 程序，並徹底清除登錄機碼與殘留檔案", "Force-terminate selected Office processes and thoroughly clean registry and residual files");
         public string SettingsLicenseSectionTitle => S("Office 授权与注册表工具", "Office 授權與登錄機碼工具", "Office License & Registry Tools");
-        public string SettingsClearLicenseTitle => S("清除 Office 激活许可信息", "清除 Office 啟用授權資訊", "Clear Office Activation License");
-        public string SettingsClearLicenseDesc => S("卸载本地所有 Office 产品激活密钥，重置激活状态", "解除安裝本機所有 Office 產品啟用金鑰，重設啟用狀態", "Uninstall all local Office activation keys and reset activation status");
-        public string SettingsOhookTitle => S("一键配置 Office 学习激活 (Ohook 本地离线)", "一鍵設定 Office 學習啟用 (Ohook 本機離線)", "Configure Office Activation (Ohook Local Offline)");
+        public string SettingsClearLicenseTitle => S("清除 Office 授权许可证书", "清除 Office 啟用授權資訊", "Clear Office Activation License");
+        public string SettingsClearLicenseDesc => S("卸载本地所有 Office 产品授权密钥，重置授权状态", "解除安裝本機所有 Office 產品啟用金鑰，重設啟用狀態", "Uninstall all local Office activation keys and reset activation status");
+        public string SettingsOhookTitle => S("一键配置 Office 本地授权 (本地离线)", "一鍵設定 Office 學習啟用 (Ohook 本機離線)", "Configure Office Activation (Ohook Local Offline)");
         public string SettingsOhookDesc => S("部署本地 Ohook DLL 劫持模块，支持 M365 订阅版与零售版（无需网络）", "部署本機 Ohook DLL 攔截模組，支援 M365 訂閱版與零售版（无需網路）", "Deploy local Ohook DLL hook module, supports M365 subscription and retail (no internet)");
         
         public string SettingsFileAssociationSectionTitle => S("文件关联与图标净化", "文件關聯與圖標淨化", "File Association & Icon Cleanup");
@@ -171,7 +171,7 @@ namespace GOI.Helpers
         public string BtnRefreshIconCache => S("立即刷新", "立即重新整理", "Refresh Now");
 
         public string SettingsRepairAssociationsTitle => S("修复已安装 Office 的文件关联", "修復已安裝 Office 的文件關聯", "Repair File Associations for Installed Office");
-        public string SettingsRepairAssociationsDesc => S("自动检测本机当前已安装的 Office 品牌（如 MS Office/WPS），修复并重新激活它们的默认双击打开关系与文件图标", "自動檢測本機當前已安裝的 Office 品牌（如 MS Office/WPS），修復並重新激活他們的默認雙擊打開關係與文件圖標", "Auto-detect currently installed Office suites (e.g. MS Office/WPS) and repair/reactivate their default file association handlers and file icons");
+        public string SettingsRepairAssociationsDesc => S("自动检测本机当前已安装的 Office 品牌（如 MS Office/WPS），修复并重新关联它们的默认双击打开关系与文件图标", "自動檢測本機當前已安裝的 Office 品牌（如 MS Office/WPS），修復並重新激活他們的默認雙擊打開關係與文件圖標", "Auto-detect currently installed Office suites (e.g. MS Office/WPS) and repair/reactivate their default file association handlers and file icons");
         public string BtnRepairAssociations => S("立即修复", "立即修復", "Repair Now");
 
         public string SettingsRepairCOMTitle => S("修复并重新注册 Office COM 组件", "修復並重新註冊 Office COM 組件", "Repair & Re-register Office COM Components");
@@ -253,11 +253,11 @@ namespace GOI.Helpers
         public string StatusDownloading => S("正在下载安装组件...", "正在下載安裝元件...", "Downloading installation components...");
         public string StatusConfiguringXml => S("正在生成安装配置...", "正在產生安裝設定...", "Generating installation configuration...");
         public string StatusInstallingWizard => S("正在启动 Office 安装向导，请耐心等待部署完成...", "正在啟動 Office 安裝精靈，請耐心等待部署完成...", "Starting Office setup wizard, please wait for deployment to complete...");
-        public string StatusActivating => S("正在激活 Office...", "正在啟用 Office...", "Activating Office...");
+        public string StatusActivating => S("正在配置授权...", "正在啟用 Office...", "Activating Office...");
 
         // ===================== 对话框（代码内使用）=====================
         public string DlgInstallSuccessTitle => S("部署成功", "部署成功", "Deployment Successful");
-        public string DlgInstallSuccessMsg => S("Office 已成功部署并完成激活！", "Office 已成功部署並完成啟用！", "Office has been successfully deployed and activated!");
+        public string DlgInstallSuccessMsg => S("Office 已成功部署并完成配置！", "Office 已成功部署並完成啟用！", "Office has been successfully deployed and activated!");
         
         public (string Title, string Msg) GetInstallSuccessInfo(ProductType product)
         {
@@ -265,8 +265,8 @@ namespace GOI.Helpers
             {
                 case ProductType.MsOffice:
                     return (
-                        S("部署并激活成功", "部署並啟用成功", "Deployment & Activation Successful"),
-                        S("Microsoft Office 已成功部署在您的计算机上，内置学习激活（Ohook）组件已自动为您配置完毕！",
+                        S("部署并配置成功", "部署並啟用成功", "Deployment & Activation Successful"),
+                        S("Microsoft Office 已成功部署在您的计算机上，内置本地授权配置组件已自动为您配置完毕！",
                           "Microsoft Office 已成功部署在您的電腦上，內建學習啟用（Ohook）元件已自動為您配置完畢！",
                           "Microsoft Office has been successfully deployed and activated offline via Ohook!")
                     );
@@ -308,11 +308,11 @@ namespace GOI.Helpers
         public string DlgUninstallSuccessMsg => S("所选 Office 产品已成功从本机清除。", "所选 Office 產品已成功從本機清除。", "The selected Office product has been successfully removed.");
         public string DlgUninstallFailTitle => S("卸载失败", "解除安裝失敗", "Uninstall Failed");
         public string DlgClearLicenseTitle => S("清理完成", "清理完成", "Cleanup Complete");
-        public string DlgClearLicenseMsg => S("已成功卸载所有 Office 激活许可，激活状态已重置。", "已成功解除安裝所有 Office 啟用授權，啟用狀態已重設。", "All Office activation licenses have been successfully removed.");
+        public string DlgClearLicenseMsg => S("已成功卸载所有 Office 授权许可，授权状态已重置。", "已成功解除安裝所有 Office 啟用授權，啟用狀態已重設。", "All Office activation licenses have been successfully removed.");
         public string DlgClearLicenseFailTitle => S("清理失败", "清理失敗", "Cleanup Failed");
-        public string DlgActivateSuccessTitle => S("激活成功", "啟用成功", "Activation Successful");
-        public string DlgActivateSuccessMsg => S("Office 本地离线激活已成功配置！", "Office 本機離線啟用已成功設定！", "Office local offline activation configured successfully!");
-        public string DlgActivateFailTitle => S("激活失败", "啟用失敗", "Activation Failed");
+        public string DlgActivateSuccessTitle => S("配置成功", "啟用成功", "Activation Successful");
+        public string DlgActivateSuccessMsg => S("Office 本地离线授权已成功配置！", "Office 本機離線啟用已成功設定！", "Office local offline activation configured successfully!");
+        public string DlgActivateFailTitle => S("配置失败", "啟用失敗", "Activation Failed");
         public string DlgConfirmInstallTitle => S("检测到已安装版本", "偵測到已安裝版本", "Installed Version Detected");
         public string DlgConfirmInstallMsg(string detected) => Detected switch
         {
@@ -357,23 +357,23 @@ namespace GOI.Helpers
         public string StatusDeployFail => S("安装失败，请查看日志了解详情。", "安裝失敗，請檢視記錄了解詳情。", "Installation failed. See logs for details.");
 
         // ===================== 激活与清除许可相关文字 =====================
-        public string StatusScanningActivationKeys => S("正在扫描本地 Office 激活密钥...", "正在掃描本機 Office 啟用金鑰...", "Scanning local Office activation keys...");
+        public string StatusScanningActivationKeys => S("正在扫描本地 Office 授权密钥...", "正在掃描本機 Office 啟用金鑰...", "Scanning local Office activation keys...");
         public string ErrOsppNotFound => S("未在系统中找到 OSPP.VBS 许可管理脚本，可能由于未安装 Microsoft Office。", "未在系統中找到 OSPP.VBS 授權管理指令碼，可能由於未安裝 Microsoft Office。", "OSPP.VBS license management script not found. Microsoft Office might not be installed.");
         public string StatusPathNotFound => S("未检测到 Office 许可路径", "未偵測到 Office 授權路徑", "Office license path not detected");
         public string DlgScanNoKeysTitle => S("扫描结果", "掃描結果", "Scan Results");
-        public string DlgScanNoKeysMsg => S("未检测到本地有已安装的 Office 密钥激活信息。", "未偵測到本機有已安裝的 Office 金鑰啟用資訊。", "No installed Office activation keys detected on this machine.");
-        public string StatusNoKeysFound => S("未找到已激活的密钥", "未找到已啟用的金鑰", "No activated keys found");
+        public string DlgScanNoKeysMsg => S("未检测到本地有已安装的 Office 密钥授权信息。", "未偵測到本機有已安裝的 Office 金鑰啟用資訊。", "No installed Office activation keys detected on this machine.");
+        public string StatusNoKeysFound => S("未找到已授权的密钥", "未找到已啟用的金鑰", "No activated keys found");
         
-        public string DlgConfirmClearTitle => S("确认删除激活信息", "確認刪除啟用資訊", "Confirm Deleting Activation Info");
+        public string DlgConfirmClearTitle => S("确认删除授权信息", "確認刪除啟用資訊", "Confirm Deleting Activation Info");
         public string DlgConfirmClearMsg(int count, string keys) => Detected switch
         {
             AppLanguage.TraditionalChinese => $"偵測到本機存在 {count} 個 Office 啟用金鑰：{keys}\n\n清除啟用資訊後，Office 將會處於未啟用狀態。確定要繼續刪除嗎？",
             AppLanguage.English => $"Detected {count} local Office activation keys: {keys}\n\nOffice will be deactivated after clearing. Do you want to continue?",
-            _ => $"检测到本地存在 {count} 个 Office 激活密钥：{keys}\n\n清除激活信息后，Office 将会处于未激活状态。确定要继续删除吗？"
+            _ => $"检测到本地存在 {count} 个 Office 授权密钥：{keys}\n\n清除授权信息后，Office 将会处于未授权状态。确定要继续删除吗？"
         };
         public string BtnDeleteConfirm => S("确定删除", "確定刪除", "Delete");
         public string StatusClearCancelled => S("已取消删除", "已取消刪除", "Deletion cancelled");
-        public string StatusClearingKeys => S("正在删除激活密钥...", "正在刪除啟用金鑰...", "Deleting activation keys...");
+        public string StatusClearingKeys => S("正在删除授权密钥...", "正在刪除啟用金鑰...", "Deleting activation keys...");
         public string StatusClearSuccess(int count) => Detected switch
         {
             AppLanguage.TraditionalChinese => $"成功清除 {count} 個啟用金鑰！",
@@ -384,24 +384,24 @@ namespace GOI.Helpers
         {
             AppLanguage.TraditionalChinese => $"已成功清除 {count} 個 Office 啟用資訊！\n重新開啟 Office 元件（如 Word）後可進行重新啟用或綁定。",
             AppLanguage.English => $"Successfully cleared {count} Office activation keys!\nLaunch Office applications (e.g. Word) to reactivate or bind license.",
-            _ => $"已成功清除 {count} 个 Office 激活信息！\n重新打开 Office 组件（如 Word）后可进行重新激活或绑定。"
+            _ => $"已成功清除 {count} 个 Office 授权信息！\n重新打开 Office 组件（如 Word）后可进行重新配置或绑定。"
         };
 
-        public string DlgConfirmOhookTitle => S("Office Ohook 激活确认", "Office Ohook 啟用確認", "Office Ohook Activation Confirmation");
-        public string DlgConfirmOhookMsg => S("学习激活（Ohook）功能将使用内置 Ohook 模块在本地激活所有 Microsoft Office 版本（包括零售版与 365 订阅版）。\n\n确认要开始一键激活吗？",
+        public string DlgConfirmOhookTitle => S("Office 本地授权配置确认", "Office Ohook 啟用確認", "Office Ohook Activation Confirmation");
+        public string DlgConfirmOhookMsg => S("本地授权配置功能将使用内置模块在本地配置所有 Microsoft Office 版本（包括零售版与 365 订阅版）的授权状态。\n\n确认要开始一键配置吗？",
                                                "學習啟用（Ohook）功能將使用內建 Ohook 模組在本機啟用所有 Microsoft Office 版本（包括零售版與 365 訂閱版）。\n\n確認要開始一鍵啟用嗎？",
                                                "The offline learning activation (Ohook) will configure the local Ohook module to activate all Microsoft Office versions (including Retail and 365 subscriptions).\n\nDo you want to start?");
-        public string BtnOhookConfirm => S("一键激活", "一鍵啟用", "Activate");
-        public string StatusReleasingOhook => S("正在释放 Ohook 激活组件...", "正在釋放 Ohook 啟用元件...", "Releasing Ohook activation components...");
+        public string BtnOhookConfirm => S("一键配置", "一鍵啟用", "Activate");
+        public string StatusReleasingOhook => S("正在释放本地授权组件...", "正在釋放 Ohook 啟用元件...", "Releasing Ohook activation components...");
         public string ErrReleaseFailed(string msg) => Detected switch
         {
             AppLanguage.TraditionalChinese => $"釋放 Ohook 資源失敗: {msg}",
             AppLanguage.English => $"Failed to release Ohook resource: {msg}",
             _ => $"释放 Ohook 资源失败: {msg}"
         };
-        public string StatusRunningOhook => S("正在后台运行 Ohook 激活脚本...", "正在背景執行 Ohook 啟用指令碼...", "Running Ohook activation script in background...");
-        public string StatusOhookSuccess => S("Ohook 激活部署完成！", "Ohook 啟用部署完成！", "Ohook activation deployment completed!");
-        public string DlgOhookSuccessMsg => S("Ohook 激活部署完成！您现在即可打开 Office 正常使用。",
+        public string StatusRunningOhook => S("正在后台配置本地授权环境...", "正在背景執行 Ohook 啟用指令碼...", "Running Ohook activation script in background...");
+        public string StatusOhookSuccess => S("本地授权部署完成！", "Ohook 啟用部署完成！", "Ohook activation deployment completed!");
+        public string DlgOhookSuccessMsg => S("本地授权配置已完成！您现在即可打开 Office 正常使用。",
                                                "Ohook 啟用部署完成！您現在即可開啟 Office 正常使用。",
                                                "Ohook activation deployed! You can now launch and use Office applications.");
         public string StatusOhookFail => S("Ohook 部署异常中途退出。", "Ohook 部署異常中途退出。", "Ohook deployment aborted due to errors.");

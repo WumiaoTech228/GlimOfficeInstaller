@@ -39,7 +39,7 @@ namespace GOI.Services
             {
                 Logger.Error("下载 LibreOffice 失败", ex);
                 phaseText.Report(LocalizationStrings.Instance.ErrDownloadFailedWithMsg);
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
+                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in LibreOfficeInstallService.cs", ex_captured); }
                 return false;
             }
 
@@ -83,7 +83,7 @@ namespace GOI.Services
                             else
                             {
                                 phaseText.Report(LocalizationStrings.Instance.ErrInstallerAbortedWithCode("LibreOffice", proc.ExitCode));
-                                try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
+                                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in LibreOfficeInstallService.cs", ex_captured); }
                                 return false;
                             }
                         }
@@ -94,14 +94,14 @@ namespace GOI.Services
                 phaseText.Report(LocalizationStrings.Instance.StatusProductInstalled("LibreOffice"));
 
                 // 清理安装包
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
+                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in LibreOfficeInstallService.cs", ex_captured); }
                 return true;
             }
             catch (Exception ex)
             {
                 Logger.Error("LibreOffice 安装失败", ex);
                 phaseText.Report(LocalizationStrings.Instance.StatusProductInstallFailed("LibreOffice", ex.Message));
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch { }
+                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in LibreOfficeInstallService.cs", ex_captured); }
                 return false;
             }
         }
