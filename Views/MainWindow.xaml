@@ -324,7 +324,7 @@
                         <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.WpsLatestTitle}" Description="{Binding Loc.WpsLatestDesc}" IsSelected="{Binding WpsLatestSelected}" Command="{Binding SelectWpsLatestCommand}"/>
 
                         <!-- WPS 2023 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="WPS Office 2023" Description="{Binding Loc.Wps2023Desc}" IsSelected="{Binding Wps2023Selected}" Command="{Binding SelectWps2023Command}"/>
+                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Wps2023Title}" Description="{Binding Loc.Wps2023Desc}" IsSelected="{Binding Wps2023Selected}" Command="{Binding SelectWps2023Command}"/>
 
                         <!-- WPS 2019 -->
                         <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Wps2019Title}" Description="{Binding Loc.Wps2019Desc}" IsSelected="{Binding Wps2019Selected}" Command="{Binding SelectWps2019Command}"/>

@@ -111,11 +111,12 @@ namespace GOI.Helpers
         // ===================== WPS 页 =====================
         public string WpsLatestTitle => S("WPS Office 最新版", "WPS Office 最新版", "WPS Office Latest");
         public string WpsLatestDesc => S("最新官方原版，支持云端同步与团队协作", "最新官方原版，支援雲端同步與團隊協作", "Latest official release, supports cloud sync and collaboration");
-        public string Wps2019Title => "WPS Office 2019";
+        public string Wps2023Title => S("WPS Office 2023 (非官方版本)", "WPS Office 2023 (非官方版本)", "WPS Office 2023 (Non-official)");
+        public string Wps2019Title => S("WPS Office 2019 (非官方版本)", "WPS Office 2019 (非官方版本)", "WPS Office 2019 (Non-official)");
         public string Wps2019Desc => S("主版本号 11.8 (经典无广告稳定版本)", "主版本號 11.8 (經典無廣告穩定版本)", "Version 11.8 (Classic ad-free stable version)");
-        public string Wps2016Title => "WPS Office 2016";
+        public string Wps2016Title => S("WPS Office 2016 (非官方版本)", "WPS Office 2016 (非官方版本)", "WPS Office 2016 (Non-official)");
         public string Wps2016Desc => S("主版本号 10.1 (早期轻量兼容版本)", "主版本號 10.1 (早期輕量相容版本)", "Version 10.1 (Early lightweight compatible version)");
-        public string Wps2013Title => "WPS Office 2013";
+        public string Wps2013Title => S("WPS Office 2013 (非官方版本)", "WPS Office 2013 (非官方版本)", "WPS Office 2013 (Non-official)");
         public string Wps2013Desc => S("主版本号 9.1 (低配轻量化版本)", "主版本號 9.1 (低配輕量化版本)", "Version 9.1 (Low-spec lightweight version)");
 
         // ===================== Yozo 页 =====================
