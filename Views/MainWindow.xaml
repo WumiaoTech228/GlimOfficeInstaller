@@ -759,7 +759,11 @@
                                         <Image Grid.Column="0" Source="pack://application:,,,/GOI;component/Resources/logo.png" Width="32" Height="32" VerticalAlignment="Center" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="HighQuality"/>
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                             <TextBlock Text="{Binding Loc.AppTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding Loc.AppVersion}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                                                <TextBlock Text="{Binding Loc.AppVersion}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12"/>
+                                                <TextBlock Text="  •  " Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseLowBrush}" FontSize="12"/>
+                                                <TextBlock Text="{Binding Loc.AboutAuthor}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12"/>
+                                            </StackPanel>
                                         </StackPanel>
                                     </Grid>
                                     <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,12"/>
@@ -808,7 +812,11 @@
                         <Image Grid.Column="0" Source="pack://application:,,,/GOI;component/Resources/logo.png" Width="28" Height="28" VerticalAlignment="Center" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="HighQuality"/>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                             <TextBlock Text="{Binding Loc.AppTitle}" Style="{StaticResource SubtitleTextBlockStyle}" FontSize="14.5" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding Loc.AppVersion}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                                <TextBlock Text="{Binding Loc.AppVersion}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12"/>
+                                <TextBlock Text="  •  " Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseLowBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding Loc.AboutAuthor}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12"/>
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
                     <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,12"/>

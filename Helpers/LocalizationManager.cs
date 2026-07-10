@@ -186,15 +186,17 @@ namespace GOI.Helpers
         public string AboutDesc1 => S("本软件为完全免费开源项目，专为高效、静默部署各类常用办公套件设计。",
                                        "本軟體為完全免費開源專案，專為高效、靜默部署各類常用辦公套件設計。",
                                        "This software is a completely free open-source project for efficient, silent deployment of common office suites.");
-        public string AboutDesc2 => S("版权所有 © 2025-2026 GlimStudio。仅供网络技术学习与环境部署研究使用。",
-                                       "版權所有 © 2025-2026 GlimStudio。僅供網路技術學習與環境部署研究使用。",
-                                       "Copyright © 2025-2026 GlimStudio. For educational and deployment research purposes only.");
+        public string AboutDesc2 => S("版权所有 © 2025-2026 OSBoxTeam ＆ Glim。仅供网络技术学习与环境部署研究使用。",
+                                       "版權所有 © 2025-2026 OSBoxTeam ＆ Glim。僅供網路技術學習與環境部署研究使用。",
+                                       "Copyright © 2025-2026 OSBoxTeam ＆ Glim. For educational and deployment research purposes only.");
         public string AboutDialogDesc1 => S("本软件为完全免费开源项目，专为高效、静默部署各类常用办公套件设计。",
                                              "本軟體為完全免費開源專案，專為高效、靜默部署各類常用辦公套件設計。",
                                              "Free and open-source project for efficient, silent deployment of common office suites.");
-        public string AboutDialogDesc2 => S("版权所有 © 2025-2026 GlimStudio。保留所有权利。",
-                                             "版權所有 © 2025-2026 GlimStudio。保留所有權利。",
-                                             "Copyright © 2025-2026 GlimStudio. All rights reserved.");
+        public string AboutDialogDesc2 => S("版权所有 © 2025-2026 OSBoxTeam ＆ Glim。保留所有权利。",
+                                             "版權所有 © 2025-2026 OSBoxTeam ＆ Glim。保留所有權利。",
+                                             "Copyright © 2025-2026 OSBoxTeam ＆ Glim. All rights reserved.");
+        public string AboutAuthor => S("作者：WumiaoTech", "作者：WumiaoTech", "Author: WumiaoTech");
+
 
         // ===================== 非 MSO 办公套件页面文本 =====================
         public string Wps2023Desc => S("主版本号 12.1 (集成优化补丁版)", "主版本號 12.1 (整合優化補丁版)", "Version 12.1 (Optimized patch version)");
