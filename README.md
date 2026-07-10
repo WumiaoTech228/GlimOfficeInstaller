@@ -50,8 +50,8 @@ An elegant, modern, and Fluent 2.0 styled minimalist Office suite deployment uti
 
 1. 克隆本仓库到本地：
    ```bash
-   git clone https://github.com/yourusername/GOI.git
-   cd GOI
+   git clone https://github.com/WumiaoTech228/GlimOfficeInstaller.git
+   cd GlimOfficeInstaller
    ```
 2. 使用命令行进行 Release 构建：
    ```bash
