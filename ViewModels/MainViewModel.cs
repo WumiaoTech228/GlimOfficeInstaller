@@ -349,6 +349,8 @@ namespace GOI.ViewModels
 			}
 		}
 
+		public bool IsModernOfficeSupported => Environment.OSVersion.Version.Major >= 10;
+
 		public bool Office2024Selected => _currentVersion == OfficeVersion.Office2024 && !IsM365;
 
 		public bool M365Selected => IsM365;
@@ -787,6 +789,20 @@ namespace GOI.ViewModels
 
 		private async Task InstallAsync()
 		{
+			if (Environment.OSVersion.Version.Major < 10)
+			{
+				if (CurrentProductType == ProductType.LibreOffice)
+				{
+					await DialogService.ShowMessageAsync(Loc.DlgUnsupportedOsTitle, Loc.DlgUnsupportedOsMsg, Loc.BtnContinue);
+					return;
+				}
+				if (CurrentProductType == ProductType.MsOffice && _currentVersion != OfficeVersion.Office2016)
+				{
+					await DialogService.ShowMessageAsync(Loc.DlgUnsupportedOsTitle, Loc.DlgUnsupportedOsMsg, Loc.BtnContinue);
+					return;
+				}
+			}
+
 			if (_installCts != null)
 			{
 				try

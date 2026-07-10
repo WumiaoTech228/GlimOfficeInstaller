@@ -143,16 +143,16 @@
                         <TextBlock Text="{Binding Loc.SelectVersion}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" Margin="4,0,0,8"/>
                         
                         <!-- Office 2024 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2024Title}" Description="{Binding Loc.Office2024Desc}" IsSelected="{Binding Office2024Selected}" Command="{Binding SelectOffice2024Command}"/>
+                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2024Title}" Description="{Binding Loc.Office2024Desc}" IsSelected="{Binding Office2024Selected}" Command="{Binding SelectOffice2024Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
 
                         <!-- Microsoft 365 -->
-                        <views:VersionCard IconGlyph="&#xE753;" Title="{Binding Loc.M365Title}" Description="{Binding Loc.M365Desc}" IsSelected="{Binding M365Selected}" Command="{Binding SelectM365Command}"/>
+                        <views:VersionCard IconGlyph="&#xE753;" Title="{Binding Loc.M365Title}" Description="{Binding Loc.M365Desc}" IsSelected="{Binding M365Selected}" Command="{Binding SelectM365Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
 
                         <!-- Office 2021 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2021Title}" Description="{Binding Loc.Office2021Desc}" IsSelected="{Binding Office2021Selected}" Command="{Binding SelectOffice2021Command}"/>
+                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2021Title}" Description="{Binding Loc.Office2021Desc}" IsSelected="{Binding Office2021Selected}" Command="{Binding SelectOffice2021Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
 
                         <!-- Office 2019 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2019Title}" Description="{Binding Loc.Office2019Desc}" IsSelected="{Binding Office2019Selected}" Command="{Binding SelectOffice2019Command}"/>
+                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2019Title}" Description="{Binding Loc.Office2019Desc}" IsSelected="{Binding Office2019Selected}" Command="{Binding SelectOffice2019Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
 
                         <!-- Office 2016 -->
                         <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2016Title}" Description="{Binding Loc.Office2016Desc}" IsSelected="{Binding Office2016Selected}" Command="{Binding SelectOffice2016Command}"/>
@@ -442,7 +442,7 @@
                         <TextBlock Text="{Binding Loc.SelectVersion}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" Margin="4,0,0,8"/>
                         
                         <!-- LibreOffice Card -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.LibreOfficeTitle}" Description="{Binding Loc.LibreOfficeDesc}" IsSelected="True" Command="{Binding SelectLibreOfficeStableCommand}"/>
+                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.LibreOfficeTitle}" Description="{Binding Loc.LibreOfficeDesc}" IsSelected="True" Command="{Binding SelectLibreOfficeStableCommand}" IsEnabled="{Binding IsModernOfficeSupported}"/>
 
                         <!-- Subtitle -->
                         <TextBlock Text="{Binding Loc.DeployAndParams}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Left" Margin="4,18,0,8"/>

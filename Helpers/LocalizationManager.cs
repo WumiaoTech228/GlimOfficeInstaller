@@ -52,6 +52,20 @@ namespace GOI.Helpers
             _ => en
         };
 
+        private string AppendOsWarning(string desc)
+        {
+            if (System.Environment.OSVersion.Version.Major < 10)
+            {
+                return desc + (Detected switch
+                {
+                    AppLanguage.TraditionalChinese => " (需要 Win10+)",
+                    AppLanguage.English => " (Requires Win10+)",
+                    _ => " (需要 Win10+)"
+                });
+            }
+            return desc;
+        }
+
         // ===================== 通用 =====================
         public string AppTitle => "Glim Office Installer";
         public string AppVersion
@@ -93,13 +107,13 @@ namespace GOI.Helpers
 
         // 版本卡片
         public string Office2024Title => "Office 2024";
-        public string Office2024Desc => S("最新功能 · 持续更新 (零售版)", "最新功能 · 持續更新 (零售版)", "Latest features · Continuous updates (Retail)");
+        public string Office2024Desc => AppendOsWarning(S("最新功能 · 持续更新 (零售版)", "最新功能 · 持續更新 (零售版)", "Latest features · Continuous updates (Retail)"));
         public string M365Title => "Microsoft 365";
-        public string M365Desc => S("云端同步 · 订阅服务 (个人/家庭版)", "雲端同步 · 訂閱服務 (個人/家庭版)", "Cloud sync · Subscription (Personal/Family)");
+        public string M365Desc => AppendOsWarning(S("云端同步 · 订阅服务 (个人/家庭版)", "雲端同步 · 訂閱服務 (個人/家庭版)", "Cloud sync · Subscription (Personal/Family)"));
         public string Office2021Title => "Office 2021";
-        public string Office2021Desc => S("经典版本 · 永久授权 (零售版)", "經典版本 · 永久授權 (零售版)", "Classic · Perpetual license (Retail)");
+        public string Office2021Desc => AppendOsWarning(S("经典版本 · 永久授权 (零售版)", "經典版本 · 永久授權 (零售版)", "Classic · Perpetual license (Retail)"));
         public string Office2019Title => "Office 2019";
-        public string Office2019Desc => S("广泛兼容 · 稳定可靠 (零售版)", "廣泛相容 · 穩定可靠 (零售版)", "Broad compatibility · Reliable (Retail)");
+        public string Office2019Desc => AppendOsWarning(S("广泛兼容 · 稳定可靠 (零售版)", "廣泛相容 · 穩定可靠 (零售版)", "Broad compatibility · Reliable (Retail)"));
         public string Office2016Title => "Office 2016";
         public string Office2016Desc => S("旧版兼容 · 极速轻量 (零售版)", "舊版相容 · 極速輕量 (零售版)", "Legacy compat · Lightweight (Retail)");
 
@@ -163,7 +177,7 @@ namespace GOI.Helpers
 
         // ===================== LibreOffice 页 =====================
         public string LibreOfficeTitle => "LibreOffice";
-        public string LibreOfficeDesc => S("稳定版 26.2.4 (中科大镜像源)", "穩定版 26.2.4 (中科大鏡像源)", "Stable 26.2.4 (USTC Mirror Source)");
+        public string LibreOfficeDesc => AppendOsWarning(S("稳定版 26.2.4 (中科大镜像源)", "穩定版 26.2.4 (中科大鏡像源)", "Stable 26.2.4 (USTC Mirror Source)"));
         public string LibreOfficeFeat1Title => S("标准开放文档格式支持", "標準開放文件格式支援", "Standard OpenDocument Format Support");
         public string LibreOfficeFeat1Desc => S("由 Document Foundation 维护，提供对 ODF 国际标准文档格式 (ODT/ODS/ODP) 的完整支持", "由 Document Foundation 維護，提供對 ODF 國際標準文件格式 (ODT/ODS/ODP) 的完整支援", "Maintained by The Document Foundation, providing full support for international ODF standard formats (ODT/ODS/ODP)");
         public string LibreOfficeFeat2Title => S("国内高校镜像源加速", "國內高校鏡像源加速", "Domestic University Mirror Acceleration");

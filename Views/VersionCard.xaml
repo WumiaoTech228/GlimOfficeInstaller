@@ -6,6 +6,16 @@
              mc:Ignorable="d" 
              x:Name="self"
              d:DesignHeight="60" d:DesignWidth="300">
+    <UserControl.Style>
+        <Style TargetType="UserControl">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.45"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
+
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
     </UserControl.Resources>
