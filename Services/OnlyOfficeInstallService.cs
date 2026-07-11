@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using GOI.Helpers;
@@ -9,9 +8,8 @@ using GOI.Models;
 
 namespace GOI.Services
 {
-    public class OnlyOfficeInstallService
+    public class OnlyOfficeInstallService : InstallServiceBase
     {
-        private const string OnlyOfficeUrl = "https://download.onlyoffice.com/install/desktop/editors/windows/distrib/onlyoffice/DesktopEditors_x64.exe";
         private const string OnlyOfficeFileName = "OnlyOffice_Setup.exe";
 
         /// <summary>下载并静默安装 OnlyOffice，以伪进度条报告进度</summary>
@@ -22,6 +20,7 @@ namespace GOI.Services
             CancellationToken ct = default)
         {
             string localPath = Path.Combine(AppConfig.RootPath, OnlyOfficeFileName);
+            string url = UrlConfigHelper.OnlyOfficeUrl;
 
             // ── 阶段 1：下载 ──
             phaseProgress?.Report(InstallPhase.Downloading);
@@ -33,13 +32,13 @@ namespace GOI.Services
                 {
                     progressPercent?.Report(pct / 2); // 下载占 0-50%
                 });
-                await downloader.DownloadAsync(OnlyOfficeUrl, localPath, downloadProgress, 8, ct);
+                await downloader.DownloadAsync(url, localPath, downloadProgress, 8, ct);
             }
             catch (Exception ex)
             {
                 Logger.Error("下载 OnlyOffice 失败", ex);
                 phaseText.Report(LocalizationStrings.Instance.ErrDownloadFailedWithMsg);
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in OnlyOfficeInstallService.cs at UnknownMethod", ex_captured); }
+                SafeDeleteFile(localPath);
                 return false;
             }
 
@@ -83,7 +82,7 @@ namespace GOI.Services
                             else
                             {
                                 phaseText.Report(LocalizationStrings.Instance.ErrInstallerAbortedWithCode("OnlyOffice", proc.ExitCode));
-                                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in OnlyOfficeInstallService.cs at UnknownMethod", ex_captured); }
+                                SafeDeleteFile(localPath);
                                 return false;
                             }
                         }
@@ -94,27 +93,15 @@ namespace GOI.Services
                 phaseText.Report(LocalizationStrings.Instance.StatusProductInstalled("OnlyOffice"));
 
                 // 清理安装包
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in OnlyOfficeInstallService.cs at UnknownMethod", ex_captured); }
+                SafeDeleteFile(localPath);
                 return true;
             }
             catch (Exception ex)
             {
                 Logger.Error("OnlyOffice 安装失败", ex);
                 phaseText.Report(LocalizationStrings.Instance.StatusProductInstallFailed("OnlyOffice", ex.Message));
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in OnlyOfficeInstallService.cs at UnknownMethod", ex_captured); }
+                SafeDeleteFile(localPath);
                 return false;
-            }
-        }
-
-        private static async Task FakeProgressAsync(
-            IProgress<int> progress, int from, int to, int durationMs, CancellationToken ct)
-        {
-            int steps = to - from;
-            int intervalMs = steps > 0 ? durationMs / steps : durationMs;
-            for (int i = from; i <= to && !ct.IsCancellationRequested; i++)
-            {
-                progress?.Report(i);
-                await Task.Delay(intervalMs, ct).ContinueWith(_ => { });
             }
         }
     }

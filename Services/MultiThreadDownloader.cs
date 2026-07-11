@@ -31,7 +31,10 @@ namespace GOI.Services
             {
                 handler.UseProxy = true;
             }
-            catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs static constructor", ex_captured); }
+            catch (Exception ex)
+            {
+                Logger.Warn("配置 HttpClient 代理失败: " + ex.Message);
+            }
             _httpClient = new HttpClient(handler);
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
             _httpClient.Timeout = TimeSpan.FromSeconds(60);
@@ -266,7 +269,17 @@ namespace GOI.Services
             }
             finally
             {
-                try { if (File.Exists(zipPath)) File.Delete(zipPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs at GetOrDownloadAria2Async finally", ex_captured); }
+                try
+                {
+                    if (File.Exists(zipPath))
+                    {
+                        File.Delete(zipPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("清理 aria2c zip 包失败: " + ex.Message);
+                }
             }
         }
 
@@ -306,7 +319,17 @@ namespace GOI.Services
             {
                 proc.Start();
 
-                using (ct.Register(() => { try { proc.Kill(); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in MultiThreadDownloader.cs at DownloadWithAria2Async cancel registration", ex_captured); } }))
+                using (ct.Register(() => 
+                { 
+                    try 
+                    { 
+                        proc.Kill(); 
+                    } 
+                    catch (Exception ex) 
+                    { 
+                        Logger.Warn("取消下载终止进程失败: " + ex.Message); 
+                    } 
+                }))
                 {
                     var reader = proc.StandardOutput;
                     while (!reader.EndOfStream)

@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using GOI.Helpers;
@@ -9,21 +8,33 @@ using GOI.Models;
 
 namespace GOI.Services
 {
-    public class WpsInstallService
+    public class WpsInstallService : InstallServiceBase
     {
-        private static readonly string[] WpsUrls =
+        private static string GetWpsUrl(WpsVersion version)
         {
-            /* 2013 */ "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2013.exe",
-            /* 2016 */ "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2016.exe",
-            /* 2019 */ "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2019.exe",
-            /* 2023 */ "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2023.exe",
-            /* 最新版(官方) */ "https://official-package.wpscdn.cn/wps/download/WPS_Setup_26899.exe"
-        };
+            return version switch
+            {
+                WpsVersion.Wps2013 => UrlConfigHelper.Wps2013Url,
+                WpsVersion.Wps2016 => UrlConfigHelper.Wps2016Url,
+                WpsVersion.Wps2019 => UrlConfigHelper.Wps2019Url,
+                WpsVersion.Wps2023 => UrlConfigHelper.Wps2023Url,
+                WpsVersion.WpsLatest => UrlConfigHelper.WpsLatestUrl,
+                _ => throw new ArgumentOutOfRangeException(nameof(version))
+            };
+        }
 
-        private static readonly string[] WpsFileNames =
+        private static string GetWpsFileName(WpsVersion version)
         {
-            "WPS2013.exe", "WPS2016.exe", "WPS2019.exe", "WPS2023.exe", "WPS_Setup_26899.exe"
-        };
+            return version switch
+            {
+                WpsVersion.Wps2013 => "WPS2013.exe",
+                WpsVersion.Wps2016 => "WPS2016.exe",
+                WpsVersion.Wps2019 => "WPS2019.exe",
+                WpsVersion.Wps2023 => "WPS2023.exe",
+                WpsVersion.WpsLatest => "Wps_Setup_Latest.exe",
+                _ => "Wps_Setup.exe"
+            };
+        }
 
         /// <summary>下载并静默安装 WPS，以伪进度条报告进度</summary>
         public async Task<bool> InstallAsync(
@@ -33,9 +44,8 @@ namespace GOI.Services
             IProgress<InstallPhase> phaseProgress,
             CancellationToken ct = default)
         {
-            int idx = (int)version;
-            string url = WpsUrls[idx];
-            string fileName = WpsFileNames[idx];
+            string url = GetWpsUrl(version);
+            string fileName = GetWpsFileName(version);
             string localPath = Path.Combine(AppConfig.RootPath, fileName);
 
             // ── 阶段 1：下载 ──
@@ -54,7 +64,7 @@ namespace GOI.Services
             {
                 Logger.Error("下载 WPS 失败", ex);
                 phaseText.Report(LocalizationStrings.Instance.ErrDownloadFailedWithMsg);
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in WpsInstallService.cs at UnknownMethod", ex_captured); }
+                SafeDeleteFile(localPath);
                 return false;
             }
 
@@ -91,7 +101,7 @@ namespace GOI.Services
                         }
                         await Task.Run(() => proc.WaitForExit(), ct);
                         Logger.Info($"WPS 安装退出码: {proc.ExitCode}");
- 
+  
                         ctsFake.Cancel();
                         
                         if (proc.ExitCode != 0)
@@ -104,39 +114,26 @@ namespace GOI.Services
                             else
                             {
                                 phaseText.Report(LocalizationStrings.Instance.ErrInstallerAbortedWithCode("WPS", proc.ExitCode));
-                                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in WpsInstallService.cs at UnknownMethod", ex_captured); }
+                                SafeDeleteFile(localPath);
                                 return false;
                             }
                         }
                     }
                 }
- 
+  
                 progressPercent?.Report(100);
                 phaseText.Report(LocalizationStrings.Instance.StatusProductInstalled($"WPS {GetVersionLabel(version)}"));
- 
+  
                 // 清理安装包
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in WpsInstallService.cs at UnknownMethod", ex_captured); }
+                SafeDeleteFile(localPath);
                 return true;
             }
             catch (Exception ex)
             {
                 Logger.Error("WPS 安装失败", ex);
                 phaseText.Report(LocalizationStrings.Instance.StatusProductInstallFailed("WPS", ex.Message));
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in WpsInstallService.cs at UnknownMethod", ex_captured); }
+                SafeDeleteFile(localPath);
                 return false;
-            }
-        }
-
-        /// <summary>在指定时间内将进度从 from 匀速推进到 to，可被取消</summary>
-        private static async Task FakeProgressAsync(
-            IProgress<int> progress, int from, int to, int durationMs, CancellationToken ct)
-        {
-            int steps = to - from;
-            int intervalMs = steps > 0 ? durationMs / steps : durationMs;
-            for (int i = from; i <= to && !ct.IsCancellationRequested; i++)
-            {
-                progress?.Report(i);
-                await Task.Delay(intervalMs, ct).ContinueWith(_ => { }); // 忽略取消异常
             }
         }
 

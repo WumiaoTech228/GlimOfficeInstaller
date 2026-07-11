@@ -1,22 +1,18 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using GOI.Helpers;
 using GOI.Models;
 using System.Windows;
-using SharpCompress.Archives;
-using SharpCompress.Common;
 using SharpCompress.Readers;
+using SharpCompress.Common;
 
 namespace GOI.Services
 {
-    public class YozoInstallService
+    public class YozoInstallService : InstallServiceBase
     {
-        private const string YozoUrl = "https://dl.yozosoft.com/yozo/project/file/20251224_131531_158622/9.0.6589.101ZH.S1.rar";
         private const string YozoFileName = "YozoOffice_Setup.rar";
 
         /// <summary>下载并静默安装永中Office，以伪进度条报告进度</summary>
@@ -28,6 +24,7 @@ namespace GOI.Services
         {
             string localPath = Path.Combine(AppConfig.RootPath, YozoFileName);
             string extractPath = Path.Combine(AppConfig.RootPath, "YozoExtract");
+            string url = UrlConfigHelper.YozoUrl;
 
             // ── 阶段 1：下载 ──
             phaseProgress?.Report(InstallPhase.Downloading);
@@ -39,13 +36,13 @@ namespace GOI.Services
                 {
                     progressPercent?.Report(pct / 2); // 下载占 0-50%
                 });
-                await downloader.DownloadAsync(YozoUrl, localPath, downloadProgress, 8, ct);
+                await downloader.DownloadAsync(url, localPath, downloadProgress, 8, ct);
             }
             catch (Exception ex)
             {
                 Logger.Error("下载 永中Office 失败", ex);
                 phaseText.Report(LocalizationStrings.Instance.ErrDownloadFailedWithMsg);
-                try { if (File.Exists(localPath)) File.Delete(localPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in YozoInstallService.cs at UnknownMethod", ex_captured); }
+                CleanTempFiles(localPath, extractPath);
                 return false;
             }
 
@@ -175,20 +172,8 @@ namespace GOI.Services
 
         private static void CleanTempFiles(string rarPath, string extractDir)
         {
-            try { if (File.Exists(rarPath)) File.Delete(rarPath); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in YozoInstallService.cs at UnknownMethod", ex_captured); }
-            try { if (Directory.Exists(extractDir)) Directory.Delete(extractDir, true); } catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in YozoInstallService.cs at UnknownMethod", ex_captured); }
-        }
-
-        private static async Task FakeProgressAsync(
-            IProgress<int> progress, int from, int to, int durationMs, CancellationToken ct)
-        {
-            int steps = to - from;
-            int intervalMs = steps > 0 ? durationMs / steps : durationMs;
-            for (int i = from; i <= to && !ct.IsCancellationRequested; i++)
-            {
-                progress?.Report(i);
-                await Task.Delay(intervalMs, ct).ContinueWith(_ => { });
-            }
+            SafeDeleteFile(rarPath);
+            SafeDeleteDirectory(extractDir);
         }
     }
 }

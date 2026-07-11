@@ -16,6 +16,7 @@ namespace GOI
                 (System.Net.SecurityProtocolType)12288; // TLS 1.3
             
             Helpers.AppConfig.Initialize();
+            _ = Helpers.UrlConfigHelper.SyncAsync();
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -27,7 +28,10 @@ namespace GOI
                     System.IO.Directory.Delete(Helpers.AppConfig.RootPath, true);
                 }
             }
-            catch (Exception ex_captured) { GOI.Helpers.Logger.Error("Silent exception in App.xaml.cs at UnknownMethod", ex_captured); }
+            catch (Exception ex)
+            {
+                Helpers.Logger.Warn("退出清理临时目录失败: " + ex.Message);
+            }
             base.OnExit(e);
         }
     }
