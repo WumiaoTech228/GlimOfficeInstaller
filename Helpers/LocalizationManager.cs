@@ -230,7 +230,7 @@ namespace GOI.Helpers
 
         // ===================== LibreOffice 页 =====================
         public string LibreOfficeTitle => "LibreOffice";
-        public string LibreOfficeDesc => AppendLibreOfficeWarning(S("稳定版 26.2.4 (中科大镜像源)", "穩定版 26.2.4 (中科大鏡像源)", "Stable 26.2.4 (USTC Mirror Source)"));
+        public string LibreOfficeDesc => AppendLibreOfficeWarning(S($"稳定版 {UrlConfigHelper.LibreOfficeVersionLabel} (中科大镜像源)", $"穩定版 {UrlConfigHelper.LibreOfficeVersionLabel} (中科大鏡像源)", $"Stable {UrlConfigHelper.LibreOfficeVersionLabel} (USTC Mirror Source)"));
         public string LibreOfficeFeat1Title => S("标准开放文档格式支持", "標準開放文件格式支援", "Standard OpenDocument Format Support");
         public string LibreOfficeFeat1Desc => S("由 Document Foundation 维护，提供对 ODF 国际标准文档格式 (ODT/ODS/ODP) 的完整支持", "由 Document Foundation 維護，提供對 ODF 國際標準文件格式 (ODT/ODS/ODP) 的完整支援", "Maintained by The Document Foundation, providing full support for international ODF standard formats (ODT/ODS/ODP)");
         public string LibreOfficeFeat2Title => S("国内高校镜像源加速", "國內高校鏡像源加速", "Domestic University Mirror Acceleration");

@@ -4,7 +4,12 @@
   "Wps2019Url": "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2019.exe",
   "Wps2023Url": "https://share.osbox.top/d/CloudService/WPS%20Pro/WPSPRO2023.exe",
   "WpsLatestUrl": "https://official-package.wpscdn.cn/wps/download/WPS_Setup_26899.exe",
-  "LibreOfficeUrl": "https://download.documentfoundation.org/libreoffice/stable/26.2.4/win/x86_64/LibreOffice_26.2.4_Win_x86-64.msi",
+  "LibreOfficeUrl": "https://mirrors.ustc.edu.cn/tdf/libreoffice/stable/26.2.4/win/x86_64/LibreOffice_26.2.4_Win_x86-64.msi",
   "OnlyOfficeUrl": "https://download.onlyoffice.com/install/desktop/editors/windows/distrib/onlyoffice/DesktopEditors_x64.exe",
-  "YozoUrl": "https://dl.yozosoft.com/yozo/project/file/20251224_131531_158622/9.0.6589.101ZH.S1.rar"
+  "YozoUrl": "https://dl.yozosoft.com/yozo/project/file/20251224_131531_158622/9.0.6589.101ZH.S1.rar",
+
+  "WpsLatestVersionLabel": "最新版",
+  "LibreOfficeVersionLabel": "26.2.4",
+  "OnlyOfficeVersionLabel": "最新版",
+  "YozoVersionLabel": "9.0.6589"
 }

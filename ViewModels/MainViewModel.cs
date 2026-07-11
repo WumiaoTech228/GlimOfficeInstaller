@@ -651,6 +651,16 @@ namespace GOI.ViewModels
 		private ICommand _openLogFolderCommand;
 		public ICommand OpenLogFolderCommand => _openLogFolderCommand ??= new RelayCommand(OpenLogFolder);
 
+		private ICommand _cancelInstallCommand;
+		public ICommand CancelInstallCommand => _cancelInstallCommand ??= new RelayCommand(() =>
+		{
+			if (_installCts != null)
+			{
+				_installCts.Cancel();
+				Logger.Info("用户触发了取消安装/部署。");
+			}
+		});
+
 		private ICommand _installCommand;
 		public ICommand InstallCommand => _installCommand ??= new RelayCommand(async delegate
 		{
@@ -712,6 +722,14 @@ namespace GOI.ViewModels
 			}
 			RefreshInstalledVersion();
 			StatusText = Loc.StatusReady;
+
+			UrlConfigHelper.SyncCompleted += () =>
+			{
+				System.Windows.Application.Current?.Dispatcher?.Invoke(() =>
+				{
+					OnPropertyChanged("Loc");
+				});
+			};
 		}
 
 		public void RefreshInstalledVersion()
@@ -907,6 +925,20 @@ namespace GOI.ViewModels
 				else
 				{
 					await DialogService.HandleFailureAsync(Loc.DlgDeployFailTitle, Loc.DlgDeployFailMsg);
+				}
+				RefreshInstalledVersion();
+			}
+			catch (Exception ex)
+			{
+				Logger.Error("部署过程中捕获到异常", ex);
+				Phase = InstallPhase.Failed;
+				StatusText = (ex is OperationCanceledException || ex.InnerException is OperationCanceledException) 
+					? Loc.StatusDeploymentCancelled 
+					: Loc.StatusDeployFail;
+				IsProgressVisible = false;
+				if (!(ex is OperationCanceledException) && !(ex.InnerException is OperationCanceledException))
+				{
+					await DialogService.HandleFailureAsync(Loc.DlgDeployFailTitle, ex.Message);
 				}
 				RefreshInstalledVersion();
 			}

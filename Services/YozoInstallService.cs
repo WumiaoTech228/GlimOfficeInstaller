@@ -116,11 +116,12 @@ namespace GOI.Services
                 }
 
                 // 弹出提示框告知用户官方暂不支持静默安装，需要人工交互安装
-                MessageBox.Show(
-                    LocalizationStrings.Instance.DlgConfirmYozoMsg,
-                    LocalizationStrings.Instance.DlgConfirmYozoTitle,
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                await Application.Current.Dispatcher.Invoke(async () =>
+                {
+                    await DialogService.ShowMessageAsync(
+                        LocalizationStrings.Instance.DlgConfirmYozoTitle,
+                        LocalizationStrings.Instance.DlgConfirmYozoMsg);
+                });
 
                 Logger.Info($"找到永中安装程序: {installExe}，开始引导交互式安装...");
                 var psi = new ProcessStartInfo(installExe)

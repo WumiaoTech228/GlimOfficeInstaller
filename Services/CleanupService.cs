@@ -64,22 +64,22 @@ namespace GOI.Services
                 count++;
             }
 
-            // 3. 清理注册表
+            // 4. 清理注册表
             progress?.Report(LocalizationStrings.Instance.StatusCleanRegistry);
             await Task.Run(() => RegistryHelper.CleanRegistryKeys(product));
             count++;
 
-            // 4. 清理卸载项
+            // 5. 清理卸载项
             progress?.Report(LocalizationStrings.Instance.StatusCleanUninstallEntries);
             await Task.Run(() => RegistryHelper.CleanUninstallEntries(product));
             count++;
 
-            // 5. 删除残留文件
+            // 6. 删除残留文件
             progress?.Report(LocalizationStrings.Instance.StatusCleanResidualFiles);
             await Task.Run(() => RegistryHelper.CleanResidualFolders(product));
             count++;
 
-            // 6. 清理快捷方式和文件关联并恢复已有的 Microsoft Office 关联
+            // 7. 清理快捷方式和文件关联并恢复已有的 Microsoft Office 关联
             progress?.Report(LocalizationStrings.Instance.StatusCleanAssociations);
             await Task.Run(() =>
             {

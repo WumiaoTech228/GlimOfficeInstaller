@@ -378,7 +378,7 @@ try {
                     return result;
                 }
 
-                progress?.Report("正在探测已安装 of Office 版本...");
+                progress?.Report("正在探测已安装的 Office 版本...");
 
                 var installations = OhookPathResolver.FindAllInstallations();
                 if (installations.Count == 0)
@@ -543,7 +543,7 @@ try {
                     return result;
                 }
 
-                progress?.Report("正在探测已安装 of Office 版本...");
+                progress?.Report("正在探测已安装的 Office 版本...");
 
                 var installations = OhookPathResolver.FindAllInstallations();
                 if (installations.Count == 0)

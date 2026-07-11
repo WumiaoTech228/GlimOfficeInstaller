@@ -198,7 +198,7 @@
                                     <TextBlock Text="{Binding Loc.LabelLanguageDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 </StackPanel>
                                 <ComboBox Grid.Column="2" Width="180" VerticalAlignment="Center" 
-                                          IsEditable="True"
+                                          IsEditable="False"
                                           Text="{Binding SelectedOfficeLanguage, Mode=TwoWay}">
                                     <ComboBoxItem Content="zh-cn (简体中文)"/>
                                     <ComboBoxItem Content="zh-tw (繁體中文)"/>
@@ -781,13 +781,20 @@
                 </Grid>
             </ScrollViewer>
 
-                <!-- ROW 2: Common Progress Info -->
                 <StackPanel Grid.Row="2" Margin="0,10,28,10" Visibility="{Binding IsProgressVisible, Converter={StaticResource BoolToVisibility}}">
                     <ProgressBar Height="4" Minimum="0" Maximum="100"
                                  Value="{Binding DownloadProgress}"
                                  IsIndeterminate="{Binding IsProgressIndeterminate}"/>
-                    <TextBlock Text="{Binding StatusText}" Style="{StaticResource BodyTextBlockStyle}" FontSize="12"
-                               Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" HorizontalAlignment="Left" Margin="4,6,0,0"/>
+                    <Grid Margin="4,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding StatusText}" Style="{StaticResource BodyTextBlockStyle}" FontSize="12"
+                                   Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Content="{Binding Loc.BtnCancel}" Command="{Binding CancelInstallCommand}"
+                                Height="24" Padding="8,2" FontSize="11" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </Grid>
                 </StackPanel>
 
                 <!-- ROW 3: Common Action Buttons -->
