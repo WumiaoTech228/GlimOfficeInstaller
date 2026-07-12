@@ -143,19 +143,19 @@
                         <TextBlock Text="{Binding Loc.SelectVersion}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" Margin="4,0,0,8"/>
                         
                         <!-- Office 2024 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2024Title}" Description="{Binding Loc.Office2024Desc}" IsSelected="{Binding Office2024Selected}" Command="{Binding SelectOffice2024Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
+                        <views:VersionCard IconGlyph="&#xE719;" Title="{Binding Loc.Office2024Title}" Description="{Binding Loc.Office2024Desc}" IsSelected="{Binding Office2024Selected}" Command="{Binding SelectOffice2024Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
 
                         <!-- Microsoft 365 -->
                         <views:VersionCard IconGlyph="&#xE753;" Title="{Binding Loc.M365Title}" Description="{Binding Loc.M365Desc}" IsSelected="{Binding M365Selected}" Command="{Binding SelectM365Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
 
                         <!-- Office 2021 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2021Title}" Description="{Binding Loc.Office2021Desc}" IsSelected="{Binding Office2021Selected}" Command="{Binding SelectOffice2021Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
+                        <views:VersionCard IconGlyph="&#xE719;" Title="{Binding Loc.Office2021Title}" Description="{Binding Loc.Office2021Desc}" IsSelected="{Binding Office2021Selected}" Command="{Binding SelectOffice2021Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
 
                         <!-- Office 2019 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2019Title}" Description="{Binding Loc.Office2019Desc}" IsSelected="{Binding Office2019Selected}" Command="{Binding SelectOffice2019Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
+                        <views:VersionCard IconGlyph="&#xE719;" Title="{Binding Loc.Office2019Title}" Description="{Binding Loc.Office2019Desc}" IsSelected="{Binding Office2019Selected}" Command="{Binding SelectOffice2019Command}" IsEnabled="{Binding IsModernOfficeSupported}"/>
 
                         <!-- Office 2016 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Office2016Title}" Description="{Binding Loc.Office2016Desc}" IsSelected="{Binding Office2016Selected}" Command="{Binding SelectOffice2016Command}"/>
+                        <views:VersionCard IconGlyph="&#xE719;" Title="{Binding Loc.Office2016Title}" Description="{Binding Loc.Office2016Desc}" IsSelected="{Binding Office2016Selected}" Command="{Binding SelectOffice2016Command}"/>
 
                         <!-- Advanced Options -->
                         <TextBlock Text="{Binding Loc.AdvancedOptions}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Left" Margin="4,18,0,8"/>
@@ -168,7 +168,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE8B6;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xE72C;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.LabelUpdateChannel}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.LabelUpdateChannelDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -237,7 +237,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE950;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xE9E9;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.LabelBitness}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.LabelBitnessDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -258,7 +258,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE8A5;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xE943;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.SettingsExportXmlTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.SettingsExportXmlDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -293,19 +293,19 @@
                         <TextBlock Text="{Binding Loc.SelectVersion}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" Margin="4,0,0,8"/>
                         
                         <!-- WPS Latest -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.WpsLatestTitle}" Description="{Binding Loc.WpsLatestDesc}" IsSelected="{Binding WpsLatestSelected}" Command="{Binding SelectWpsLatestCommand}"/>
+                        <views:VersionCard IconGlyph="&#xE8F1;" Title="{Binding Loc.WpsLatestTitle}" Description="{Binding Loc.WpsLatestDesc}" IsSelected="{Binding WpsLatestSelected}" Command="{Binding SelectWpsLatestCommand}"/>
 
                         <!-- WPS 2023 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Wps2023Title}" Description="{Binding Loc.Wps2023Desc}" IsSelected="{Binding Wps2023Selected}" Command="{Binding SelectWps2023Command}"/>
+                        <views:VersionCard IconGlyph="&#xE8F1;" Title="{Binding Loc.Wps2023Title}" Description="{Binding Loc.Wps2023Desc}" IsSelected="{Binding Wps2023Selected}" Command="{Binding SelectWps2023Command}"/>
 
                         <!-- WPS 2019 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Wps2019Title}" Description="{Binding Loc.Wps2019Desc}" IsSelected="{Binding Wps2019Selected}" Command="{Binding SelectWps2019Command}"/>
+                        <views:VersionCard IconGlyph="&#xE8F1;" Title="{Binding Loc.Wps2019Title}" Description="{Binding Loc.Wps2019Desc}" IsSelected="{Binding Wps2019Selected}" Command="{Binding SelectWps2019Command}"/>
 
                         <!-- WPS 2016 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Wps2016Title}" Description="{Binding Loc.Wps2016Desc}" IsSelected="{Binding Wps2016Selected}" Command="{Binding SelectWps2016Command}"/>
+                        <views:VersionCard IconGlyph="&#xE8F1;" Title="{Binding Loc.Wps2016Title}" Description="{Binding Loc.Wps2016Desc}" IsSelected="{Binding Wps2016Selected}" Command="{Binding SelectWps2016Command}"/>
 
                         <!-- WPS 2013 -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.Wps2013Title}" Description="{Binding Loc.Wps2013Desc}" IsSelected="{Binding Wps2013Selected}" Command="{Binding SelectWps2013Command}"/>
+                        <views:VersionCard IconGlyph="&#xE8F1;" Title="{Binding Loc.Wps2013Title}" Description="{Binding Loc.Wps2013Desc}" IsSelected="{Binding Wps2013Selected}" Command="{Binding SelectWps2013Command}"/>
 
                         <!-- Subtitle -->
                         <TextBlock Text="{Binding Loc.DeployAndParams}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Left" Margin="4,18,0,8"/>
@@ -318,7 +318,7 @@
                                         <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE896;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="&#xEC15;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                         <TextBlock Text="{Binding Loc.WpsParam1Title}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Loc.WpsParam1Desc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -331,7 +331,7 @@
                                         <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE73A;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE71B;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                         <TextBlock Text="{Binding Loc.WpsParam2Title}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Loc.WpsParam2Desc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -344,7 +344,7 @@
                                         <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE74D;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="&#xEEA3;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                         <TextBlock Text="{Binding Loc.WpsParam3Title}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Loc.WpsParam3Desc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -359,7 +359,7 @@
                         <TextBlock Text="{Binding Loc.SelectVersion}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" Margin="4,0,0,8"/>
                         
                         <!-- Yozo Card -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.YozoTitle}" Description="{Binding Loc.YozoDesc}" IsSelected="True" Command="{Binding SelectYozoPersonalCommand}"/>
+                        <views:VersionCard IconGlyph="&#xE70F;" Title="{Binding Loc.YozoTitle}" Description="{Binding Loc.YozoDesc}" IsSelected="True" Command="{Binding SelectYozoPersonalCommand}"/>
 
                         <!-- Subtitle -->
                         <TextBlock Text="{Binding Loc.DeployAndParams}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Left" Margin="4,18,0,8"/>
@@ -372,7 +372,7 @@
                                         <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE8A5;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE7F7;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                         <TextBlock Text="{Binding Loc.YozoParam1Title}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Loc.YozoParam1Desc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -385,7 +385,7 @@
                                         <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE896;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE8D4;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                         <TextBlock Text="{Binding Loc.YozoParam2Title}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Loc.YozoParam2Desc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -400,7 +400,7 @@
                         <TextBlock Text="{Binding Loc.SelectVersion}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" Margin="4,0,0,8"/>
                         
                         <!-- OnlyOffice Card -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.OnlyOfficeTitle}" Description="{Binding Loc.OnlyOfficeDesc}" IsSelected="True" Command="{Binding SelectOnlyOfficeDesktopCommand}" IsEnabled="{Binding IsOnlyOfficeSupported}"/>
+                        <views:VersionCard IconGlyph="&#xE77B;" Title="{Binding Loc.OnlyOfficeTitle}" Description="{Binding Loc.OnlyOfficeDesc}" IsSelected="True" Command="{Binding SelectOnlyOfficeDesktopCommand}" IsEnabled="{Binding IsOnlyOfficeSupported}"/>
 
                         <!-- Subtitle -->
                         <TextBlock Text="{Binding Loc.DeployAndParams}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Left" Margin="4,18,0,8"/>
@@ -413,7 +413,7 @@
                                         <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE72C;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE716;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                         <TextBlock Text="{Binding Loc.OnlyOfficeParam1Title}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Loc.OnlyOfficeParam1Desc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -426,7 +426,7 @@
                                         <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE9A6;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE90A;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                         <TextBlock Text="{Binding Loc.OnlyOfficeParam2Title}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Loc.OnlyOfficeParam2Desc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -442,7 +442,7 @@
                         <TextBlock Text="{Binding Loc.SelectVersion}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" Margin="4,0,0,8"/>
                         
                         <!-- LibreOffice Card -->
-                        <views:VersionCard IconGlyph="&#xE7C3;" Title="{Binding Loc.LibreOfficeTitle}" Description="{Binding Loc.LibreOfficeDesc}" IsSelected="True" Command="{Binding SelectLibreOfficeStableCommand}" IsEnabled="{Binding IsLibreOfficeSupported}"/>
+                        <views:VersionCard IconGlyph="&#xE9C9;" Title="{Binding Loc.LibreOfficeTitle}" Description="{Binding Loc.LibreOfficeDesc}" IsSelected="True" Command="{Binding SelectLibreOfficeStableCommand}" IsEnabled="{Binding IsLibreOfficeSupported}"/>
 
                         <!-- Subtitle -->
                         <TextBlock Text="{Binding Loc.DeployAndParams}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Left" Margin="4,18,0,8"/>
@@ -455,7 +455,7 @@
                                         <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE9A1;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE9C9;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                         <TextBlock Text="{Binding Loc.LibreOfficeParam1Title}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Loc.LibreOfficeParam1Desc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -468,7 +468,7 @@
                                         <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xEC05;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE945;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                         <TextBlock Text="{Binding Loc.LibreOfficeParam2Title}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Loc.LibreOfficeParam2Desc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -566,7 +566,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE72D;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xE75C;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.SettingsClearLicenseTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.SettingsClearLicenseDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -586,7 +586,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE9AC;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xE785;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.SettingsOhookTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.SettingsOhookDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -627,7 +627,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xEC07;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xE72A;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.SettingsRefreshIconCacheTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.SettingsRefreshIconCacheDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -646,7 +646,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE815;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xE7E6;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.SettingsRepairAssociationsTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.SettingsRepairAssociationsDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -665,7 +665,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE90F;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xEA86;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.SettingsRepairCOMTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.SettingsRepairCOMDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -687,7 +687,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE8A5;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xE713;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.SettingsEnableExportXmlTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.SettingsEnableExportXmlDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -704,7 +704,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE8A5;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="&#xE943;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding Loc.SettingsExportXmlTitle}" Style="{StaticResource BodyTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Loc.SettingsExportXmlDesc}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{DynamicResource SystemControlPageTextBaseMediumBrush}" FontSize="12" Margin="0,2,0,0"/>
